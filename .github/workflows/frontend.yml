@@ -3,10 +3,10 @@ name: Frontend CI
 on:
   push:
     paths:
-      - 'frontend/**'
+      - 'apps/frontend/**'
   pull_request:
     paths:
-      - 'frontend/**'
+      - 'apps/frontend/**'
   workflow_dispatch: 
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./apps/frontend
 
     steps:
       - uses: actions/checkout@v4

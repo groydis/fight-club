@@ -3,10 +3,10 @@ name: Backend CI
 on:
   push:
     paths:
-      - 'backend/**'
+      - 'apps/backend/**'
   pull_request:
     paths:
-      - 'backend/**'
+      - 'apps/backend/**'
   workflow_dispatch:
 
 jobs:
