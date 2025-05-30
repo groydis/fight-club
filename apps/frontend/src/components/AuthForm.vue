@@ -2,11 +2,14 @@
   <div
     class="backdrop-blur-lg bg-gray-800/60 p-8 rounded-2xl shadow-2xl border border-gray-700/60 max-w-md w-full"
   >
-    <h2 class="text-2xl font-bold text-center text-white mb-6">
+    <h2 v-if="!signupPending" class="text-2xl font-bold text-center text-white mb-6">
       {{ mode === 'signup' ? 'Create an Account' : 'Welcome Back' }}
     </h2>
-    <client-only>
-    <form class="space-y-5" @submit.prevent="handleSubmit">
+    <div v-if="signupPending" class="text-center text-white">
+      <h2 class="text-2xl font-bold mb-4">Check Your Email</h2>
+      <p>We’ve sent a confirmation link to <strong>{{ email }}</strong>.<br>Click it to activate your account.</p>
+    </div>
+    <form v-else class="space-y-5" @submit.prevent="handleSubmit">
       <div>
         <label class="block text-sm text-gray-400 mb-1">Email</label>
         <input
@@ -36,7 +39,6 @@
         {{ mode === 'signup' ? 'Sign Up' : 'Log In' }}
       </button>
     </form>
-    </client-only>
     <p
       class="mt-4 text-sm text-center text-blue-400 hover:underline cursor-pointer"
       @click="toggleMode"
@@ -58,6 +60,8 @@ const email = ref('')
 const password = ref('')
 const errorMsg = ref('')
 const mode = ref<'signup' | 'login'>('login')
+const signupPending = ref(false)
+
 
 function toggleMode() {
   mode.value = mode.value === 'login' ? 'signup' : 'login'
@@ -91,11 +95,16 @@ const handleSubmit = async () => {
 
     console.log(`✅ ${mode.value === 'signup' ? 'Signed up' : 'Signed in'}:`, data)
 
-    // Redirect to dashboard
-    await router.push('/dashboard')
+    if (mode.value === 'signup' && data.user && data.session === null) {
+      signupPending.value = true
+      return
+    } else {
+      await router.push('/dashboard')
+    }
   } catch (err: any) {
     console.error("🔥 Unexpected error:", err)
     errorMsg.value = err.message || 'Something went wrong'
   }
 }
+
 </script>

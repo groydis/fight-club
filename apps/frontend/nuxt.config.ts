@@ -11,12 +11,12 @@ export default defineNuxtConfig({
     '@nuxt/test-utils',
   ],
   supabase: {
-url: process.env.NUXT_PUBLIC_SUPABASE_URL,
-  key: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
-  redirectOptions: {
-    login: '/auth',
-    callback: '/dashboard',
-  }
+    url: process.env.NUXT_PUBLIC_SUPABASE_URL,
+    key: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
+    redirectOptions: {
+      login: '/auth',
+      callback: '/dashboard',
+    }
   },
   srcDir: 'src/',
   runtimeConfig: {
