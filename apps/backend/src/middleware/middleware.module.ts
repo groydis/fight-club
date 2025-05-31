@@ -6,8 +6,11 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { SupabaseAuthMiddleware } from '../auth/supabase-auth.middleware';
+import { SupabaseModule } from '../supabase/supabase.module';
 
-@Module({})
+@Module({
+  imports: [SupabaseModule], // ✅ This is required so SupabaseService is available
+})
 export class MiddlewareModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
