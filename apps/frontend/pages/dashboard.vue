@@ -36,6 +36,12 @@
         </div>
       </section>
 
+      <section>
+        <div v-if="pending">Loading user info...</div>
+        <pre v-else-if="data">{{ data }}</pre>
+        <div v-else>Error fetching user</div>
+      </section>
+
       <footer class="text-center mt-12">
         <button
           class="text-xs text-gray-500 underline hover:text-red-500 transition tracking-wide"
@@ -54,6 +60,19 @@ const { auth } = useSupabaseClient()
 async function logout() {
   await auth.signOut()
   await navigateTo('/')
+}
+
+const supabase = useSupabaseClient();
+const { data: session } = await supabase.auth.getSession();
+
+if (!session?.session?.access_token) {
+  throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });
+}
+
+const { data, pending, error } = await useCustomFetch('/api/user')
+
+if (error.value) {
+  console.error('Failed to fetch user:', error.value)
 }
 </script>
 
