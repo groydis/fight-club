@@ -5,8 +5,8 @@ import {
   CanActivate,
 } from '@nestjs/common';
 import request from 'supertest';
-import { UserController } from './user.controller';
-import { AuthGuard } from '../common/guards/auth.guard';
+import { UserController } from '../user.controller';
+import { AuthGuard } from '../../common/guards/auth.guard';
 
 describe('UserController (integration)', () => {
   let app: INestApplication;

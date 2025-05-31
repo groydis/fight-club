@@ -5,9 +5,15 @@ import { AppService } from './app.service';
 import { SupabaseModule } from './supabase/supabase.module';
 import { SupabaseAuthMiddleware } from './auth/supabase-auth.middleware';
 import { UserModule } from './user/user.module';
+import { CharactersModule } from './characters/characers.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), SupabaseModule, UserModule],
+  imports: [
+    ConfigModule.forRoot(),
+    SupabaseModule,
+    UserModule,
+    CharactersModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
