@@ -37,14 +37,23 @@
       </section>
 
       <footer class="text-center mt-12">
-        <NuxtLink
-          to="/auth?view=login"
+        <button
           class="text-xs text-gray-500 underline hover:text-red-500 transition tracking-wide"
+          @click="logout"
         >
           Log out and disappear
-        </NuxtLink>
+        </button>
       </footer>
-
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+const { auth } = useSupabaseClient()
+
+async function logout() {
+  await auth.signOut()
+  await navigateTo('/')
+}
+</script>
+
