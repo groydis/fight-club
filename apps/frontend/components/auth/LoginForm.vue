@@ -46,11 +46,13 @@
 </template>
 
 <script setup lang="ts">
+const { showLoading, hideLoading } = useLoading()
 const form = reactive({ email: '', password: '' })
 
 const { auth } = useSupabaseClient()
 
 async function onSubmit() {
+  showLoading()
   try {
     const { error } = await auth.signInWithPassword({
       email: form.email,
@@ -67,6 +69,8 @@ async function onSubmit() {
     await navigateTo('/dashboard')
   } catch (e) {
     console.error('Login error:', e)
+  } finally {
+    hideLoading()
   }
 }
 </script>

@@ -33,10 +33,12 @@
 </template>
 
 <script setup lang="ts">
+const { showLoading, hideLoading } = useLoading()
 const form = reactive({ email: '' })
 const { auth } = useSupabaseClient()
 
 async function onSubmit() {
+  showLoading()
   try {
     const { error } = await auth.resetPasswordForEmail(form.email)
     if (error) {
@@ -46,6 +48,8 @@ async function onSubmit() {
     await navigateTo('/auth?view=verify-email')
   } catch (e) {
     console.error('Error sending reset password email:', e)
+  } finally {
+    hideLoading()
   }
 }
 </script>

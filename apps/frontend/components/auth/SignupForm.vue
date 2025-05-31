@@ -45,10 +45,12 @@
 </template>
 
 <script setup lang="ts">
+const { showLoading, hideLoading } = useLoading()
 const form = reactive({ email: '', password: '' })
 const { auth } = useSupabaseClient()
 
 async function onSubmit() {
+  showLoading()
   try {
     const { error } = await auth.signUp(form)
     if (error) {
@@ -57,6 +59,8 @@ async function onSubmit() {
     await navigateTo('/auth?view=verify-email')
   } catch (e) {
     console.error('Signup error:', e)
+  } finally {
+    hideLoading()
   }
 }
 </script>
