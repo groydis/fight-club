@@ -66,7 +66,7 @@ async function onSubmit() {
 
     await navigateTo('/dashboard')
   } catch (e) {
-    console.error(e)
+    console.error('Login error:', e)
   }
 }
 </script>

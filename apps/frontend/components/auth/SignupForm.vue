@@ -46,14 +46,17 @@
 
 <script setup lang="ts">
 const form = reactive({ email: '', password: '' })
-const { signup } = useSupabaseAuth()
+const { auth } = useSupabaseClient()
 
 async function onSubmit() {
   try {
-    await signup(form.email, form.password)
+    const { error } = await auth.signUp(form)
+    if (error) {
+      throw error
+    }
     await navigateTo('/auth?view=verify-email')
   } catch (e) {
-    console.error(e)
+    console.error('Signup error:', e)
   }
 }
 </script>

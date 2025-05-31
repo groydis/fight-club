@@ -34,13 +34,18 @@
 
 <script setup lang="ts">
 const form = reactive({ email: '' })
-const client = useSupabaseClient()
+const { auth } = useSupabaseClient()
 
 async function onSubmit() {
   try {
-    await client.auth.resetPasswordForEmail(form.email)
+    const { error } = await auth.resetPasswordForEmail(form.email)
+    if (error) {
+      throw error
+    }
+    // Todo: maybe add a custom page here:
+    await navigateTo('/auth?view=verify-email')
   } catch (e) {
-    console.error(e)
+    console.error('Error sending reset password email:', e)
   }
 }
 </script>
