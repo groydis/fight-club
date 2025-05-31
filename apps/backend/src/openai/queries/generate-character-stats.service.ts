@@ -1,6 +1,6 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ChatGptService } from '../openai.service';
-import { CharacterStats } from '../types/character-stats.type';
+import { CharacterStats } from '../types/character.types';
 import { generateCharacterStatsPrompt } from '../prompts/generate-character-stats.prompt';
 
 @Injectable()

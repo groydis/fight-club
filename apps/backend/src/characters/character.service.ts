@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { SuggestCharacterStatsDto } from './dto/suggest-character-stats.dto';
-import { GenerateCharacterStatsService } from '../openai/queries/generate-character-stats.service';
-import { CharacterStats } from '../openai/types/character-stats.type';
+import { GenerateCharacterSuggestionsService } from '../openai/queries/generate-character-suggestions.service';
+import { CharacterSuggestion } from '../openai/types/character.types';
 
 @Injectable()
 export class CharactersService {
-  constructor(private readonly characterStats: GenerateCharacterStatsService) {}
+  constructor(
+    private readonly characterSuggestions: GenerateCharacterSuggestionsService,
+  ) {}
 
-  async suggestStats(dto: SuggestCharacterStatsDto): Promise<CharacterStats> {
-    return this.characterStats.execute(dto.name, dto.description);
+  async suggestCharacter(
+    dto: SuggestCharacterStatsDto,
+  ): Promise<CharacterSuggestion> {
+    return this.characterSuggestions.execute(dto.name, dto.description);
   }
 }

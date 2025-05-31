@@ -6,3 +6,9 @@ export type CharacterStats = {
   luck: number;
   constitution: number;
 };
+
+export type CharacterSuggestion = {
+  stats: CharacterStats;
+  basicMoves: { name: string }[];
+  specialMoves: { name: string }[];
+};

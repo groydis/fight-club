@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GenerateCharacterStatsService } from '../queries/generate-character-stats.service';
 import { ChatGptService } from '../openai.service';
-import { CharacterStats } from '../types/character-stats.type';
+import { CharacterStats } from '../types/character.types';
 
 describe('GenerateCharacterStatsService', () => {
   let service: GenerateCharacterStatsService;

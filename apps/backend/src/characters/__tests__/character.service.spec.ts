@@ -1,12 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CharactersController } from '../character.controller';
 import { CharactersService } from '../character.service';
 import { GenerateCharacterSuggestionsService } from '../../openai/queries/generate-character-suggestions.service';
-import { SuggestCharacterStatsDto } from '../dto/suggest-character-stats.dto';
 import { CharacterSuggestion } from '../../openai/types/character.types';
+import { SuggestCharacterStatsDto } from '../dto/suggest-character-stats.dto';
 
-describe('CharactersController', () => {
-  let controller: CharactersController;
+describe('CharactersService', () => {
+  let service: CharactersService;
 
   const mockSuggestion: CharacterSuggestion = {
     stats: {
@@ -33,38 +32,34 @@ describe('CharactersController', () => {
     ],
   };
 
-  const mockSuggestionsService = {
+  const mockSuggestionService = {
     execute: jest.fn().mockResolvedValue(mockSuggestion),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [CharactersController],
       providers: [
         CharactersService,
         {
           provide: GenerateCharacterSuggestionsService,
-          useValue: mockSuggestionsService,
+          useValue: mockSuggestionService,
         },
       ],
     }).compile();
 
-    controller = module.get<CharactersController>(CharactersController);
+    service = module.get(CharactersService);
   });
 
-  it('should return mocked character suggestions without calling OpenAI', async () => {
+  it('should return character suggestions from the AI suggestion service', async () => {
     const dto: SuggestCharacterStatsDto = {
       name: 'Groovy Gravy',
-      description: 'Heavily seasoned, lightly unhinged.',
+      description: 'A soup-slinging menace with a poetic soul.',
     };
 
-    const result = await controller.suggestCharacter(dto);
+    const result = await service.suggestCharacter(dto);
 
-    expect(result.stats).toEqual(mockSuggestion.stats);
-    expect(Object.values(result.stats).reduce((a, b) => a + b, 0)).toBe(20);
-    expect(result.basicMoves.length).toBe(5);
-    expect(result.specialMoves.length).toBe(5);
-    expect(mockSuggestionsService.execute).toHaveBeenCalledWith(
+    expect(result).toEqual(mockSuggestion);
+    expect(mockSuggestionService.execute).toHaveBeenCalledWith(
       dto.name,
       dto.description,
     );
