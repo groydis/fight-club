@@ -1,17 +1,27 @@
-name: Backend CI
-
-on:
-  push:
-    paths:
-      - 'apps/backend/**'
-  pull_request:
-    paths:
-      - 'apps/backend/**'
-  workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fightclub_test
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/fightclub_test
+      SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
     defaults:
       run:
@@ -24,22 +34,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      
-      - name: Set environment variables
-        run: |
-          echo "SUPABASE_SERVICE_ROLE=${{ secrets.SUPABASE_SERVICE_ROLE }}" >> $GITHUB_ENV
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> $GITHUB_ENV
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
-          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run DB Migrations
+        run: npx prisma migrate deploy
 
       - name: Lint
         run: npm run lint
 
       - name: Build
         run: npm run build
+      
+      - name: Prepare DB
+        run: npm run test:prepare
 
-      - name: Run tests
+      - name: Run Tests
         run: npm run test
