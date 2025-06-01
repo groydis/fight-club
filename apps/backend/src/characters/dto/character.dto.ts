@@ -1,5 +1,4 @@
-// characters/dto/character.dto.ts
-import { MoveType } from 'generated/prisma';
+import { MoveType } from '@prisma/client';
 
 export type StatType =
   | 'strength'
