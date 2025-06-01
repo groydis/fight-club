@@ -19,6 +19,7 @@ import { APP_GUARD } from '@nestjs/core';
 
 @Injectable()
 class DenyAllGuard {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   canActivate(context: ExecutionContext): boolean {
     console.log('✅ Guard triggered: DENY');
     throw new UnauthorizedException('You shall not pass');
@@ -47,20 +48,20 @@ describe('CharactersController (e2e)', () => {
       constitution: 7,
     },
     basicMoves: [
-      { name: 'Soup Slap', category: 'strength' },
-      { name: 'Breadstick Jab', category: 'agility' },
-      { name: 'Crouton Kick', category: 'strength' },
-      { name: 'Boil Punch', category: 'constitution' },
-      { name: 'Salt Fling', category: 'luck' },
-      { name: 'Salt Toss', category: 'agility' },
+      { name: 'Soup Slap', primaryStat: 'strength' },
+      { name: 'Breadstick Jab', primaryStat: 'agility' },
+      { name: 'Crouton Kick', primaryStat: 'strength' },
+      { name: 'Boil Punch', primaryStat: 'constitution' },
+      { name: 'Salt Fling', primaryStat: 'luck' },
+      { name: 'Salt Toss', primaryStat: 'agility' },
     ],
     specialMoves: [
-      { name: 'Boil Over', category: 'constitution' },
-      { name: 'Ladle of Justice', category: 'strength' },
-      { name: 'Steam Surge', category: 'intelligence' },
-      { name: 'Molten Splash', category: 'strength' },
-      { name: 'Final Simmer', category: 'luck' },
-      { name: 'Salty Smile', category: 'charisma' },
+      { name: 'Boil Over', primaryStat: 'constitution' },
+      { name: 'Ladle of Justice', primaryStat: 'strength' },
+      { name: 'Steam Surge', primaryStat: 'intelligence' },
+      { name: 'Molten Splash', primaryStat: 'strength' },
+      { name: 'Final Simmer', primaryStat: 'luck' },
+      { name: 'Salty Smile', primaryStat: 'charisma' },
     ],
   };
 
@@ -103,7 +104,7 @@ describe('CharactersController (e2e)', () => {
     });
 
     it('POST /api/characters/suggestion returns a valid enriched suggestion payload', async () => {
-      const res = await request(app.getHttpServer())
+      const res = await request(app.getHttpServer() as import('http').Server)
         .post('/api/characters/suggestion')
         .send({
           name: 'Groovy Gravy',
@@ -123,21 +124,21 @@ describe('CharactersController (e2e)', () => {
     });
 
     it('should return 400 if name is missing', async () => {
-      await request(app.getHttpServer())
+      await request(app.getHttpServer() as import('http').Server)
         .post('/api/characters/suggestion')
         .send({ description: 'Missing name' })
         .expect(400);
     });
 
     it('should return 400 if description is missing', async () => {
-      await request(app.getHttpServer())
+      await request(app.getHttpServer() as import('http').Server)
         .post('/api/characters/suggestion')
         .send({ name: 'MissingDesc' })
         .expect(400);
     });
 
     it('should return 400 if fields are empty strings', async () => {
-      await request(app.getHttpServer())
+      await request(app.getHttpServer() as import('http').Server)
         .post('/api/characters/suggestion')
         .send({ name: '', description: '' })
         .expect(400);
@@ -183,7 +184,7 @@ describe('CharactersController (e2e)', () => {
     });
 
     it('should return 401 if unauthenticated', async () => {
-      await request(app.getHttpServer())
+      await request(app.getHttpServer() as import('http').Server)
         .post('/api/characters/suggestion')
         .send({ name: 'Blocked User', description: 'Should not get in' })
         .expect(401);

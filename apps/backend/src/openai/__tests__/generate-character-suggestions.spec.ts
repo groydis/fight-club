@@ -17,20 +17,20 @@ describe('GenerateCharacterSuggestionsService', () => {
       constitution: 2,
     },
     basicMoves: [
-      { name: 'Soup Slap', category: 'strength' },
-      { name: 'Breadstick Jab', category: 'agility' },
-      { name: 'Crouton Kick', category: 'strength' },
-      { name: 'Boil Punch', category: 'constitution' },
-      { name: 'Salt Fling', category: 'luck' },
-      { name: 'Salt Toss', category: 'agility' },
+      { name: 'Soup Slap', primaryStat: 'strength' },
+      { name: 'Breadstick Jab', primaryStat: 'agility' },
+      { name: 'Crouton Kick', primaryStat: 'strength' },
+      { name: 'Boil Punch', primaryStat: 'constitution' },
+      { name: 'Salt Fling', primaryStat: 'luck' },
+      { name: 'Salt Toss', primaryStat: 'agility' },
     ],
     specialMoves: [
-      { name: 'Boil Over', category: 'constitution' },
-      { name: 'Ladle of Justice', category: 'strength' },
-      { name: 'Steam Surge', category: 'intelligence' },
-      { name: 'Molten Splash', category: 'strength' },
-      { name: 'Final Simmer', category: 'luck' },
-      { name: 'Salty Smile', category: 'charisma' },
+      { name: 'Boil Over', primaryStat: 'constitution' },
+      { name: 'Ladle of Justice', primaryStat: 'strength' },
+      { name: 'Steam Surge', primaryStat: 'intelligence' },
+      { name: 'Molten Splash', primaryStat: 'strength' },
+      { name: 'Final Simmer', primaryStat: 'luck' },
+      { name: 'Salty Smile', primaryStat: 'charisma' },
     ],
   };
 
@@ -62,8 +62,8 @@ describe('GenerateCharacterSuggestionsService', () => {
     expect(Object.values(result.stats).reduce((a, b) => a + b)).toBe(30);
     expect(result.basicMoves).toHaveLength(6);
     expect(result.specialMoves).toHaveLength(6);
-    expect(result.basicMoves.every((move) => move.category)).toBe(true);
-    expect(result.specialMoves.every((move) => move.category)).toBe(true);
+    expect(result.basicMoves.every((move) => move.primaryStat)).toBe(true);
+    expect(result.specialMoves.every((move) => move.primaryStat)).toBe(true);
   });
 
   it('should throw if stat total is not 30', async () => {

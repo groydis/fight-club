@@ -17,20 +17,20 @@ describe('CharactersService', () => {
       constitution: 2,
     },
     basicMoves: [
-      { name: 'Soup Slap', category: 'strength' },
-      { name: 'Breadstick Jab', category: 'agility' },
-      { name: 'Crouton Kick', category: 'strength' },
-      { name: 'Boil Punch', category: 'constitution' },
-      { name: 'Salt Fling', category: 'luck' },
-      { name: 'Spoon Stab', category: 'charisma' },
+      { name: 'Soup Slap', primaryStat: 'strength' },
+      { name: 'Breadstick Jab', primaryStat: 'agility' },
+      { name: 'Crouton Kick', primaryStat: 'strength' },
+      { name: 'Boil Punch', primaryStat: 'constitution' },
+      { name: 'Salt Fling', primaryStat: 'luck' },
+      { name: 'Spoon Stab', primaryStat: 'charisma' },
     ],
     specialMoves: [
-      { name: 'Boil Over', category: 'constitution' },
-      { name: 'Ladle of Justice', category: 'strength' },
-      { name: 'Steam Surge', category: 'intelligence' },
-      { name: 'Molten Splash', category: 'strength' },
-      { name: 'Final Simmer', category: 'luck' },
-      { name: 'Salty Smile', category: 'charisma' },
+      { name: 'Boil Over', primaryStat: 'constitution' },
+      { name: 'Ladle of Justice', primaryStat: 'strength' },
+      { name: 'Steam Surge', primaryStat: 'intelligence' },
+      { name: 'Molten Splash', primaryStat: 'strength' },
+      { name: 'Final Simmer', primaryStat: 'luck' },
+      { name: 'Salty Smile', primaryStat: 'charisma' },
     ],
   };
 
@@ -89,7 +89,7 @@ describe('CharactersService', () => {
 
     for (const move of [...result.basicMoves, ...result.specialMoves]) {
       expect(move.name).toBeDefined();
-      expect(validCategories).toContain(move.category);
+      expect(validCategories).toContain(move.primaryStat);
     }
   });
 

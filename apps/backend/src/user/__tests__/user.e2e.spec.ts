@@ -57,7 +57,9 @@ describe('UserController (e2e)', () => {
     });
 
     it('GET /api/user returns authenticated user info', async () => {
-      const res = await request(app.getHttpServer()).get('/api/user');
+      const res = await request(
+        app.getHttpServer() as import('http').Server,
+      ).get('/api/user');
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
         message: 'User authenticated',
@@ -87,9 +89,11 @@ describe('UserController (e2e)', () => {
     });
 
     it('GET /api/user returns 401 if unauthenticated', async () => {
-      const res = await request(app.getHttpServer()).get('/api/user');
+      const res = await request(
+        app.getHttpServer() as import('http').Server,
+      ).get('/api/user');
       expect(res.status).toBe(401);
-      expect(res.body.message).toBe('Unauthorized');
+      expect((res.body as { message: string }).message).toBe('Unauthorized');
     });
   });
 });
