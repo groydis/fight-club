@@ -12,7 +12,7 @@ import { ConfigModule } from '@nestjs/config';
 import { OpenAiModule } from '../../openai/openai.module';
 import { SupabaseModule } from '../../supabase/supabase.module';
 import { UserModule } from '../../user/user.module';
-import { CharactersModule } from '../characers.module';
+import { CharactersModule } from '../characters.module';
 import { ValidationPipe } from '@nestjs/common';
 import { Request } from 'express';
 import { APP_GUARD } from '@nestjs/core';

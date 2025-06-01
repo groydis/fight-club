@@ -5,7 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SupabaseModule } from './supabase/supabase.module';
 import { UserModule } from './user/user.module';
-import { CharactersModule } from './characters/characers.module';
+import { CharactersModule } from './characters/characters.module';
 import { OpenAiModule } from './openai/openai.module';
 import { MiddlewareModule } from './middleware/middleware.module'; // ✅ Add this
 import { AuthGuard } from './common/guards/auth.guard';
