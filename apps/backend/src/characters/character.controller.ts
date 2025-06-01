@@ -11,4 +11,10 @@ export class CharactersController {
   suggestCharacter(@Body() dto: SuggestCharacterStatsDto) {
     return this.charactersService.suggestCharacter(dto);
   }
+
+  @Post()
+  createCharacter(@Body() dto: SuggestCharacterStatsDto) {
+    // Placeholder for character creation logic
+    return this.charactersService.suggestCharacter(dto);
+  }
 }
