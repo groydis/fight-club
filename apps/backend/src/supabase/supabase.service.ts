@@ -8,7 +8,7 @@ export class SupabaseService {
 
   constructor(private config: ConfigService) {
     const url = config.get<string>('SUPABASE_URL');
-    const key = config.get<string>('SUPABASE_KEY');
+    const key = config.get<string>('SUPABASE_SERVICE_ROLE');
 
     if (!url || !key) throw new Error('Missing Supabase credentials');
 
