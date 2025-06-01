@@ -20,5 +20,7 @@ export async function useCustomFetch<TResponse, TBody = unknown>(
     credentials: 'include',
     headers,
     baseURL: process.env.BACKEND_URL || 'http://localhost:8008',
+    immediate: false,
+    watch: false,
   })
 }

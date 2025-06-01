@@ -186,13 +186,15 @@ const submitCharacter = async () => {
   suggestion.value = null
 
   try {
-    const { data, error } = await useCustomFetch<CharacterSuggestion, SuggestCharacterStatsDto>(
+    const { execute, data, error } = await useCustomFetch<CharacterSuggestion, SuggestCharacterStatsDto>(
       '/api/characters/suggestion',
       {
         method: 'POST',
         body: form.value,
       }
     )
+
+    await execute() // ✅ this is the important bit
 
     if (error.value) throw error.value
 
