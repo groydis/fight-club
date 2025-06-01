@@ -1,11 +1,19 @@
 // characters/dto/character.dto.ts
 import { MoveType } from 'generated/prisma';
 
+export type StatType =
+  | 'strength'
+  | 'agility'
+  | 'constitution'
+  | 'luck'
+  | 'intelligence'
+  | 'charisma';
+
 export class CharacterMoveDto {
   name: string;
   description: string;
   effectValue: number;
-  primaryStat: string;
+  primaryStat: StatType;
   type: MoveType;
 }
 
