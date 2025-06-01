@@ -1,3 +1,14 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - 'apps/backend/**'
+  pull_request:
+    paths:
+      - 'apps/backend/**'
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -44,14 +55,14 @@ jobs:
       - name: Run DB Migrations
         run: npx prisma migrate deploy
 
+      - name: Prepare DB
+        run: npm run test:prepare
+
       - name: Lint
         run: npm run lint
 
       - name: Build
         run: npm run build
-      
-      - name: Prepare DB
-        run: npm run test:prepare
 
       - name: Run Tests
         run: npm run test
