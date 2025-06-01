@@ -1,11 +1,11 @@
-import { IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class SuggestCharacterStatsDto {
   @IsString()
-  @MinLength(1)
+  @IsNotEmpty()
   name: string;
 
   @IsString()
-  @MinLength(1)
+  @IsNotEmpty()
   description: string;
 }

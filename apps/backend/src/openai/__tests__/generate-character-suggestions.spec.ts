@@ -2,32 +2,35 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GenerateCharacterSuggestionsService } from '../queries/generate-character-suggestions.service';
 import { ChatGptService } from '../openai.service';
 import { CharacterSuggestion } from '../types/character.types';
+import { ServiceUnavailableException } from '@nestjs/common';
 
 describe('GenerateCharacterSuggestionsService', () => {
   let service: GenerateCharacterSuggestionsService;
 
   const validSuggestion: CharacterSuggestion = {
     stats: {
-      strength: 6,
-      agility: 3,
+      strength: 10,
+      agility: 10,
       intelligence: 3,
       charisma: 2,
       luck: 3,
-      constitution: 3,
+      constitution: 2,
     },
     basicMoves: [
-      { name: 'Soup Slap' },
-      { name: 'Breadstick Jab' },
-      { name: 'Crouton Kick' },
-      { name: 'Boil Punch' },
-      { name: 'Salt Fling' },
+      { name: 'Soup Slap', category: 'strength' },
+      { name: 'Breadstick Jab', category: 'agility' },
+      { name: 'Crouton Kick', category: 'strength' },
+      { name: 'Boil Punch', category: 'constitution' },
+      { name: 'Salt Fling', category: 'luck' },
+      { name: 'Salt Toss', category: 'agility' },
     ],
     specialMoves: [
-      { name: 'Boil Over' },
-      { name: 'Ladle of Justice' },
-      { name: 'Steam Surge' },
-      { name: 'Molten Splash' },
-      { name: 'Final Simmer' },
+      { name: 'Boil Over', category: 'constitution' },
+      { name: 'Ladle of Justice', category: 'strength' },
+      { name: 'Steam Surge', category: 'intelligence' },
+      { name: 'Molten Splash', category: 'strength' },
+      { name: 'Final Simmer', category: 'luck' },
+      { name: 'Salty Smile', category: 'charisma' },
     ],
   };
 
@@ -56,18 +59,20 @@ describe('GenerateCharacterSuggestionsService', () => {
     );
 
     expect(result.stats).toEqual(validSuggestion.stats);
-    expect(Object.values(result.stats).reduce((a, b) => a + b)).toBe(20);
-    expect(result.basicMoves.length).toBe(5);
-    expect(result.specialMoves.length).toBe(5);
+    expect(Object.values(result.stats).reduce((a, b) => a + b)).toBe(30);
+    expect(result.basicMoves).toHaveLength(6);
+    expect(result.specialMoves).toHaveLength(6);
+    expect(result.basicMoves.every((move) => move.category)).toBe(true);
+    expect(result.specialMoves.every((move) => move.category)).toBe(true);
   });
 
-  it('should throw if stat total is not 20', async () => {
+  it('should throw if stat total is not 30', async () => {
     const brokenStats: CharacterSuggestion = {
       ...validSuggestion,
       stats: {
         ...validSuggestion.stats,
         strength: 10,
-        luck: 9, // now total = 26
+        luck: 9,
       },
     };
 
@@ -75,19 +80,37 @@ describe('GenerateCharacterSuggestionsService', () => {
 
     await expect(
       service.execute('Overpowered Chad', 'Stat cheater'),
-    ).rejects.toThrow('Failed to generate character suggestion');
+    ).rejects.toThrow(ServiceUnavailableException);
   });
 
   it('should throw if there are not exactly 5 moves of each type', async () => {
     const brokenMoves: CharacterSuggestion = {
       ...validSuggestion,
-      basicMoves: validSuggestion.basicMoves.slice(0, 3), // only 3 moves
+      basicMoves: validSuggestion.basicMoves.slice(0, 3),
     };
 
     mockChatGptService.chatGptRequest.mockResolvedValueOnce(brokenMoves);
 
     await expect(
       service.execute('Forgetful Frank', 'Didn’t come prepared'),
+    ).rejects.toThrow('Failed to generate character suggestion');
+  });
+
+  it('should throw if any move is missing a primaryStat', async () => {
+    const invalidMoves: CharacterSuggestion = {
+      ...validSuggestion,
+      specialMoves: [
+        ...validSuggestion.specialMoves.slice(0, 4),
+        {
+          name: 'Broken Move',
+        } as unknown as (typeof validSuggestion.specialMoves)[number],
+      ],
+    };
+
+    mockChatGptService.chatGptRequest.mockResolvedValueOnce(invalidMoves);
+
+    await expect(
+      service.execute('Stateless Steve', 'Forgot how to fight'),
     ).rejects.toThrow('Failed to generate character suggestion');
   });
 });

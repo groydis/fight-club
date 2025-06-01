@@ -8,6 +8,8 @@ import { UserModule } from './user/user.module';
 import { CharactersModule } from './characters/characers.module';
 import { OpenAiModule } from './openai/openai.module';
 import { MiddlewareModule } from './middleware/middleware.module'; // ✅ Add this
+import { AuthGuard } from './common/guards/auth.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -19,6 +21,12 @@ import { MiddlewareModule } from './middleware/middleware.module'; // ✅ Add th
     MiddlewareModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class AppModule {}

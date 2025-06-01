@@ -10,26 +10,28 @@ describe('CharactersController', () => {
 
   const mockSuggestion: CharacterSuggestion = {
     stats: {
-      strength: 6,
-      agility: 4,
+      strength: 10,
+      agility: 10,
       intelligence: 3,
       charisma: 2,
-      luck: 3,
-      constitution: 2,
+      luck: 2,
+      constitution: 3,
     },
     basicMoves: [
-      { name: 'Soup Slap' },
-      { name: 'Breadstick Jab' },
-      { name: 'Crouton Kick' },
-      { name: 'Boil Punch' },
-      { name: 'Salt Fling' },
+      { name: 'Soup Slap', category: 'strength' },
+      { name: 'Breadstick Jab', category: 'agility' },
+      { name: 'Crouton Kick', category: 'strength' },
+      { name: 'Boil Punch', category: 'constitution' },
+      { name: 'Salt Fling', category: 'luck' },
+      { name: 'Salt Toss', category: 'agility' },
     ],
     specialMoves: [
-      { name: 'Boil Over' },
-      { name: 'Ladle of Justice' },
-      { name: 'Steam Surge' },
-      { name: 'Molten Splash' },
-      { name: 'Final Simmer' },
+      { name: 'Boil Over', category: 'constitution' },
+      { name: 'Ladle of Justice', category: 'strength' },
+      { name: 'Steam Surge', category: 'intelligence' },
+      { name: 'Molten Splash', category: 'strength' },
+      { name: 'Final Simmer', category: 'luck' },
+      { name: 'Salty Smile', category: 'charisma' },
     ],
   };
 
@@ -61,9 +63,9 @@ describe('CharactersController', () => {
     const result = await controller.suggestCharacter(dto);
 
     expect(result.stats).toEqual(mockSuggestion.stats);
-    expect(Object.values(result.stats).reduce((a, b) => a + b, 0)).toBe(20);
-    expect(result.basicMoves.length).toBe(5);
-    expect(result.specialMoves.length).toBe(5);
+    expect(Object.values(result.stats).reduce((a, b) => a + b, 0)).toBe(30);
+    expect(result.basicMoves).toHaveLength(6);
+    expect(result.specialMoves).toHaveLength(6);
     expect(mockSuggestionsService.execute).toHaveBeenCalledWith(
       dto.name,
       dto.description,

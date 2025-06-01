@@ -1,5 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import {
+  ExecutionContext,
+  INestApplication,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import request from 'supertest';
 import { GenerateCharacterSuggestionsService } from '../../openai/queries/generate-character-suggestions.service';
 import { CharacterSuggestion } from '../../openai/types/character.types';
@@ -8,72 +13,180 @@ import { OpenAiModule } from '../../openai/openai.module';
 import { SupabaseModule } from '../../supabase/supabase.module';
 import { UserModule } from '../../user/user.module';
 import { CharactersModule } from '../characers.module';
+import { ValidationPipe } from '@nestjs/common';
+import { Request } from 'express';
+import { APP_GUARD } from '@nestjs/core';
+
+@Injectable()
+class DenyAllGuard {
+  canActivate(context: ExecutionContext): boolean {
+    console.log('✅ Guard triggered: DENY');
+    throw new UnauthorizedException('You shall not pass');
+  }
+}
+
+@Injectable()
+class AllowAllGuard {
+  canActivate(context: ExecutionContext): boolean {
+    console.log('✅ Guard triggered: ALLOW');
+    const req = context.switchToHttp().getRequest<Request>();
+    req.user = { id: 'test-user' };
+
+    return true;
+  }
+}
 
 describe('CharactersController (e2e)', () => {
-  let app: INestApplication;
-
   const mockSuggestion: CharacterSuggestion = {
     stats: {
       strength: 6,
       agility: 4,
       intelligence: 3,
-      charisma: 2,
-      luck: 3,
-      constitution: 2,
+      charisma: 4,
+      luck: 6,
+      constitution: 7,
     },
     basicMoves: [
-      { name: 'Soup Slap' },
-      { name: 'Breadstick Jab' },
-      { name: 'Crouton Kick' },
-      { name: 'Boil Punch' },
-      { name: 'Salt Fling' },
+      { name: 'Soup Slap', category: 'strength' },
+      { name: 'Breadstick Jab', category: 'agility' },
+      { name: 'Crouton Kick', category: 'strength' },
+      { name: 'Boil Punch', category: 'constitution' },
+      { name: 'Salt Fling', category: 'luck' },
+      { name: 'Salt Toss', category: 'agility' },
     ],
     specialMoves: [
-      { name: 'Boil Over' },
-      { name: 'Ladle of Justice' },
-      { name: 'Steam Surge' },
-      { name: 'Molten Splash' },
-      { name: 'Final Simmer' },
+      { name: 'Boil Over', category: 'constitution' },
+      { name: 'Ladle of Justice', category: 'strength' },
+      { name: 'Steam Surge', category: 'intelligence' },
+      { name: 'Molten Splash', category: 'strength' },
+      { name: 'Final Simmer', category: 'luck' },
+      { name: 'Salty Smile', category: 'charisma' },
     ],
   };
 
-  beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot(),
-        OpenAiModule,
-        SupabaseModule,
-        UserModule,
-        CharactersModule,
-      ],
-    })
-      .overrideProvider(GenerateCharacterSuggestionsService)
-      .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
-      .compile();
+  describe('Authenticated requests', () => {
+    let app: INestApplication;
 
-    app = moduleFixture.createNestApplication();
-    await app.init();
-  });
-
-  it('POST /api/characters/suggestion returns a valid suggestion payload', async () => {
-    const server = app.getHttpServer() as import('http').Server;
-    const response = await request(server)
-      .post('/api/characters/suggestion')
-      .send({
-        name: 'Groovy Gravy',
-        description: 'The sauciest soup-slinger in the outer rim.',
+    beforeAll(async () => {
+      const moduleFixture: TestingModule = await Test.createTestingModule({
+        imports: [
+          ConfigModule.forRoot(),
+          OpenAiModule,
+          SupabaseModule,
+          UserModule,
+          CharactersModule,
+        ],
+        providers: [
+          {
+            provide: APP_GUARD,
+            useClass: AllowAllGuard,
+          },
+        ],
       })
-      .expect(201);
+        .overrideProvider(GenerateCharacterSuggestionsService)
+        .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
+        .compile();
 
-    const responseBody = response.body as CharacterSuggestion;
+      app = moduleFixture.createNestApplication();
+      app.useGlobalPipes(
+        new ValidationPipe({
+          whitelist: true,
+          forbidNonWhitelisted: true,
+          transform: true,
+        }),
+      );
+      await app.init();
+    });
 
-    expect(responseBody.stats).toBeDefined();
-    expect(responseBody.basicMoves.length).toBe(5);
-    expect(responseBody.specialMoves.length).toBe(5);
-    expect(responseBody.stats.strength).toBeGreaterThanOrEqual(1);
+    afterAll(async () => {
+      await app.close();
+    });
+
+    it('POST /api/characters/suggestion returns a valid enriched suggestion payload', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/characters/suggestion')
+        .send({
+          name: 'Groovy Gravy',
+          description: 'The sauciest soup-slinger in the outer rim.',
+        })
+        .expect(201);
+
+      const body = res.body as CharacterSuggestion;
+      expect(body.stats).toBeDefined();
+      expect(Object.values(body.stats).reduce((a, b) => a + b)).toBe(30);
+
+      expect(body.basicMoves).toHaveLength(6);
+      body.basicMoves.forEach((m) => expect(m.name).toBeDefined());
+
+      expect(body.specialMoves).toHaveLength(6);
+      body.specialMoves.forEach((m) => expect(m.name).toBeDefined());
+    });
+
+    it('should return 400 if name is missing', async () => {
+      await request(app.getHttpServer())
+        .post('/api/characters/suggestion')
+        .send({ description: 'Missing name' })
+        .expect(400);
+    });
+
+    it('should return 400 if description is missing', async () => {
+      await request(app.getHttpServer())
+        .post('/api/characters/suggestion')
+        .send({ name: 'MissingDesc' })
+        .expect(400);
+    });
+
+    it('should return 400 if fields are empty strings', async () => {
+      await request(app.getHttpServer())
+        .post('/api/characters/suggestion')
+        .send({ name: '', description: '' })
+        .expect(400);
+    });
   });
 
-  afterAll(async () => {
-    await app.close();
+  describe('Unauthenticated request', () => {
+    let app: INestApplication;
+
+    beforeAll(async () => {
+      const moduleFixture: TestingModule = await Test.createTestingModule({
+        imports: [
+          ConfigModule.forRoot(),
+          OpenAiModule,
+          SupabaseModule,
+          UserModule,
+          CharactersModule,
+        ],
+        providers: [
+          {
+            provide: APP_GUARD,
+            useClass: DenyAllGuard,
+          },
+        ],
+      })
+        .overrideProvider(GenerateCharacterSuggestionsService)
+        .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
+        .compile();
+
+      app = moduleFixture.createNestApplication();
+      app.useGlobalPipes(
+        new ValidationPipe({
+          whitelist: true,
+          forbidNonWhitelisted: true,
+          transform: true,
+        }),
+      );
+      await app.init();
+    });
+
+    afterAll(async () => {
+      await app.close();
+    });
+
+    it('should return 401 if unauthenticated', async () => {
+      await request(app.getHttpServer())
+        .post('/api/characters/suggestion')
+        .send({ name: 'Blocked User', description: 'Should not get in' })
+        .expect(401);
+    });
   });
 });

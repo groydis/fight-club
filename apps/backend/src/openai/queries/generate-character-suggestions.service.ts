@@ -24,12 +24,12 @@ export class GenerateCharacterSuggestionsService {
       const total = Object.values(stats).reduce((acc, val) => acc + val, 0);
       const allStatsMinOne = Object.values(stats).every((val) => val >= 1);
 
-      if (total !== 20 || !allStatsMinOne) {
+      if (total !== 30 || !allStatsMinOne) {
         throw new Error(`Invalid stat distribution: ${JSON.stringify(stats)}`);
       }
 
       // Validate move count
-      if (result.basicMoves.length !== 5 || result.specialMoves.length !== 5) {
+      if (result.basicMoves.length !== 6 || result.specialMoves.length !== 6) {
         throw new Error(`Invalid number of moves: ${JSON.stringify(result)}`);
       }
 

@@ -3,6 +3,7 @@ import { CharactersService } from './character.service';
 import { SuggestCharacterStatsDto } from './dto/suggest-character-stats.dto';
 
 @Controller('api/characters')
+// @UseGuards(AuthGuard)
 export class CharactersController {
   constructor(private readonly charactersService: CharactersService) {}
 
