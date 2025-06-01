@@ -16,6 +16,7 @@ import { CharactersModule } from '../characters.module';
 import { ValidationPipe } from '@nestjs/common';
 import { Request } from 'express';
 import { APP_GUARD } from '@nestjs/core';
+import { GenerateEnrichCharacterService } from '../../openai/queries/generate-character-enrichment.service';
 
 @Injectable()
 class DenyAllGuard {
@@ -85,6 +86,8 @@ describe('CharactersController (e2e)', () => {
         ],
       })
         .overrideProvider(GenerateCharacterSuggestionsService)
+        .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
+        .overrideProvider(GenerateEnrichCharacterService)
         .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
         .compile();
 
@@ -165,6 +168,8 @@ describe('CharactersController (e2e)', () => {
         ],
       })
         .overrideProvider(GenerateCharacterSuggestionsService)
+        .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
+        .overrideProvider(GenerateEnrichCharacterService)
         .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
         .compile();
 

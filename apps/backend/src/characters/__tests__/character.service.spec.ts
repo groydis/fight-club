@@ -3,6 +3,8 @@ import { CharactersService } from '../character.service';
 import { GenerateCharacterSuggestionsService } from '../../openai/queries/generate-character-suggestions.service';
 import { CharacterSuggestion } from '../../openai/types/character.types';
 import { SuggestCharacterStatsDto } from '../dto/suggest-character-stats.dto';
+import { PrismaService } from '../../prisma/prisma.service';
+import { GenerateEnrichCharacterService } from '../../openai/queries/generate-character-enrichment.service';
 
 describe('CharactersService', () => {
   let service: CharactersService;
@@ -42,8 +44,13 @@ describe('CharactersService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CharactersService,
+        PrismaService,
         {
           provide: GenerateCharacterSuggestionsService,
+          useValue: mockSuggestionService,
+        },
+        {
+          provide: GenerateEnrichCharacterService,
           useValue: mockSuggestionService,
         },
       ],

@@ -13,8 +13,9 @@ const STAT_NAMES = [
   'strength',
   'agility',
   'intelligence',
-  'endurance',
   'charisma',
+  'luck',
+  'constitution',
 ] as const;
 type StatName = (typeof STAT_NAMES)[number];
 
@@ -37,12 +38,17 @@ export class StatBlock {
   @IsInt()
   @Min(0)
   @Max(10)
-  endurance: number;
+  charisma: number;
 
   @IsInt()
   @Min(0)
   @Max(10)
-  charisma: number;
+  luck: number;
+
+  @IsInt()
+  @Min(0)
+  @Max(10)
+  constitution: number;
 }
 
 export class CharacterMoveDto {
@@ -50,11 +56,8 @@ export class CharacterMoveDto {
   name: string;
 
   @IsString()
-  description: string;
-
-  @IsString()
   @IsIn(STAT_NAMES)
-  stat: StatName;
+  primaryStat: StatName;
 }
 
 export class CreateCharacterDto {
