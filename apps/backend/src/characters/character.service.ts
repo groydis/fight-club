@@ -47,7 +47,6 @@ export class CharactersService {
           create: [
             ...basicMoves.map((move, i) => ({
               name: move.name,
-              primaryStat: move.primaryStat,
               description: enrichment.basicMoves[i].description,
               effectValue: enrichment.basicMoves[i].effectValue,
               stat: move.primaryStat,
@@ -55,7 +54,6 @@ export class CharactersService {
             })),
             ...specialMoves.map((move, i) => ({
               name: move.name,
-              primaryStat: move.primaryStat,
               description: enrichment.specialMoves[i].description,
               effectValue: enrichment.specialMoves[i].effectValue,
               stat: move.primaryStat,
