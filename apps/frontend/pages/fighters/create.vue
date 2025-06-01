@@ -7,6 +7,7 @@
     </p>
 
     <form class="space-y-4" @submit.prevent="submitCharacter">
+      <!-- Name Field -->
       <div>
         <label class="block font-semibold mb-1">Name</label>
         <input
@@ -18,6 +19,7 @@
         >
       </div>
 
+      <!-- Description Field -->
       <div>
         <label class="block font-semibold mb-1">Description</label>
         <textarea
@@ -29,6 +31,7 @@
         />
       </div>
 
+      <!-- Submit Button -->
       <button
         type="submit"
         :disabled="loading"
@@ -42,12 +45,13 @@
           Generating...
         </span>
 
-        <span v-else>Create Fighter</span>
+        <span v-else>Generate Fighter</span>
       </button>
     </form>
 
     <!-- Results -->
     <div v-if="suggestion" class="mt-10 space-y-8">
+      <!-- Stats -->
       <div>
         <h2 class="text-2xl font-bold mb-2">Stats</h2>
         <p class="text-sm text-gray-400 mb-4">
@@ -62,15 +66,17 @@
             :key="key"
             class="flex items-center gap-2"
           >
-            <label class="capitalize w-28">
-              {{ key }}
+            <div class="flex items-center gap-1 w-36">
+              <label class="capitalize">
+                {{ STAT_EMOJI_MAP[key] }} {{ key }}
+              </label>
               <span
-                class="text-gray-400 cursor-help"
-                title="Explanation for {{ key }}"
+                v-tippy="{ content: STAT_EXPLANATION_MAP[key], placement: 'top', theme: 'light-border' }"
+                class="cursor-help"
               >
                 (?)
               </span>
-            </label>
+            </div>
 
             <div class="flex items-center gap-1">
               <button
@@ -89,13 +95,15 @@
               <button
                 type="button"
                 class="bg-gray-700 px-2 py-1 rounded text-white hover:bg-gray-600 disabled:opacity-30"
-                :disabled="remainingPoints <= 0"
+                :disabled="remainingPoints <= 0 || value >= MAX_POINTS_PER_STAT"
                 @click="increaseStat(key)"
               >+</button>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Basic Moves -->
       <div>
         <h2 class="text-2xl font-bold mb-2">Basic Moves</h2>
         <p v-if="selectedBasicMoves.length < 2" class="text-sm text-yellow-400 mt-2">
@@ -115,10 +123,12 @@
             :disabled="!isSelected(index, 'basic') && selectedBasicMoves.length >= 2"
             @click="toggleMove(index, 'basic')"
           >
-            {{ move.name }}
+            {{ STAT_EMOJI_MAP[move.primaryStat] }} {{ move.name }}
           </button>
         </div>
       </div>
+
+      <!-- Special Moves -->
       <div>
         <h2 class="text-2xl font-bold mb-2">Special Moves</h2>
         <p v-if="selectedSpecialMoves.length < 2" class="text-sm text-yellow-400 mt-2">
@@ -138,17 +148,16 @@
             :disabled="!isSelected(index, 'special') && selectedSpecialMoves.length >= 2"
             @click="toggleMove(index, 'special')"
           >
-            {{ move.name }}
+            {{ STAT_EMOJI_MAP[move.primaryStat] }} {{ move.name }}
           </button>
         </div>
       </div>
 
-
+      <!-- Warning & Finalize -->
       <div class="bg-yellow-900 text-yellow-300 p-4 rounded text-sm">
         ⚠️ Once you submit your fighter, there’s no turning back. Make sure everything looks good before finalizing.
       </div>
 
-      <!-- Submission for final save can go here -->
       <button
         class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white"
       >
@@ -159,8 +168,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { CharacterSuggestion, SuggestCharacterStatsDto } from '@/types/character'
+import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
+import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
 
 const form = ref<SuggestCharacterStatsDto>({
   name: '',
@@ -195,7 +206,9 @@ const submitCharacter = async () => {
     loading.value = false
   }
 }
+
 // STATS
+const MAX_POINTS_PER_STAT = 10
 const MAX_TOTAL_STAT_POINTS = 30
 const MIN_POINTS_PER_STAT = 1
 
@@ -207,7 +220,7 @@ const remainingPoints = computed(() => {
 
 function increaseStat(stat: keyof CharacterSuggestion['stats']) {
   if (!suggestion.value) return
-  if (remainingPoints.value <= 0) return
+  if (remainingPoints.value <= 0 || suggestion.value.stats[stat] >= MAX_POINTS_PER_STAT) return
   suggestion.value.stats[stat]++
 }
 
@@ -236,5 +249,4 @@ function isSelected(index: number, type: 'basic' | 'special') {
   const selected = type === 'basic' ? selectedBasicMoves : selectedSpecialMoves
   return selected.value.includes(index)
 }
-
 </script>

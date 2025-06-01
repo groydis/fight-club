@@ -8,8 +8,9 @@ export type CharacterStats = {
 }
 
 export type CharacterMove = {
-  name: string
-}
+  name: string;
+  primaryStat: keyof CharacterStats;
+};
 
 export type CharacterSuggestion = {
   stats: CharacterStats

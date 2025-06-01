@@ -7,13 +7,13 @@ export type CharacterStats = {
   constitution: number;
 };
 
-export type Move = {
+export type CharacterMove = {
   name: string;
-  category: keyof CharacterStats; // the stat this move is based on
+  primaryStat: keyof CharacterStats;
 };
 
 export type CharacterSuggestion = {
   stats: CharacterStats;
-  basicMoves: Move[];
-  specialMoves: Move[];
+  basicMoves: CharacterMove[];
+  specialMoves: CharacterMove[];
 };
