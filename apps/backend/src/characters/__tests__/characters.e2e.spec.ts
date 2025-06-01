@@ -66,6 +66,34 @@ describe('CharactersController (e2e)', () => {
     ],
   };
 
+  const mockEnriched = {
+    lore: 'Forged in the depths of a forgotten soup kitchen.',
+    basicMoves: [
+      {
+        name: 'Spoon Slam',
+        description: 'Hits hard with broth-laced power.',
+        effectValue: 20,
+      },
+      {
+        name: 'Slippery Swipe',
+        description: 'Slips through defense like oil.',
+        effectValue: 15,
+      },
+    ],
+    specialMoves: [
+      {
+        name: 'Boil Over',
+        description: 'Unleashes molten gravy.',
+        effectValue: 40,
+      },
+      {
+        name: 'Gravy Geyser',
+        description: 'Erupts in seasoned fury.',
+        effectValue: 35,
+      },
+    ],
+  };
+
   describe('Authenticated requests', () => {
     let app: INestApplication;
 
@@ -88,7 +116,7 @@ describe('CharactersController (e2e)', () => {
         .overrideProvider(GenerateCharacterSuggestionsService)
         .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
         .overrideProvider(GenerateEnrichCharacterService)
-        .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
+        .useValue({ execute: jest.fn().mockResolvedValue(mockEnriched) })
         .compile();
 
       app = moduleFixture.createNestApplication();
@@ -106,45 +134,163 @@ describe('CharactersController (e2e)', () => {
       await app.close();
     });
 
-    it('POST /api/characters/suggestion returns a valid enriched suggestion payload', async () => {
-      const res = await request(app.getHttpServer() as import('http').Server)
-        .post('/api/characters/suggestion')
-        .send({
+    describe('POST /api/characters/suggestion', () => {
+      it('POST /api/characters/suggestion returns a valid enriched suggestion payload', async () => {
+        const res = await request(app.getHttpServer() as import('http').Server)
+          .post('/api/characters/suggestion')
+          .send({
+            name: 'Groovy Gravy',
+            description: 'The sauciest soup-slinger in the outer rim.',
+          })
+          .expect(201);
+
+        const body = res.body as CharacterSuggestion;
+        expect(body.stats).toBeDefined();
+        expect(Object.values(body.stats).reduce((a, b) => a + b)).toBe(30);
+
+        expect(body.basicMoves).toHaveLength(6);
+        body.basicMoves.forEach((m) => expect(m.name).toBeDefined());
+
+        expect(body.specialMoves).toHaveLength(6);
+        body.specialMoves.forEach((m) => expect(m.name).toBeDefined());
+      });
+
+      it('should return 400 if name is missing', async () => {
+        await request(app.getHttpServer() as import('http').Server)
+          .post('/api/characters/suggestion')
+          .send({ description: 'Missing name' })
+          .expect(400);
+      });
+
+      it('should return 400 if description is missing', async () => {
+        await request(app.getHttpServer() as import('http').Server)
+          .post('/api/characters/suggestion')
+          .send({ name: 'MissingDesc' })
+          .expect(400);
+      });
+
+      it('should return 400 if fields are empty strings', async () => {
+        await request(app.getHttpServer() as import('http').Server)
+          .post('/api/characters/suggestion')
+          .send({ name: '', description: '' })
+          .expect(400);
+      });
+    });
+
+    describe('POST /api/characters', () => {
+      it('POST /api/characters creates a new character and returns DTO', async () => {
+        const payload = {
           name: 'Groovy Gravy',
           description: 'The sauciest soup-slinger in the outer rim.',
-        })
-        .expect(201);
+          stats: mockSuggestion.stats,
+          basicMoves: mockSuggestion.basicMoves.slice(0, 2).map((move) => ({
+            name: move.name,
+            primaryStat: move.primaryStat as
+              | 'strength'
+              | 'agility'
+              | 'intelligence'
+              | 'charisma'
+              | 'luck'
+              | 'constitution',
+          })),
+          specialMoves: mockSuggestion.specialMoves.slice(0, 2).map((move) => ({
+            name: move.name,
+            primaryStat: move.primaryStat as
+              | 'strength'
+              | 'agility'
+              | 'intelligence'
+              | 'charisma'
+              | 'luck'
+              | 'constitution',
+          })),
+        };
 
-      const body = res.body as CharacterSuggestion;
-      expect(body.stats).toBeDefined();
-      expect(Object.values(body.stats).reduce((a, b) => a + b)).toBe(30);
+        const res = await request(app.getHttpServer())
+          .post('/api/characters')
+          .send(payload)
+          .expect(201);
 
-      expect(body.basicMoves).toHaveLength(6);
-      body.basicMoves.forEach((m) => expect(m.name).toBeDefined());
+        const body = res.body;
+        expect(body.id).toBeDefined();
+        expect(body.name).toBe(payload.name);
+        expect(body.description).toBe(payload.description);
+        expect(body.lore).toBe(mockEnriched.lore);
+        expect(body.stats).toEqual(payload.stats);
+        expect(body.moves).toHaveLength(4);
+      });
+      it('should return 400 if name is missing', async () => {
+        const invalidPayload = {
+          description: 'Missing name',
+          stats: mockSuggestion.stats,
+          basicMoves: mockSuggestion.basicMoves.slice(0, 2),
+          specialMoves: mockSuggestion.specialMoves.slice(0, 2),
+        };
 
-      expect(body.specialMoves).toHaveLength(6);
-      body.specialMoves.forEach((m) => expect(m.name).toBeDefined());
-    });
+        await request(app.getHttpServer())
+          .post('/api/characters')
+          .send(invalidPayload)
+          .expect(400);
+      });
 
-    it('should return 400 if name is missing', async () => {
-      await request(app.getHttpServer() as import('http').Server)
-        .post('/api/characters/suggestion')
-        .send({ description: 'Missing name' })
-        .expect(400);
-    });
+      it('should return 400 if stats are missing', async () => {
+        const invalidPayload = {
+          name: 'No Stats',
+          description: 'Oops',
+          basicMoves: mockSuggestion.basicMoves.slice(0, 2),
+          specialMoves: mockSuggestion.specialMoves.slice(0, 2),
+        };
 
-    it('should return 400 if description is missing', async () => {
-      await request(app.getHttpServer() as import('http').Server)
-        .post('/api/characters/suggestion')
-        .send({ name: 'MissingDesc' })
-        .expect(400);
-    });
+        await request(app.getHttpServer())
+          .post('/api/characters')
+          .send(invalidPayload)
+          .expect(400);
+      });
 
-    it('should return 400 if fields are empty strings', async () => {
-      await request(app.getHttpServer() as import('http').Server)
-        .post('/api/characters/suggestion')
-        .send({ name: '', description: '' })
-        .expect(400);
+      it('should return 400 if a stat value is out of range', async () => {
+        const invalidStats = { ...mockSuggestion.stats, strength: 15 }; // Max is 10
+        const invalidPayload = {
+          name: 'Stat Breaker',
+          description: 'Too strong',
+          stats: invalidStats,
+          basicMoves: mockSuggestion.basicMoves.slice(0, 2),
+          specialMoves: mockSuggestion.specialMoves.slice(0, 2),
+        };
+
+        await request(app.getHttpServer())
+          .post('/api/characters')
+          .send(invalidPayload)
+          .expect(400);
+      });
+
+      it('should return 400 if basicMoves is not an array', async () => {
+        const invalidPayload = {
+          name: 'Invalid Moves',
+          description: 'Bad format',
+          stats: mockSuggestion.stats,
+          basicMoves: 'Soup Slap', // should be an array
+          specialMoves: mockSuggestion.specialMoves.slice(0, 2),
+        };
+
+        await request(app.getHttpServer())
+          .post('/api/characters')
+          .send(invalidPayload)
+          .expect(400);
+      });
+
+      it('should return 400 if move has an invalid primaryStat', async () => {
+        const invalidPayload = {
+          name: 'Bad Stat',
+          description: 'Wrong primaryStat',
+          stats: mockSuggestion.stats,
+          basicMoves: [{ name: 'Oops', primaryStat: 'power' }],
+          specialMoves: mockSuggestion.specialMoves.slice(0, 2),
+        };
+
+        await request(app.getHttpServer())
+          .post('/api/characters')
+          .send(invalidPayload)
+          .expect(400);
+      });
     });
   });
 
@@ -170,7 +316,7 @@ describe('CharactersController (e2e)', () => {
         .overrideProvider(GenerateCharacterSuggestionsService)
         .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
         .overrideProvider(GenerateEnrichCharacterService)
-        .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
+        .useValue({ execute: jest.fn().mockResolvedValue(mockEnriched) })
         .compile();
 
       app = moduleFixture.createNestApplication();
@@ -191,6 +337,13 @@ describe('CharactersController (e2e)', () => {
     it('should return 401 if unauthenticated', async () => {
       await request(app.getHttpServer() as import('http').Server)
         .post('/api/characters/suggestion')
+        .send({ name: 'Blocked User', description: 'Should not get in' })
+        .expect(401);
+    });
+
+    it('should return 401 if unauthenticated', async () => {
+      await request(app.getHttpServer() as import('http').Server)
+        .post('/api/characters')
         .send({ name: 'Blocked User', description: 'Should not get in' })
         .expect(401);
     });

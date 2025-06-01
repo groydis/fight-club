@@ -6,6 +6,7 @@ import {
   Min,
   Max,
   IsIn,
+  IsDefined,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -67,6 +68,7 @@ export class CreateCharacterDto {
   @IsString()
   description: string;
 
+  @IsDefined()
   @ValidateNested()
   @Type(() => StatBlock)
   stats: StatBlock;
