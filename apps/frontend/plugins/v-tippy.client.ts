@@ -1,4 +1,4 @@
-import tippy, { type Props } from 'tippy.js'
+import tippy from 'tippy.js'
 import 'tippy.js/dist/tippy.css'
 
 export default defineNuxtPlugin((nuxtApp) => {
