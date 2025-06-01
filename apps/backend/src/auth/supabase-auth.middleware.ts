@@ -12,7 +12,7 @@ export class SupabaseAuthMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
-
+    console.log('Auth header:', authHeader);
     if (!authHeader) throw new UnauthorizedException('Missing auth token');
 
     const token = authHeader.replace('Bearer ', '');

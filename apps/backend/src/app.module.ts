@@ -1,20 +1,32 @@
-import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
-import { AppController } from './app.controller';
+// src/app.module.ts
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SupabaseModule } from './supabase/supabase.module';
-import { SupabaseAuthMiddleware } from './auth/supabase-auth.middleware';
 import { UserModule } from './user/user.module';
+import { CharactersModule } from './characters/characers.module';
+import { OpenAiModule } from './openai/openai.module';
+import { MiddlewareModule } from './middleware/middleware.module'; // ✅ Add this
+import { AuthGuard } from './common/guards/auth.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
-  imports: [ConfigModule.forRoot(), SupabaseModule, UserModule],
+  imports: [
+    ConfigModule.forRoot(),
+    OpenAiModule,
+    SupabaseModule,
+    UserModule,
+    CharactersModule,
+    MiddlewareModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
-export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(SupabaseAuthMiddleware)
-      .forRoutes({ path: '*', method: RequestMethod.ALL }); // Optional: scope this to /api/private/* etc.
-  }
-}
+export class AppModule {}

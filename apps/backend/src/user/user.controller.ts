@@ -1,6 +1,13 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Request } from 'express';
 import { AuthGuard } from '../common/guards/auth.guard';
-import type { AuthenticatedRequest } from '../common/types/extended-request';
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+  };
+}
 
 @Controller('api/user')
 export class UserController {

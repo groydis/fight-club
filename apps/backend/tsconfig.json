@@ -20,5 +20,6 @@
     "strict": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
+    "strictPropertyInitialization": false,
   }
 }
