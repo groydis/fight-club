@@ -28,9 +28,9 @@ jobs:
         run: pnpm install
 
       - name: ⚙️ Generate Prisma Client
-        run: npx prisma generate
+        run: npx prisma generate --schema=apps/backend/prisma/schema.prisma
 
       - name: 🚀 Deploy Prisma Migrations to Supabase
-        run: npx prisma migrate deploy
+        run: npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}

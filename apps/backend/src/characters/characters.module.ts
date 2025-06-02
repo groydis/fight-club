@@ -8,7 +8,7 @@ import { FILE_STORAGE } from '../common/tokens';
 import { MockFileStorage } from '../common/storage/mock-file-storage.service';
 import { SupabaseFileStorage } from '../common/storage/supabase-file-storage.service';
 
-const useMockServices = process.env.MOCK_FILE_STORAGE === 'true';
+const useMockServices = process.env.USE_MOCK_SERVICES === 'true';
 
 @Module({
   imports: [PrismaModule, SupabaseModule, OpenAiModule],
