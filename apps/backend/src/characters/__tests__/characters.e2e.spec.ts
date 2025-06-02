@@ -1,116 +1,36 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  ExecutionContext,
-  INestApplication,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { GenerateCharacterSuggestionsService } from '../../openai/queries/generate-character-suggestions.service';
-import { CharacterSuggestion } from '../../openai/types/character.types';
+import { CharacterSuggestion } from '../../common/types/character.types';
 import { ConfigModule } from '@nestjs/config';
 import { OpenAiModule } from '../../openai/openai.module';
 import { SupabaseModule } from '../../supabase/supabase.module';
 import { UserModule } from '../../user/user.module';
 import { CharactersModule } from '../characters.module';
 import { ValidationPipe } from '@nestjs/common';
-import { Request } from 'express';
-import { APP_GUARD } from '@nestjs/core';
+import { Reflector } from '@nestjs/core';
 import { GenerateEnrichCharacterService } from '../../openai/queries/generate-character-enrichment.service';
 import { MockCharacterImageGenerator } from '../../openai/queries/image-generation/mock-character-image-generator.service';
 import { MockFileStorage } from '../../common/storage/mock-file-storage.service';
 import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
+import {
+  AllowAllAuthGuard,
+  DenyAllAuthGuard,
+} from '../../test-utils/mock-auth.guard';
+import {
+  mockFileStorage,
+  mockImageGenerator,
+} from '../../test-utils/mock-services';
+import {
+  mockEnriched,
+  mockSuggestion,
+} from '../../test-utils/mock-character.data';
 
-@Injectable()
-class DenyAllGuard {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  canActivate(context: ExecutionContext): boolean {
-    console.log('✅ Guard triggered: DENY');
-    throw new UnauthorizedException('You shall not pass');
-  }
-}
-
-@Injectable()
-class AllowAllGuard {
-  canActivate(context: ExecutionContext): boolean {
-    console.log('✅ Guard triggered: ALLOW');
-    const req = context.switchToHttp().getRequest<Request>();
-    req.user = { id: 'test-user' };
-
-    return true;
-  }
-}
+import { AuthGuard } from '../../auth/auth.guard';
+import { PrismaModule } from '../../prisma/prisma.module';
 
 describe('CharactersController (e2e)', () => {
-  const mockSuggestion: CharacterSuggestion = {
-    stats: {
-      strength: 6,
-      agility: 4,
-      intelligence: 3,
-      charisma: 4,
-      luck: 6,
-      constitution: 7,
-    },
-    basicMoves: [
-      { name: 'Soup Slap', primaryStat: 'strength' },
-      { name: 'Breadstick Jab', primaryStat: 'agility' },
-      { name: 'Crouton Kick', primaryStat: 'strength' },
-      { name: 'Boil Punch', primaryStat: 'constitution' },
-      { name: 'Salt Fling', primaryStat: 'luck' },
-      { name: 'Salt Toss', primaryStat: 'agility' },
-    ],
-    specialMoves: [
-      { name: 'Boil Over', primaryStat: 'constitution' },
-      { name: 'Ladle of Justice', primaryStat: 'strength' },
-      { name: 'Steam Surge', primaryStat: 'intelligence' },
-      { name: 'Molten Splash', primaryStat: 'strength' },
-      { name: 'Final Simmer', primaryStat: 'luck' },
-      { name: 'Salty Smile', primaryStat: 'charisma' },
-    ],
-  };
-
-  const mockEnriched = {
-    lore: 'Forged in the depths of a forgotten soup kitchen.',
-    basicMoves: [
-      {
-        name: 'Spoon Slam',
-        description: 'Hits hard with broth-laced power.',
-        effectValue: 20,
-      },
-      {
-        name: 'Slippery Swipe',
-        description: 'Slips through defense like oil.',
-        effectValue: 15,
-      },
-    ],
-    specialMoves: [
-      {
-        name: 'Boil Over',
-        description: 'Unleashes molten gravy.',
-        effectValue: 40,
-      },
-      {
-        name: 'Gravy Geyser',
-        description: 'Erupts in seasoned fury.',
-        effectValue: 35,
-      },
-    ],
-  };
-
-  const executeMock = jest.fn().mockResolvedValue({
-    front: Buffer.from('mock front'),
-    back: Buffer.from('mock back'),
-    profile: Buffer.from('mock profile'),
-  });
-
-  const mockImageGenerator = {
-    execute: executeMock,
-  };
-
-  const mockFileStorage = {
-    upload: jest.fn().mockResolvedValue('https://example.com/mock-image.png'),
-  };
-
   describe('Authenticated requests', () => {
     let app: INestApplication;
 
@@ -118,17 +38,12 @@ describe('CharactersController (e2e)', () => {
       const moduleFixture: TestingModule = await Test.createTestingModule({
         imports: [
           ConfigModule.forRoot(),
-          OpenAiModule,
           SupabaseModule,
-          UserModule,
+          PrismaModule,
+          OpenAiModule,
           CharactersModule,
         ],
-        providers: [
-          {
-            provide: APP_GUARD,
-            useClass: AllowAllGuard,
-          },
-        ],
+        providers: [Reflector],
       })
         .overrideProvider(CHARACTER_IMAGE_GENERATOR)
         .useValue(mockImageGenerator)
@@ -138,11 +53,12 @@ describe('CharactersController (e2e)', () => {
         .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
         .overrideProvider(GenerateEnrichCharacterService)
         .useValue({ execute: jest.fn().mockResolvedValue(mockEnriched) })
-        .overrideProvider(APP_GUARD)
-        .useClass(AllowAllGuard)
+        .overrideGuard(AuthGuard)
+        .useClass(AllowAllAuthGuard)
         .compile();
 
       app = moduleFixture.createNestApplication();
+
       app.useGlobalPipes(
         new ValidationPipe({
           whitelist: true,
@@ -243,7 +159,7 @@ describe('CharactersController (e2e)', () => {
         expect(body.stats).toEqual(payload.stats);
         expect(body.moves).toHaveLength(4);
 
-        expect(executeMock).toHaveBeenCalledWith({
+        expect(mockImageGenerator.execute).toHaveBeenCalledWith({
           name: payload.name,
           description: payload.description,
           lore: mockEnriched.lore,
@@ -342,10 +258,7 @@ describe('CharactersController (e2e)', () => {
           CharactersModule,
         ],
         providers: [
-          {
-            provide: APP_GUARD,
-            useClass: DenyAllGuard,
-          },
+          Reflector,
           {
             provide: CHARACTER_IMAGE_GENERATOR,
             useClass: MockCharacterImageGenerator,
@@ -356,10 +269,16 @@ describe('CharactersController (e2e)', () => {
           },
         ],
       })
+        .overrideProvider(CHARACTER_IMAGE_GENERATOR)
+        .useValue(mockImageGenerator)
+        .overrideProvider(FILE_STORAGE)
+        .useValue(mockFileStorage)
         .overrideProvider(GenerateCharacterSuggestionsService)
         .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
         .overrideProvider(GenerateEnrichCharacterService)
         .useValue({ execute: jest.fn().mockResolvedValue(mockEnriched) })
+        .overrideGuard(AuthGuard)
+        .useClass(DenyAllAuthGuard)
         .compile();
 
       app = moduleFixture.createNestApplication();

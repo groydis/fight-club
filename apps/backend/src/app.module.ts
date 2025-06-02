@@ -8,8 +8,6 @@ import { UserModule } from './user/user.module';
 import { CharactersModule } from './characters/characters.module';
 import { OpenAiModule } from './openai/openai.module';
 import { MiddlewareModule } from './middleware/middleware.module';
-import { AuthGuard } from './common/guards/auth.guard';
-import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
@@ -23,12 +21,6 @@ import { PrismaModule } from './prisma/prisma.module';
     MiddlewareModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

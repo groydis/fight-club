@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: 'http://localhost:3000', // TODO: Env variable for frontend URL
+    origin: 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -22,7 +22,6 @@ async function bootstrap() {
     }),
   );
 
-  // 🔥 Print whether we're using mocks
   console.log(`🛠️  Using mock services: ${useMockServices ? 'YES' : 'NO'}`);
 
   await app.listen(process.env.PORT ?? 8008);

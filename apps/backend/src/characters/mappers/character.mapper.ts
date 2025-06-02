@@ -22,5 +22,6 @@ export function toCharacterDto(character: FullCharacter): CharacterDto {
       primaryStat: move.stat as StatType,
       type: move.type,
     })),
+    userId: character.userId ?? undefined, // Todo: Update to required if userId is always present
   };
 }
