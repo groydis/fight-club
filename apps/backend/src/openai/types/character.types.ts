@@ -7,13 +7,62 @@ export type CharacterStats = {
   constitution: number;
 };
 
-export type CharacterMove = {
-  name: string;
-  primaryStat: keyof CharacterStats;
-};
-
 export type CharacterSuggestion = {
   stats: CharacterStats;
-  basicMoves: CharacterMove[];
-  specialMoves: CharacterMove[];
+  basicMoves: {
+    name: string;
+    primaryStat: keyof CharacterStats;
+  }[];
+  specialMoves: {
+    name: string;
+    primaryStat: keyof CharacterStats;
+  }[];
+};
+
+export type CharacterEnrichmentResult = {
+  lore: string;
+  basicMoves: {
+    name: string;
+    description: string;
+    effectValue: number;
+  }[];
+  specialMoves: {
+    name: string;
+    description: string;
+    effectValue: number;
+  }[];
+};
+
+export type BaseCharacterInput = {
+  name: string;
+  description: string;
+  stats: CharacterStats;
+  basicMoves: {
+    name: string;
+    primaryStat: keyof CharacterStats;
+  }[];
+  specialMoves: {
+    name: string;
+    primaryStat: keyof CharacterStats;
+  }[];
+};
+
+// This is what you'll store or return after enrichment
+export type FullCharacter = {
+  name: string;
+  description: string;
+  lore: string;
+  stats: CharacterStats;
+  basicMoves: {
+    name: string;
+    primaryStat: keyof CharacterStats;
+    description: string;
+    effectValue: number;
+  }[];
+  specialMoves: {
+    name: string;
+    primaryStat: keyof CharacterStats;
+    description: string;
+    effectValue: number;
+  }[];
 };
