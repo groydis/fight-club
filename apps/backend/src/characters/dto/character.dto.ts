@@ -24,4 +24,5 @@ export class CharacterDto {
   status: string;
   stats: Record<string, number>;
   moves: CharacterMoveDto[];
+  userId?: string;
 }

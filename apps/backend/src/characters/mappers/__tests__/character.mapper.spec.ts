@@ -1,3 +1,4 @@
+import { STATIC_USERS } from '../../../test-utils/static.users';
 import { toCharacterDto, FullCharacter } from '../character.mapper';
 import { CharacterStatus, MoveType } from '@prisma/client';
 
@@ -8,6 +9,7 @@ describe('toCharacterDto', () => {
     description: 'Soup-slinging menace',
     lore: 'Forged in the stew of destiny.',
     status: CharacterStatus.PROCESSING,
+    userId: STATIC_USERS.activeUser1,
     stats: {
       strength: 6,
       agility: 5,
@@ -52,6 +54,7 @@ describe('toCharacterDto', () => {
       description: 'Soup-slinging menace',
       lore: 'Forged in the stew of destiny.',
       status: CharacterStatus.PROCESSING,
+      userId: STATIC_USERS.activeUser1,
       stats: {
         strength: 6,
         agility: 5,

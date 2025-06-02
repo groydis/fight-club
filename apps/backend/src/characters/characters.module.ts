@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { CharactersController } from './character.controller';
-import { CharactersService } from './character.service';
+import { CharactersController } from './characters.controller';
+import { CharactersService } from './characters.service';
 import { OpenAiModule } from '../openai/openai.module';
 import { SupabaseModule } from '../supabase/supabase.module';
 import { PrismaModule } from '../prisma/prisma.module';

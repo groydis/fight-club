@@ -1,8 +1,18 @@
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
-import { CharactersService } from './character.service';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { CharactersService } from './characters.service';
 import { SuggestCharacterStatsDto } from './dto/suggest-character-stats.dto';
 import { CreateCharacterDto } from './dto/create-character.dto';
+import { AuthenticatedRequest } from '../common/types/extended-request';
+import { AuthGuard } from '../auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('api/characters')
 export class CharactersController {
   constructor(private readonly charactersService: CharactersService) {}
@@ -13,7 +23,12 @@ export class CharactersController {
   }
 
   @Post()
-  create(@Body() dto: CreateCharacterDto) {
+  create(@Body() dto: CreateCharacterDto, @Req() req: AuthenticatedRequest) {
+    const userId = req.user?.local?.id;
+    if (!userId) {
+      throw new BadRequestException('Missing user information');
+    }
+
     const total = (Object.values(dto.stats) as number[]).reduce(
       (sum, val) => sum + val,
       0,
@@ -23,6 +38,6 @@ export class CharactersController {
       throw new BadRequestException('Total stat points must equal 30');
     }
 
-    return this.charactersService.createCharacter(dto);
+    return this.charactersService.createCharacter(dto, userId);
   }
 }

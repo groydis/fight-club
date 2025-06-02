@@ -4,7 +4,7 @@ import { ChatGptService } from '../openai.service';
 import {
   BaseCharacterInput,
   CharacterEnrichmentResult,
-} from '../types/character.types';
+} from '../../common/types/character.types';
 import { ServiceUnavailableException } from '@nestjs/common';
 
 describe('GenerateEnrichCharacterService', () => {

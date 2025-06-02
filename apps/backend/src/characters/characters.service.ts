@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { SuggestCharacterStatsDto } from './dto/suggest-character-stats.dto';
 import { GenerateCharacterSuggestionsService } from '../openai/queries/generate-character-suggestions.service';
-import { CharacterSuggestion } from '../openai/types/character.types';
+import { CharacterSuggestion } from '../common/types/character.types';
 import { CreateCharacterDto } from './dto/create-character.dto';
 import { GenerateEnrichCharacterService } from '../openai/queries/generate-character-enrichment.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -31,7 +31,10 @@ export class CharactersService {
     return this.characterSuggestions.execute(dto.name, dto.description);
   }
 
-  async createCharacter(dto: CreateCharacterDto): Promise<CharacterDto> {
+  async createCharacter(
+    dto: CreateCharacterDto,
+    userId: string,
+  ): Promise<CharacterDto> {
     const { name, description, stats, basicMoves, specialMoves } = dto;
 
     // 1️⃣ Enrich character with lore, move descriptions, and effect values
@@ -48,9 +51,10 @@ export class CharactersService {
       data: {
         name,
         description,
+        userId,
         lore: enrichment.lore,
         stats: stats as unknown as Prisma.InputJsonValue,
-        status: CharacterStatus.PROCESSING,
+        status: CharacterStatus.PROCESSING, // Assuming userId is passed in CreateCharacterDto
         moves: {
           create: [
             ...basicMoves.map((move, i) => ({

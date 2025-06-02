@@ -1,38 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  INestApplication,
-  ExecutionContext,
-  CanActivate,
-} from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { UserController } from '../user.controller';
-import { AuthGuard } from '../../common/guards/auth.guard';
+import { AuthGuard } from '../../auth/auth.guard';
+import {
+  AllowAllAuthGuard,
+  local,
+  mockSupabaseUser,
+} from '../../test-utils/mock-auth.guard';
+import { PrismaModule } from '../../prisma/prisma.module';
+import { SupabaseModule } from '../../supabase/supabase.module';
 
 describe('UserController (integration)', () => {
   let app: INestApplication;
 
-  const mockUser = {
-    id: 'user_123',
-    email: 'test@example.com',
-    created_at: '2025-01-01T00:00:00.000Z',
-  };
-
-  const mockAuthGuard: CanActivate = {
-    canActivate(context: ExecutionContext): boolean {
-      const req = context
-        .switchToHttp()
-        .getRequest<{ user?: typeof mockUser }>();
-      req.user = mockUser;
-      return true;
-    },
-  };
-
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [SupabaseModule, PrismaModule],
       controllers: [UserController],
     })
       .overrideGuard(AuthGuard)
-      .useValue(mockAuthGuard)
+      .useClass(AllowAllAuthGuard)
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -47,9 +35,10 @@ describe('UserController (integration)', () => {
     const server = app.getHttpServer() as import('http').Server;
     const res = await request(server).get('/api/user');
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({
-      message: 'User authenticated',
-      user: mockUser,
-    });
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe('User authenticated');
+    expect(res.body.user).toBeDefined();
+    expect(res.body.user.supabase.id).toBe(mockSupabaseUser.id);
+    expect(res.body.user.local.id).toBe(local.id);
   });
 });
