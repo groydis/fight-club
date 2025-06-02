@@ -97,6 +97,20 @@ describe('CharactersController (e2e)', () => {
     ],
   };
 
+  const executeMock = jest.fn().mockResolvedValue({
+    front: Buffer.from('mock front'),
+    back: Buffer.from('mock back'),
+    profile: Buffer.from('mock profile'),
+  });
+
+  const mockImageGenerator = {
+    execute: executeMock,
+  };
+
+  const mockFileStorage = {
+    upload: jest.fn().mockResolvedValue('https://example.com/mock-image.png'),
+  };
+
   describe('Authenticated requests', () => {
     let app: INestApplication;
 
@@ -114,20 +128,18 @@ describe('CharactersController (e2e)', () => {
             provide: APP_GUARD,
             useClass: AllowAllGuard,
           },
-          {
-            provide: CHARACTER_IMAGE_GENERATOR,
-            useClass: MockCharacterImageGenerator,
-          },
-          {
-            provide: FILE_STORAGE,
-            useClass: MockFileStorage,
-          },
         ],
       })
+        .overrideProvider(CHARACTER_IMAGE_GENERATOR)
+        .useValue(mockImageGenerator)
+        .overrideProvider(FILE_STORAGE)
+        .useValue(mockFileStorage)
         .overrideProvider(GenerateCharacterSuggestionsService)
         .useValue({ execute: jest.fn().mockResolvedValue(mockSuggestion) })
         .overrideProvider(GenerateEnrichCharacterService)
         .useValue({ execute: jest.fn().mockResolvedValue(mockEnriched) })
+        .overrideProvider(APP_GUARD)
+        .useClass(AllowAllGuard)
         .compile();
 
       app = moduleFixture.createNestApplication();
@@ -221,6 +233,8 @@ describe('CharactersController (e2e)', () => {
           .send(payload)
           .expect(201);
 
+        await new Promise((resolve) => setTimeout(resolve, 10));
+
         const body = res.body;
         expect(body.id).toBeDefined();
         expect(body.name).toBe(payload.name);
@@ -228,7 +242,17 @@ describe('CharactersController (e2e)', () => {
         expect(body.lore).toBe(mockEnriched.lore);
         expect(body.stats).toEqual(payload.stats);
         expect(body.moves).toHaveLength(4);
+
+        expect(executeMock).toHaveBeenCalledWith({
+          name: payload.name,
+          description: payload.description,
+          lore: mockEnriched.lore,
+          stats: payload.stats,
+        });
+
+        expect(mockFileStorage.upload).toHaveBeenCalledTimes(3);
       });
+
       it('should return 400 if name is missing', async () => {
         const invalidPayload = {
           description: 'Missing name',

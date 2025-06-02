@@ -128,7 +128,9 @@ export class CharactersService {
 
       console.log(`[ImageGen] Uploaded images for ${name}`);
     } catch (err) {
-      console.error(`[ImageGen] Failed to generate/upload images: ${err}`);
+      console.error(
+        `[ImageGen] Failed to generate/upload images: ${String(err)}`,
+      );
     }
   }
 }

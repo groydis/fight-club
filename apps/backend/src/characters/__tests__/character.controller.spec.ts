@@ -10,8 +10,6 @@ import {
   CreateCharacterDto,
 } from '../dto/create-character.dto';
 import { CharacterStatus, MoveType } from '@prisma/client';
-import { MockCharacterImageGenerator } from '../../openai/queries/image-generation/mock-character-image-generator.service';
-import { MockFileStorage } from '../../common/storage/mock-file-storage.service';
 import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
 
 describe('CharactersController', () => {
@@ -112,6 +110,18 @@ describe('CharactersController', () => {
     ],
   };
 
+  const mockImageGenerator = {
+    execute: jest.fn().mockResolvedValue({
+      front: Buffer.from('mock front'),
+      back: Buffer.from('mock back'),
+      profile: Buffer.from('mock profile'),
+    }),
+  };
+
+  const mockFileStorage = {
+    upload: jest.fn().mockResolvedValue('https://example.com/mock-image.png'),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CharactersController],
@@ -132,11 +142,11 @@ describe('CharactersController', () => {
         },
         {
           provide: CHARACTER_IMAGE_GENERATOR,
-          useClass: MockCharacterImageGenerator,
+          useValue: mockImageGenerator,
         },
         {
           provide: FILE_STORAGE,
-          useClass: MockFileStorage,
+          useValue: mockFileStorage,
         },
       ],
     }).compile();
@@ -182,6 +192,9 @@ describe('CharactersController', () => {
     it('persists a new character and returns the DTO', async () => {
       const result = await controller.create(dto);
 
+      // Wait for the async background task to finish
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
       expect(result).toMatchObject({
         name: dto.name,
         description: dto.description,
@@ -205,6 +218,15 @@ describe('CharactersController', () => {
           }),
         ]),
       );
+
+      expect(mockImageGenerator.execute).toHaveBeenCalledWith({
+        name: dto.name,
+        description: dto.description,
+        lore: mockEnriched.lore,
+        stats: dto.stats,
+      });
+
+      expect(mockFileStorage.upload).toHaveBeenCalledTimes(3);
 
       // DB cleanup
       await service['prisma'].character.delete({ where: { id: result.id } });

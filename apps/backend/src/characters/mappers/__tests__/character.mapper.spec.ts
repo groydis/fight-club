@@ -18,6 +18,7 @@ describe('toCharacterDto', () => {
     },
     imageFrontUrl: null,
     imageBackUrl: null,
+    imageProfileUrl: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     moves: [
