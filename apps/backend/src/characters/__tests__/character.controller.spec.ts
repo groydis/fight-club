@@ -10,7 +10,7 @@ import {
   CreateCharacterDto,
 } from '../dto/create-character.dto';
 import { CharacterStatus, MoveType } from '@prisma/client';
-import { MockCharacterImageGenerator } from '../../common/image-generation/mock-character-image-generator.service';
+import { MockCharacterImageGenerator } from '../../openai/queries/image-generation/mock-character-image-generator.service';
 import { MockFileStorage } from '../../common/storage/mock-file-storage.service';
 import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
 

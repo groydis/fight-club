@@ -36,17 +36,18 @@ model User {
 }
 
 model Character {
-  id            String          @id @default(uuid())
-  name          String
-  description   String
-  lore          String
-  stats         Json
-  status        CharacterStatus @default(PROCESSING)
-  imageFrontUrl String?
-  imageBackUrl  String?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  moves         CharacterMove[]
+  id              String          @id @default(uuid())
+  name            String
+  description     String
+  lore            String
+  stats           Json
+  status          CharacterStatus @default(PROCESSING)
+  imageFrontUrl   String?
+  imageBackUrl    String?
+  imageProfileUrl String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  moves           CharacterMove[]
 }
 
 model CharacterMove {

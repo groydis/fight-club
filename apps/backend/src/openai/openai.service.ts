@@ -64,24 +64,24 @@ export class ChatGptService {
     }
   }
 
-  async generateImage(text: string): Promise<string> {
+  async generateImageBase64(text: string): Promise<Buffer> {
     try {
-      // Make a request to the DALL-E model for image generation
       const { data } = await this.openai.images.generate({
         model: 'dall-e-3',
         prompt: text,
-        response_format: 'url',
+        response_format: 'b64_json',
+        size: '1024x1024',
+        n: 1,
       });
 
-      if (!data || !data.length || !data[0]?.url) {
+      if (!data || !data.length || !data[0]?.b64_json) {
         throw new ServiceUnavailableException(
-          'No image URL returned from OpenAI',
+          'No image data returned from OpenAI',
         );
       }
 
-      return data[0].url;
+      return Buffer.from(data[0].b64_json, 'base64');
     } catch (e) {
-      // Log and propagate the error
       console.error(e);
       throw new ServiceUnavailableException('Failed to generate image');
     }

@@ -17,7 +17,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { Request } from 'express';
 import { APP_GUARD } from '@nestjs/core';
 import { GenerateEnrichCharacterService } from '../../openai/queries/generate-character-enrichment.service';
-import { MockCharacterImageGenerator } from '../../common/image-generation/mock-character-image-generator.service';
+import { MockCharacterImageGenerator } from '../../openai/queries/image-generation/mock-character-image-generator.service';
 import { MockFileStorage } from '../../common/storage/mock-file-storage.service';
 import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
 

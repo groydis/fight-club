@@ -9,7 +9,7 @@ import { CharacterStatus, MoveType, Prisma } from '@prisma/client';
 import { toCharacterDto } from './mappers/character.mapper';
 import { CharacterDto } from './dto/character.dto';
 
-import { CharacterImageGenerator } from '../common/image-generation/character-image-generator.interface';
+import { CharacterImageGenerator } from '../openai/queries/image-generation/character-image-generator.interface';
 import { FileStorage } from '../common/storage/file-storage.interface';
 import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../common/tokens';
 
@@ -19,7 +19,7 @@ export class CharactersService {
     private readonly characterSuggestions: GenerateCharacterSuggestionsService,
     private readonly prisma: PrismaService, // Todo: create prisma service in nuxt
     private readonly enrichCharacter: GenerateEnrichCharacterService,
-@Inject(CHARACTER_IMAGE_GENERATOR)
+    @Inject(CHARACTER_IMAGE_GENERATOR)
     private readonly imageGenerator: CharacterImageGenerator,
     @Inject(FILE_STORAGE)
     private readonly fileStorage: FileStorage,
@@ -99,7 +99,7 @@ export class CharactersService {
     );
 
     try {
-      const { front, back } = await this.imageGenerator.generateImages({
+      const { front, back, profile } = await this.imageGenerator.execute({
         name,
         description,
         lore,
@@ -108,23 +108,20 @@ export class CharactersService {
 
       const frontPath = `characters/${characterId}-front.png`;
       const backPath = `characters/${characterId}-back.png`;
+      const profilePath = `characters/${characterId}-profile.png`;
 
-      const frontUrl = await this.fileStorage.upload(
-        frontPath,
-        front,
-        'image/png',
-      );
-      const backUrl = await this.fileStorage.upload(
-        backPath,
-        back,
-        'image/png',
-      );
+      const [frontUrl, backUrl, profileUrl] = await Promise.all([
+        this.fileStorage.upload(frontPath, front, 'image/png'),
+        this.fileStorage.upload(backPath, back, 'image/png'),
+        this.fileStorage.upload(profilePath, profile, 'image/png'),
+      ]);
 
       await this.prisma.character.update({
         where: { id: characterId },
         data: {
           imageFrontUrl: frontUrl,
           imageBackUrl: backUrl,
+          imageProfileUrl: profileUrl,
           status: CharacterStatus.READY,
         },
       });
