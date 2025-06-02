@@ -8,7 +8,7 @@ import { FILE_STORAGE } from '../common/tokens';
 import { MockFileStorage } from '../common/storage/mock-file-storage.service';
 import { SupabaseFileStorage } from '../common/storage/supabase-file-storage.service';
 
-const useMockFileStorage = process.env.MOCK_FILE_STORAGE === 'true';
+const useMockServices = process.env.MOCK_FILE_STORAGE === 'true';
 
 @Module({
   imports: [PrismaModule, SupabaseModule, OpenAiModule],
@@ -17,7 +17,7 @@ const useMockFileStorage = process.env.MOCK_FILE_STORAGE === 'true';
     CharactersService,
     {
       provide: FILE_STORAGE,
-      useClass: useMockFileStorage ? MockFileStorage : SupabaseFileStorage, // Replace later
+      useClass: useMockServices ? MockFileStorage : SupabaseFileStorage, // Replace later
     },
   ],
 })

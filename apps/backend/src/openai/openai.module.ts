@@ -7,7 +7,7 @@ import { GenerateCharacterImage } from './queries/image-generation/generate-char
 import { CHARACTER_IMAGE_GENERATOR } from '../common/tokens';
 import { MockCharacterImageGenerator } from './queries/image-generation/mock-character-image-generator.service';
 
-const useMockImageGen = process.env.MOCK_IMAGE_GEN === 'true';
+const useMockServices = process.env.USE_MOCK_SERVICES === 'true';
 
 @Module({
   providers: [
@@ -16,7 +16,7 @@ const useMockImageGen = process.env.MOCK_IMAGE_GEN === 'true';
     GenerateEnrichCharacterService,
     {
       provide: CHARACTER_IMAGE_GENERATOR,
-      useClass: useMockImageGen
+      useClass: useMockServices
         ? MockCharacterImageGenerator
         : GenerateCharacterImage,
     },
