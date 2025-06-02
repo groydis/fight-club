@@ -1,0 +1,36 @@
+# .github/workflows/deploy-migrations.yml
+name: Deploy Prisma Migrations to Supabase
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📦 Checkout Code
+        uses: actions/checkout@v3
+
+      - name: 🧰 Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: 🧶 Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 📥 Install Dependencies
+        run: pnpm install
+
+      - name: ⚙️ Generate Prisma Client
+        run: npx prisma generate
+
+      - name: 🚀 Deploy Prisma Migrations to Supabase
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

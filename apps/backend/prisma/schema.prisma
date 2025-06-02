@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -28,11 +27,48 @@ enum UserRole {
 }
 
 model User {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   name      String
-  role       UserRole @default(USER)
+  role      UserRole   @default(USER)
   status    UserStatus @default(PENDING)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
+model Character {
+  id              String          @id @default(uuid())
+  name            String
+  description     String
+  lore            String
+  stats           Json
+  status          CharacterStatus @default(PROCESSING)
+  imageFrontUrl   String?
+  imageBackUrl    String?
+  imageProfileUrl String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  moves           CharacterMove[]
+}
+
+model CharacterMove {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  stat        String
+  effectValue Int
+  type        MoveType
+  characterId String
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+}
+
+enum MoveType {
+  BASIC
+  SPECIAL
+}
+
+enum CharacterStatus {
+  PROCESSING
+  READY
+  FAILED
+}
