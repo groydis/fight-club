@@ -17,7 +17,9 @@ function createMockContext(authHeader?: string): ExecutionContext {
     getClass: jest.fn(),
     getArgs: () => [],
     getArgByIndex: () => undefined,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     switchToRpc: () => ({}) as any,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     switchToWs: () => ({}) as any,
     getType: () => 'http',
   } as unknown as ExecutionContext;
@@ -32,7 +34,7 @@ describe('AuthGuard', () => {
   let testUserId: string;
   let testUserEmail: string;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     prisma = new PrismaService();
 
     reflector = {
