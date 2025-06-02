@@ -1,11 +1,14 @@
+// src/middleware/middleware.module.ts
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from '../common/guards/auth.guard';
+import { APP_GUARD, Reflector } from '@nestjs/core';
+import { AuthGuard } from '../auth/auth.guard';
 import { SupabaseModule } from '../supabase/supabase.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-  imports: [SupabaseModule],
+  imports: [SupabaseModule, PrismaModule],
   providers: [
+    Reflector,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
