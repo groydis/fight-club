@@ -3,7 +3,7 @@ import { CharacterDto, StatType } from '../dto/character.dto';
 
 export type FullCharacter = Prisma.CharacterGetPayload<{
   include: {
-    moves: true; // or select specific fields if you want stricter typing
+    moves: true;
   };
 }>;
 
@@ -22,6 +22,6 @@ export function toCharacterDto(character: FullCharacter): CharacterDto {
       primaryStat: move.stat as StatType,
       type: move.type,
     })),
-    userId: character.userId ?? undefined, // Todo: Update to required if userId is always present
+    userId: character.userId ?? undefined,
   };
 }

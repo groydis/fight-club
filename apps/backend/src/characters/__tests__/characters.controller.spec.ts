@@ -18,6 +18,10 @@ import {
   mockSupabaseUser,
 } from '../../test-utils/mock-auth.guard';
 import { AuthGuard } from '../../auth/auth.guard';
+import {
+  createMockAuthUser,
+  MockAuthUser,
+} from '../../test-utils/create-mock-auth-user';
 
 const mockImageGenerator = {
   execute: jest.fn().mockResolvedValue({
@@ -65,6 +69,83 @@ describe('CharactersController', () => {
 
     controller = module.get<CharactersController>(CharactersController);
     service = module.get<CharactersService>(CharactersService);
+  });
+
+  describe('getCharacters', () => {
+    let testUser: MockAuthUser;
+    const testCharacters = [
+      {
+        id: 'char-001',
+        name: 'Gravy Wizard',
+        description: 'A wizard of the sauce arts',
+        stats: {
+          strength: 5,
+          agility: 5,
+          intelligence: 5,
+          charisma: 5,
+          luck: 5,
+          constitution: 5,
+        },
+        status: CharacterStatus.READY,
+        lore: 'Master of the gravy realm',
+        imageProfileUrl: 'https://cdn/test1.png',
+      },
+      {
+        id: 'char-002',
+        name: 'Sauce Goblin',
+        description: 'Lurks in condiment caves',
+        stats: {
+          strength: 5,
+          agility: 5,
+          intelligence: 5,
+          charisma: 5,
+          luck: 5,
+          constitution: 5,
+        },
+        status: CharacterStatus.PROCESSING,
+        lore: 'Greedy for all things saucy',
+        imageProfileUrl: 'https://cdn/test2.png',
+      },
+    ];
+
+    beforeEach(async () => {
+      testUser = await createMockAuthUser(service['prisma']);
+      for (const char of testCharacters) {
+        await service['prisma'].character.create({
+          data: { ...char, userId: testUser.id },
+        });
+      }
+    });
+
+    afterEach(async () => {
+      await service['prisma'].character.deleteMany({
+        where: { userId: testUser.id },
+      });
+    });
+
+    it('returns characters belonging to the authenticated user', async () => {
+      const req = {
+        user: { ...testUser.requestUser },
+      } as unknown as AuthenticatedRequest;
+
+      const result = await controller.getCharacters(req);
+
+      expect(result).toHaveLength(2);
+
+      expect(result[0]).toMatchObject({
+        id: 'char-002',
+        name: 'Sauce Goblin',
+        imageProfileUrl: 'https://cdn/test2.png',
+        status: CharacterStatus.PROCESSING,
+      });
+
+      expect(result[1]).toMatchObject({
+        id: 'char-001',
+        name: 'Gravy Wizard',
+        imageProfileUrl: 'https://cdn/test1.png',
+        status: CharacterStatus.READY,
+      });
+    });
   });
 
   describe('suggestCharacter', () => {

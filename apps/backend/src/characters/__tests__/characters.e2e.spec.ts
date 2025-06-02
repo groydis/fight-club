@@ -26,7 +26,6 @@ import {
   mockEnriched,
   mockSuggestion,
 } from '../../test-utils/mock-character.data';
-
 import { AuthGuard } from '../../auth/auth.guard';
 import { PrismaModule } from '../../prisma/prisma.module';
 

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   Post,
   Req,
   UseGuards,
@@ -11,6 +12,7 @@ import { SuggestCharacterStatsDto } from './dto/suggest-character-stats.dto';
 import { CreateCharacterDto } from './dto/create-character.dto';
 import { AuthenticatedRequest } from '../common/types/extended-request';
 import { AuthGuard } from '../auth/auth.guard';
+import { CharacterListItemDto } from './dto/character-list.dto';
 
 @UseGuards(AuthGuard)
 @Controller('api/characters')
@@ -39,5 +41,16 @@ export class CharactersController {
     }
 
     return this.charactersService.createCharacter(dto, userId);
+  }
+
+  @Get()
+  getCharacters(
+    @Req() req: AuthenticatedRequest,
+  ): Promise<CharacterListItemDto[]> {
+    const userId = req.user?.local?.id;
+    if (!userId) {
+      throw new BadRequestException('Missing user information');
+    }
+    return this.charactersService.getCharactersForUser(userId);
   }
 }

@@ -12,6 +12,7 @@ import { CharacterDto } from './dto/character.dto';
 import { CharacterImageGenerator } from '../openai/queries/image-generation/character-image-generator.interface';
 import { FileStorage } from '../common/storage/file-storage.interface';
 import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../common/tokens';
+import { CharacterListItemDto } from './dto/character-list.dto';
 
 @Injectable()
 export class CharactersService {
@@ -24,6 +25,21 @@ export class CharactersService {
     @Inject(FILE_STORAGE)
     private readonly fileStorage: FileStorage,
   ) {}
+
+  async getCharactersForUser(userId: string): Promise<CharacterListItemDto[]> {
+    return this.prisma.character.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        name: true,
+        imageProfileUrl: true,
+        status: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
 
   async suggestCharacter(
     dto: SuggestCharacterStatsDto,
