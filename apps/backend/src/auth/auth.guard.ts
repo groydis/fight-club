@@ -57,12 +57,16 @@ export class AuthGuard implements CanActivate {
       user.user_metadata.email_verified === true;
 
     if (!existingUser) {
+      if (!user.email) {
+        throw new UnauthorizedException('Invalid or expired token');
+      }
       await this.prisma.user.upsert({
         where: { id: user.id },
         update: {},
         create: {
           id: user.id,
-          name: user.email ?? 'Unnamed',
+          name: 'Unnamed',
+          email: user.email,
           status: isEmailConfirmed ? UserStatus.ACTIVE : UserStatus.PENDING,
           role: UserRole.USER,
         },

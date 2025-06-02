@@ -94,13 +94,15 @@ describe('AuthGuard', () => {
 
     expect(created).not.toBeNull();
     expect(created?.status).toBe(UserStatus.ACTIVE);
+    expect(created?.email).toBe(testUserEmail);
   });
 
   it('should reject if user is banned', async () => {
     await prisma.user.create({
       data: {
         id: testUserId,
-        name: testUserEmail,
+        name: 'authyBoy',
+        email: testUserEmail,
         role: UserRole.USER,
         status: UserStatus.BANNED,
       },
@@ -114,7 +116,8 @@ describe('AuthGuard', () => {
     await prisma.user.create({
       data: {
         id: testUserId,
-        name: testUserEmail,
+        name: 'authyBoy',
+        email: testUserEmail,
         role: UserRole.USER,
         status: UserStatus.ACTIVE,
       },
@@ -122,5 +125,32 @@ describe('AuthGuard', () => {
 
     const context = createMockContext('Bearer sometoken');
     await expect(guard.canActivate(context)).resolves.toBe(true);
+  });
+
+  it('should throw if Supabase user has no email', async () => {
+    supabaseService = {
+      getClient: () => ({
+        auth: {
+          getUser: jest.fn().mockResolvedValue({
+            data: {
+              user: {
+                id: testUserId,
+                email: null,
+                email_confirmed_at: null,
+                confirmed_at: null,
+                user_metadata: {},
+              },
+            },
+            error: null,
+          }),
+        },
+      }),
+    } as any;
+
+    guard = new AuthGuard(supabaseService, reflector, prisma);
+    const context = createMockContext('Bearer sometoken');
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      'Invalid or expired token',
+    );
   });
 });
