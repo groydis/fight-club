@@ -4,7 +4,6 @@ import {
   UnauthorizedException,
   CanActivate,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { STATIC_USERS } from './static.users';
 import { UserRole, UserStatus } from '@prisma/client';
 import { AuthenticatedRequest } from 'src/common/types/extended-request';
@@ -38,37 +37,14 @@ export const local = {
   updatedAt: new Date('2025-01-01T00:00:00.000Z'),
 };
 
-// @Injectable()
-// export class AllowAllAuthGuard implements CanActivate {
-//   canActivate(context: ExecutionContext): boolean {
-//     const req = context.switchToHttp().getRequest<Request>();
-//     req.user = {
-//       supabase: mockSupabaseUser,
-//       local,
-//     };
-//     return true;
-//   }
-// }
-
-// @Injectable()
-// export class AllowAllAuthGuard implements CanActivate {
-//   constructor(
-//     private readonly requestUser?: AuthenticatedRequest['user'], // optional
-//   ) {}
-
-//   canActivate(context: ExecutionContext): boolean {
-//     const req = context.switchToHttp().getRequest<Request>();
-//     const user = this.requestUser ?? { local, supabase: mockSupabaseUser };
-//     (req as AuthenticatedRequest).user = user;
-//     return true;
-//   }
-// }
-
 @Injectable()
 export class AllowAllAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    req.user = req.user ?? STATIC_USERS.activeUser1; // fallback
+    req.user = req.user ?? {
+      supabase: mockSupabaseUser,
+      local,
+    }; // fallback
     return true;
   }
 }
