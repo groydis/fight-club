@@ -7,6 +7,9 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { GenerateEnrichCharacterService } from '../../openai/queries/generate-character-enrichment.service';
 import { CreateCharacterDto } from '../dto/create-character.dto';
 import { CharacterStatus, MoveType } from '@prisma/client';
+import { MockCharacterImageGenerator } from '../../common/image-generation/mock-character-image-generator.service';
+import { MockFileStorage } from '../../common/storage/mock-file-storage.service';
+import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
 
 describe('CharactersService', () => {
   let service: CharactersService;
@@ -84,6 +87,14 @@ describe('CharactersService', () => {
         {
           provide: GenerateEnrichCharacterService,
           useValue: mockEnrichService,
+        },
+        {
+          provide: CHARACTER_IMAGE_GENERATOR,
+          useClass: MockCharacterImageGenerator,
+        },
+        {
+          provide: FILE_STORAGE,
+          useClass: MockFileStorage,
         },
       ],
     }).compile();

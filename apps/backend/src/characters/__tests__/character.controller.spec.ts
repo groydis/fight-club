@@ -10,6 +10,9 @@ import {
   CreateCharacterDto,
 } from '../dto/create-character.dto';
 import { CharacterStatus, MoveType } from '@prisma/client';
+import { MockCharacterImageGenerator } from '../../common/image-generation/mock-character-image-generator.service';
+import { MockFileStorage } from '../../common/storage/mock-file-storage.service';
+import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
 
 describe('CharactersController', () => {
   let controller: CharactersController;
@@ -126,6 +129,14 @@ describe('CharactersController', () => {
           useValue: {
             execute: jest.fn().mockResolvedValue(mockEnriched),
           },
+        },
+        {
+          provide: CHARACTER_IMAGE_GENERATOR,
+          useClass: MockCharacterImageGenerator,
+        },
+        {
+          provide: FILE_STORAGE,
+          useClass: MockFileStorage,
         },
       ],
     }).compile();

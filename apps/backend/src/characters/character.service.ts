@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { SuggestCharacterStatsDto } from './dto/suggest-character-stats.dto';
 import { GenerateCharacterSuggestionsService } from '../openai/queries/generate-character-suggestions.service';
 import { CharacterSuggestion } from '../openai/types/character.types';
@@ -9,12 +9,20 @@ import { CharacterStatus, MoveType, Prisma } from '@prisma/client';
 import { toCharacterDto } from './mappers/character.mapper';
 import { CharacterDto } from './dto/character.dto';
 
+import { CharacterImageGenerator } from '../common/image-generation/character-image-generator.interface';
+import { FileStorage } from '../common/storage/file-storage.interface';
+import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../common/tokens';
+
 @Injectable()
 export class CharactersService {
   constructor(
     private readonly characterSuggestions: GenerateCharacterSuggestionsService,
     private readonly prisma: PrismaService, // Todo: create prisma service in nuxt
     private readonly enrichCharacter: GenerateEnrichCharacterService,
+@Inject(CHARACTER_IMAGE_GENERATOR)
+    private readonly imageGenerator: CharacterImageGenerator,
+    @Inject(FILE_STORAGE)
+    private readonly fileStorage: FileStorage,
   ) {}
 
   async suggestCharacter(
@@ -68,18 +76,62 @@ export class CharactersService {
     });
 
     // 3️⃣ Queue AI image generation (background job or event emitter)
-    // void this.queueImageGeneration(character.id, name, description, stats);
+    void this.queueImageGeneration(
+      character.id,
+      name,
+      description,
+      enrichment.lore,
+      stats as unknown as Record<string, number>,
+    );
 
     return toCharacterDto(character);
   }
 
-  //   private async queueImageGeneration(
-  //   characterId: string,
-  //   name: string,
-  //   description: string,
-  //   stats: Record<string, number>,
-  // ) {
-  //   // Stub: Replace with message queue, background worker, or endpoint trigger
-  //   console.log(`[ImageGen] Queuing image generation for ${name} (${characterId})`);
-  // }
+  private async queueImageGeneration(
+    characterId: string,
+    name: string,
+    description: string,
+    lore: string,
+    stats: Record<string, number>,
+  ) {
+    console.log(
+      `[ImageGen] Queuing image generation for ${name} (${characterId})`,
+    );
+
+    try {
+      const { front, back } = await this.imageGenerator.generateImages({
+        name,
+        description,
+        lore,
+        stats,
+      });
+
+      const frontPath = `characters/${characterId}-front.png`;
+      const backPath = `characters/${characterId}-back.png`;
+
+      const frontUrl = await this.fileStorage.upload(
+        frontPath,
+        front,
+        'image/png',
+      );
+      const backUrl = await this.fileStorage.upload(
+        backPath,
+        back,
+        'image/png',
+      );
+
+      await this.prisma.character.update({
+        where: { id: characterId },
+        data: {
+          imageFrontUrl: frontUrl,
+          imageBackUrl: backUrl,
+          status: CharacterStatus.READY,
+        },
+      });
+
+      console.log(`[ImageGen] Uploaded images for ${name}`);
+    } catch (err) {
+      console.error(`[ImageGen] Failed to generate/upload images: ${err}`);
+    }
+  }
 }

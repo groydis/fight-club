@@ -17,6 +17,9 @@ import { ValidationPipe } from '@nestjs/common';
 import { Request } from 'express';
 import { APP_GUARD } from '@nestjs/core';
 import { GenerateEnrichCharacterService } from '../../openai/queries/generate-character-enrichment.service';
+import { MockCharacterImageGenerator } from '../../common/image-generation/mock-character-image-generator.service';
+import { MockFileStorage } from '../../common/storage/mock-file-storage.service';
+import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
 
 @Injectable()
 class DenyAllGuard {
@@ -110,6 +113,14 @@ describe('CharactersController (e2e)', () => {
           {
             provide: APP_GUARD,
             useClass: AllowAllGuard,
+          },
+          {
+            provide: CHARACTER_IMAGE_GENERATOR,
+            useClass: MockCharacterImageGenerator,
+          },
+          {
+            provide: FILE_STORAGE,
+            useClass: MockFileStorage,
           },
         ],
       })
@@ -310,6 +321,14 @@ describe('CharactersController (e2e)', () => {
           {
             provide: APP_GUARD,
             useClass: DenyAllGuard,
+          },
+          {
+            provide: CHARACTER_IMAGE_GENERATOR,
+            useClass: MockCharacterImageGenerator,
+          },
+          {
+            provide: FILE_STORAGE,
+            useClass: MockFileStorage,
           },
         ],
       })
