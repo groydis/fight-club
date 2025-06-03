@@ -2,9 +2,9 @@ import { Injectable, Inject } from '@nestjs/common';
 
 import { FileStorage } from '../../common/storage/file-storage.interface';
 import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
-import { GenerateEnrichCharacterService } from '../../openai/queries/generate-character-enrichment.service';
-import { CharacterImageGenerator } from '../../openai/queries/image-generation/character-image-generator.interface';
-import { PrismaService } from '../../prisma/prisma.service';
+import { GenerateEnrichCharacterService } from '../../services/openai/queries/generate-character-enrichment.service';
+import { CharacterImageGenerator } from '../../services/openai/queries/image-generation/character-image-generator.interface';
+import { PrismaService } from '../../services/prisma/prisma.service';
 import { CreateCharacterDto } from '../dto/create-character.request.dto';
 import { toCharacterDto } from '../mappers/character.mapper';
 import { Character } from '../../common/types/character.types';

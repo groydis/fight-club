@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { GenerateCharacterSuggestionsService } from '../../openai/queries/generate-character-suggestions.service';
+import { GenerateCharacterSuggestionsService } from '../../services/openai/queries/generate-character-suggestions.service';
 import { CreateCharacterSuggestionRequestDto } from '../dto/create-chracter-suggestion.request.dto';
 import { CharacterSuggestion } from '../../common/types/character.types';
 

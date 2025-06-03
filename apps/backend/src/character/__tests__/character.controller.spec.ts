@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GenerateCharacterSuggestionsService } from '../../openai/queries/generate-character-suggestions.service';
-import { GenerateEnrichCharacterService } from '../../openai/queries/generate-character-enrichment.service';
-import { PrismaService } from '../../prisma/prisma.service';
+import { GenerateCharacterSuggestionsService } from '../../services/openai/queries/generate-character-suggestions.service';
+import { GenerateEnrichCharacterService } from '../../services/openai/queries/generate-character-enrichment.service';
+import { PrismaService } from '../../services/prisma/prisma.service';
 import { CharacterStatus, MoveType } from '@prisma/client';
 import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
 import {

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GenerateCharacterSuggestionsService } from '../queries/generate-character-suggestions.service';
 import { ChatGptService } from '../openai.service';
-import { CharacterSuggestion } from '../../common/types/character.types';
+import { CharacterSuggestion } from '../../../common/types/character.types';
 import { ServiceUnavailableException } from '@nestjs/common';
 
 describe('GenerateCharacterSuggestionsService', () => {

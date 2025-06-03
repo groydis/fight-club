@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CharactersController } from './characters.controller';
-import { SupabaseModule } from '../supabase/supabase.module';
-import { PrismaModule } from '../prisma/prisma.module';
+import { SupabaseModule } from '../services/supabase/supabase.module';
+import { PrismaModule } from '../services/prisma/prisma.module';
 import { ListCharactersService } from './services/list-characters.service';
 
 @Module({

@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { GenerateCharacterSuggestionsService } from '../../openai/queries/generate-character-suggestions.service';
+import { GenerateCharacterSuggestionsService } from '../../services/openai/queries/generate-character-suggestions.service';
 import { CharacterSuggestion } from '../../common/types/character.types';
 import { ConfigModule } from '@nestjs/config';
-import { OpenAiModule } from '../../openai/openai.module';
-import { SupabaseModule } from '../../supabase/supabase.module';
+import { OpenAiModule } from '../../services/openai/openai.module';
+import { SupabaseModule } from '../../services/supabase/supabase.module';
 import { UserModule } from '../../user/user.module';
 import { ValidationPipe } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { GenerateEnrichCharacterService } from '../../openai/queries/generate-character-enrichment.service';
-import { MockCharacterImageGenerator } from '../../openai/queries/image-generation/mock-character-image-generator.service';
+import { GenerateEnrichCharacterService } from '../../services/openai/queries/generate-character-enrichment.service';
+import { MockCharacterImageGenerator } from '../../services/openai/queries/image-generation/mock-character-image-generator.service';
 import { MockFileStorage } from '../../common/storage/mock-file-storage.service';
 import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
 import {
@@ -26,7 +26,7 @@ import {
   mockSuggestion,
 } from '../../test-utils/mock-character.data';
 import { AuthGuard } from '../../auth/auth.guard';
-import { PrismaModule } from '../../prisma/prisma.module';
+import { PrismaModule } from '../../services/prisma/prisma.module';
 import { CharacterModule } from '../character.module';
 
 describe('Character (e2e)', () => {

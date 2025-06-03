@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { mockEnriched } from '../../../test-utils/mock-character.data';
 import { CreateCharacterService } from '../create-character.service';
 import { STATIC_USERS } from '../../../test-utils/static.users';
-import { PrismaService } from '../../../prisma/prisma.service';
-import { GenerateEnrichCharacterService } from '../../../openai/queries/generate-character-enrichment.service';
+import { PrismaService } from '../../../services/prisma/prisma.service';
+import { GenerateEnrichCharacterService } from '../../../services/openai/queries/generate-character-enrichment.service';
 import {
   CHARACTER_IMAGE_GENERATOR,
   FILE_STORAGE,

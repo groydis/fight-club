@@ -1,5 +1,5 @@
 // test-utils/create-mock-auth-user.ts
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../services/prisma/prisma.service';
 import { faker } from '@faker-js/faker';
 import { UserRole, UserStatus } from '@prisma/client';
 import {

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CharactersController } from '../characters.controller';
 import { ListCharactersService } from '../services/list-characters.service';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../services/prisma/prisma.service';
 import { AuthGuard } from '../../auth/auth.guard';
 import { AllowAllAuthGuard } from '../../test-utils/mock-auth.guard';
 import {

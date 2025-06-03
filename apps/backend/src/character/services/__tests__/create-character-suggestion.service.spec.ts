@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateCharacterSuggestionService } from '../create-character-suggestion.service';
 import { mockSuggestion } from '../../../test-utils/mock-character.data';
-import { PrismaService } from '../../../prisma/prisma.service';
-import { GenerateCharacterSuggestionsService } from '../../../openai/queries/generate-character-suggestions.service';
+import { PrismaService } from '../../../services/prisma/prisma.service';
+import { GenerateCharacterSuggestionsService } from '../../../services/openai/queries/generate-character-suggestions.service';
 import { suggestDto } from '../../../test-utils/mock-dtos';
 
 describe('CreateCharacterSuggestionService', () => {

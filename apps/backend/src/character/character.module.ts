@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../prisma/prisma.module';
-import { SupabaseModule } from '../supabase/supabase.module';
-import { OpenAiModule } from '../openai/openai.module';
+import { PrismaModule } from '../services/prisma/prisma.module';
+import { SupabaseModule } from '../services/supabase/supabase.module';
+import { OpenAiModule } from '../services/openai/openai.module';
 import { CharacterController } from './character.controller';
 import { CreateCharacterSuggestionService } from './services/create-character-suggestion.service';
 import { CreateCharacterService } from './services/create-character.service';

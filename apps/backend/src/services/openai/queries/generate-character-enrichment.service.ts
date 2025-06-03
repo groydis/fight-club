@@ -4,7 +4,7 @@ import { generateCharacterPrompt } from '../prompts/generate-character-enrichmen
 import {
   BaseCharacterInput,
   CharacterEnrichmentResult,
-} from '../../common/types/character.types';
+} from '../../../common/types/character.types';
 
 type EnrichedMove = {
   name: string;

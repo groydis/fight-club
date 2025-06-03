@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '../../../prisma/prisma.service';
+import { PrismaService } from '../../../services/prisma/prisma.service';
 import { ListCharactersService } from '../list-characters.service';
 import { faker } from '@faker-js/faker/.';
 import { CharacterStatus, UserRole, UserStatus } from '@prisma/client';
