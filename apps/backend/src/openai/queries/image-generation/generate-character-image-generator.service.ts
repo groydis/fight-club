@@ -36,6 +36,11 @@ export class GenerateCharacterImage implements CharacterImageGenerator {
       stats,
     );
 
+    console.log('Generating character images with prompts:');
+    console.log('Front Prompt: ', frontPrompt);
+    console.log('Back Prompt: ', backPrompt);
+    console.log('Profile Prompt: ', profilePrompt);
+
     const [front, back, profile] = await Promise.all([
       this.openai.generateImageBase64(frontPrompt),
       this.openai.generateImageBase64(backPrompt),
