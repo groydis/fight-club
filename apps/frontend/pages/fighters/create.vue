@@ -6,7 +6,7 @@
       Begin crafting your fighter. Start with a name and a short description of who they are or what they’re about.
     </p>
 
-    <form class="space-y-4" @submit.prevent="submitCharacter">
+    <form class="space-y-4" @submit.prevent="submitCreateCharacterSuggestion">
       <!-- Name Field -->
       <div>
         <label class="block font-semibold mb-1">Name</label>
@@ -160,16 +160,18 @@
 
       <button
         class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white"
+        @click="finaliseCharacter"
       >
-        Finalize Fighter
+        Finalise Fighter
       </button>
+
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { CharacterSuggestion, SuggestCharacterStatsDto } from '@/types/character'
+import type { CharacterSuggestion, SuggestCharacterStatsDto, Character, CreateCharacterDto } from '@/types/character'
 import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
 import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
 
@@ -181,20 +183,20 @@ const form = ref<SuggestCharacterStatsDto>({
 const loading = ref(false)
 const suggestion = ref<CharacterSuggestion | null>(null)
 
-const submitCharacter = async () => {
+const submitCreateCharacterSuggestion = async () => {
   loading.value = true
   suggestion.value = null
 
   try {
     const { execute, data, error } = await useCustomFetch<CharacterSuggestion, SuggestCharacterStatsDto>(
-      '/api/characters/suggestion',
+      '/api/character/suggestion',
       {
         method: 'POST',
         body: form.value,
       }
     )
 
-    await execute() // ✅ this is the important bit
+    await execute()
 
     if (error.value) throw error.value
 
@@ -251,4 +253,37 @@ function isSelected(index: number, type: 'basic' | 'special') {
   const selected = type === 'basic' ? selectedBasicMoves : selectedSpecialMoves
   return selected.value.includes(index)
 }
+
+const finaliseCharacter = async () => {
+  if (!suggestion.value) return;
+
+  try {
+    const payload = {
+      name: form.value.name,
+      description: form.value.description,
+      stats: suggestion.value.stats,
+      basicMoves: selectedBasicMoves.value.map((i) => suggestion.value!.basicMoves[i]),
+      specialMoves: selectedSpecialMoves.value.map((i) => suggestion.value!.specialMoves[i]),
+    };
+
+    const { execute, data, error } = await useCustomFetch<Character, CreateCharacterDto>(
+      '/api/character',
+      {
+        method: 'POST',
+        body: payload,
+      }
+    );
+
+    await execute();
+
+    if (error.value) throw error.value;
+
+    console.log('Character created!', data.value);
+    // Navigate or show success message
+    navigateTo('/fighters'); // or wherever your character list lives
+  } catch (err) {
+    console.error('Failed to finalize character:', err);
+  }
+};
+
 </script>
