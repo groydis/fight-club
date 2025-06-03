@@ -8,6 +8,7 @@ import { CreateCharacterService } from './services/create-character.service';
 import { FILE_STORAGE } from '../common/tokens';
 import { MockFileStorage } from '../common/storage/mock-file-storage.service';
 import { SupabaseFileStorage } from '../common/storage/supabase-file-storage.service';
+import { GetCharacterService } from './services/get-character.service';
 
 const useMockServices = process.env.USE_MOCK_SERVICES === 'true';
 
@@ -15,11 +16,12 @@ const useMockServices = process.env.USE_MOCK_SERVICES === 'true';
   imports: [PrismaModule, SupabaseModule, OpenAiModule],
   controllers: [CharacterController],
   providers: [
+    GetCharacterService,
     CreateCharacterSuggestionService,
     CreateCharacterService,
     {
       provide: FILE_STORAGE,
-      useClass: useMockServices ? MockFileStorage : SupabaseFileStorage, // Replace later
+      useClass: useMockServices ? MockFileStorage : SupabaseFileStorage,
     },
   ],
 })

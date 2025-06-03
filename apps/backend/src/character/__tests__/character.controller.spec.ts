@@ -19,6 +19,11 @@ import { AuthGuard } from '../../auth/auth.guard';
 import { CreateCharacterService } from '../services/create-character.service';
 import { CreateCharacterSuggestionService } from '../services/create-character-suggestion.service';
 import { CharacterController } from '../character.controller';
+import {
+  createMockAuthUser,
+  MockAuthUser,
+} from '../../test-utils/create-mock-auth-user';
+import { GetCharacterService } from '../services/get-character.service';
 
 const mockImageGenerator = {
   execute: jest.fn().mockResolvedValue({
@@ -35,11 +40,13 @@ const mockFileStorage = {
 describe('CharactersController', () => {
   let controller: CharacterController;
   let createCharacterService: CreateCharacterService;
+  let getCharacterService: GetCharacterService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CharacterController],
       providers: [
+        GetCharacterService,
         CreateCharacterSuggestionService,
         CreateCharacterService,
         PrismaService,
@@ -69,6 +76,75 @@ describe('CharactersController', () => {
     createCharacterService = module.get<CreateCharacterService>(
       CreateCharacterService,
     );
+    getCharacterService = module.get<GetCharacterService>(GetCharacterService);
+  });
+
+  describe('GET /character', () => {
+    let testUser: MockAuthUser;
+    const testCharacters = [
+      {
+        id: 'char-001',
+        name: 'Gravy Wizard',
+        description: 'A wizard of the sauce arts',
+        stats: {
+          strength: 5,
+          agility: 5,
+          intelligence: 5,
+          charisma: 5,
+          luck: 5,
+          constitution: 5,
+        },
+        status: CharacterStatus.READY,
+        lore: 'Master of the gravy realm',
+        imageProfileUrl: 'https://cdn/test1.png',
+      },
+      {
+        id: 'char-002',
+        name: 'Sauce Goblin',
+        description: 'Lurks in condiment caves',
+        stats: {
+          strength: 5,
+          agility: 5,
+          intelligence: 5,
+          charisma: 5,
+          luck: 5,
+          constitution: 5,
+        },
+        status: CharacterStatus.PROCESSING,
+        lore: 'Greedy for all things saucy',
+        imageProfileUrl: 'https://cdn/test2.png',
+      },
+    ];
+
+    beforeEach(async () => {
+      testUser = await createMockAuthUser(getCharacterService['prisma']);
+      for (const char of testCharacters) {
+        await getCharacterService['prisma'].character.create({
+          data: { ...char, userId: testUser.id },
+        });
+      }
+    });
+
+    afterEach(async () => {
+      await getCharacterService['prisma'].character.deleteMany({
+        where: { userId: testUser.id },
+      });
+    });
+
+    it('returns a valid character object from the controller', async () => {
+      const req = {
+        user: { ...testUser.requestUser },
+      } as unknown as AuthenticatedRequest;
+
+      const result = await controller.get(req, 'char-001');
+
+      expect(result).toMatchObject({
+        id: 'char-001',
+        name: 'Gravy Wizard',
+        imageProfileUrl: 'https://cdn/test1.png',
+        status: CharacterStatus.READY,
+      });
+    });
   });
 
   describe('POST /character/suggestion', () => {
