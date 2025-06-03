@@ -73,9 +73,6 @@ export class CreateCharacterService {
       enrichment.imagePromptFullBodyCombat,
       enrichment.imagePromptBackFacing,
       enrichment.imagePromptPortrait,
-      // description,
-      // enrichment.lore,
-      // stats as unknown as Record<string, number>,
     );
 
     return toCharacterDto(character);
@@ -88,28 +85,23 @@ export class CreateCharacterService {
     frontPrompt: string,
     backPrompt: string,
     profilePrompt: string,
-    // description: string,
-    // lore: string,
-    // stats: Record<string, number>,
   ) {
     console.log(
       `[ImageGen] Queuing image generation for ${name} (${characterId})`,
     );
 
     try {
-      const { front, back, profile } = await this.imageGenerator.execute({
+      const { front, profile } = await this.imageGenerator.execute({
+        characterId,
         frontPrompt,
-        backPrompt,
         profilePrompt,
       });
 
       const frontPath = `${userId}/characters/${characterId}/front.png`;
-      const backPath = `${userId}/characters/${characterId}/back.png`;
       const profilePath = `${userId}/characters/${characterId}/profile.png`;
 
-      const [frontUrl, backUrl, profileUrl] = await Promise.all([
+      const [frontUrl, profileUrl] = await Promise.all([
         this.fileStorage.upload(frontPath, front, 'image/png'),
-        this.fileStorage.upload(backPath, back, 'image/png'),
         this.fileStorage.upload(profilePath, profile, 'image/png'),
       ]);
 
@@ -117,7 +109,6 @@ export class CreateCharacterService {
         where: { id: characterId },
         data: {
           imageFrontUrl: frontUrl,
-          imageBackUrl: backUrl,
           imageProfileUrl: profileUrl,
           status: CharacterStatus.READY,
         },

@@ -86,25 +86,71 @@ export class ChatGptService {
   }
 
   async generateImageBase64(text: string): Promise<Buffer> {
-    try {
-      const { data } = await this.openai.images.generate({
-        model: 'dall-e-3',
-        prompt: text,
-        response_format: 'b64_json',
-        size: '1024x1024',
-        n: 1,
-      });
+    // maxRetries and backoff can be whatever you need (e.g. 3 attempts, 1s delay, 2s delay, etc.)
+    const maxRetries = 3;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        // const { data } = await this.openai.images.generate({
+        //   model: 'gpt-image-1',
+        //   prompt: text,
+        //   size: '1024x1024',
+        //   n: 1,
+        // });
 
-      if (!data || !data.length || !data[0]?.b64_json) {
-        throw new ServiceUnavailableException(
-          'No image data returned from OpenAI',
-        );
+        const { data } = await this.openai.images.generate({
+          model: 'gpt-image-1',
+          prompt: text,
+          response_format: 'b64_json',
+          size: '1024x1024',
+          n: 1,
+        });
+
+        if (!data?.length || !data[0]?.b64_json) {
+          throw new ServiceUnavailableException(
+            'No image data returned from OpenAI',
+          );
+        }
+
+        return Buffer.from(data[0].b64_json, 'base64');
+      } catch (err) {
+        // If it's a 503 or other transient error, retry up to maxRetries
+        const is503 = err instanceof Error && (err as any).status === 503;
+
+        console.error(`Image generation attempt #${attempt} failed:`, err);
+
+        if (attempt === maxRetries || !is503) {
+          // If we've exhausted retries or it's not a 503, bail out
+          throw new ServiceUnavailableException('Failed to generate image');
+        }
+        // otherwise, wait a bit and try again
+        await new Promise((r) => setTimeout(r, attempt * 1000));
       }
-
-      return Buffer.from(data[0].b64_json, 'base64');
-    } catch (e) {
-      console.error(e);
-      throw new ServiceUnavailableException('Failed to generate image');
     }
+
+    // (We should never reach here, since the loop either returns or throws.)
+    throw new ServiceUnavailableException('Failed to generate image');
   }
+
+  // async generateImageBase64(text: string): Promise<Buffer> {
+  //   try {
+  //     const { data } = await this.openai.images.generate({
+  //       model: 'gpt-image-1',
+  //       prompt: text,
+  //       response_format: 'b64_json',
+  //       size: '1024x1024',
+  //       n: 1,
+  //     });
+
+  //     if (!data || !data.length || !data[0]?.b64_json) {
+  //       throw new ServiceUnavailableException(
+  //         'No image data returned from OpenAI',
+  //       );
+  //     }
+
+  //     return Buffer.from(data[0].b64_json, 'base64');
+  //   } catch (e) {
+  //     console.error(e);
+  //     throw new ServiceUnavailableException('Failed to generate image');
+  //   }
+  // }
 }

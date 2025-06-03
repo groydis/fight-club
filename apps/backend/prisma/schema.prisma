@@ -52,6 +52,8 @@ model Character {
   moves           CharacterMove[]
   userId          String?
   user            User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  ImagePrompt ImagePrompt[]
 }
 
 model CharacterMove {
@@ -75,4 +77,23 @@ enum CharacterStatus {
   PROCESSING
   READY
   FAILED
+}
+
+model ImagePrompt {
+  id            String   @id @default(uuid())
+  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  characterId   String
+
+  type          PromptType
+  promptText    String
+  success       Boolean   @default(false)
+  errorMessage  String?   // optional error message
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum PromptType {
+  FRONT
+  BACK
+  PROFILE
 }

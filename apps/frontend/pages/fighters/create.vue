@@ -158,12 +158,28 @@
         ⚠️ Once you submit your fighter, there’s no turning back. Make sure everything looks good before finalizing.
       </div>
 
-      <button
+      <!-- <button
         class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white"
         @click="finaliseCharacter"
       >
         Finalise Fighter
-      </button>
+      </button> -->
+
+      <button
+        type="submit"
+        :disabled="loading"
+        class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white disabled:opacity-50"
+        @click="finaliseCharacter"
+      >
+        <span v-if="loading" class="flex items-center gap-2">
+          <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+          </svg>
+          Finalising...
+        </span>
+        <span v-else>Finalise Fighter</span>
+    </button>
 
     </div>
   </div>
@@ -256,6 +272,7 @@ function isSelected(index: number, type: 'basic' | 'special') {
 
 const finaliseCharacter = async () => {
   if (!suggestion.value) return;
+  loading.value = true
 
   try {
     const payload = {
@@ -279,10 +296,11 @@ const finaliseCharacter = async () => {
     if (error.value) throw error.value;
 
     console.log('Character created!', data.value);
-    // Navigate or show success message
-    navigateTo('/fighters'); // or wherever your character list lives
+    navigateTo('/fighters');
   } catch (err) {
     console.error('Failed to finalize character:', err);
+  } finally {
+    loading.value = false
   }
 };
 

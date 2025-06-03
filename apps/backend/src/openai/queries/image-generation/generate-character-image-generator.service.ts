@@ -1,51 +1,81 @@
 import { Injectable } from '@nestjs/common';
 import { CharacterImageGenerator } from './character-image-generator.interface';
 import { ChatGptService } from '../../openai.service';
-// import { generateCharacterImagePromptBack } from '../../prompts/generate-character-image-back.prompt';
-// import { generateCharacterImagePromptFront } from '../../prompts/generate-character-image-front.prompt';
-// import { generateCharacterImagePromptProfile } from '../../prompts/generate-character-image-profile.prompt';
+import { PrismaService } from '../../../prisma/prisma.service';
 
 @Injectable()
 export class GenerateCharacterImage implements CharacterImageGenerator {
-  constructor(private readonly openai: ChatGptService) {}
+  constructor(
+    private readonly openai: ChatGptService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   async execute(input: {
+    characterId: string;
     frontPrompt: string;
-    backPrompt: string;
     profilePrompt: string;
-  }): Promise<{ front: Buffer; back: Buffer; profile: Buffer }> {
-    const { frontPrompt, backPrompt, profilePrompt } = input;
+  }): Promise<{ front: Buffer; profile: Buffer }> {
+    const { characterId, frontPrompt, profilePrompt } = input;
 
-    // const frontPrompt = generateCharacterImagePromptFront(
-    //   name,
-    //   description,
-    //   lore,
-    //   stats,
-    // );
-    // const backPrompt = generateCharacterImagePromptBack(
-    //   name,
-    //   description,
-    //   lore,
-    //   stats,
-    // );
-    // const profilePrompt = generateCharacterImagePromptProfile(
-    //   name,
-    //   description,
-    //   lore,
-    //   stats,
-    // );
-
-    console.log('Generating character images with prompts:');
-    console.log('Front Prompt: ', frontPrompt);
-    console.log('Back Prompt: ', backPrompt);
-    console.log('Profile Prompt: ', profilePrompt);
-
-    const [front, back, profile] = await Promise.all([
-      this.openai.generateImageBase64(frontPrompt),
-      this.openai.generateImageBase64(backPrompt),
-      this.openai.generateImageBase64(profilePrompt),
+    // Create prompt records and store their IDs
+    const [front, profile] = await Promise.all([
+      this.prisma.imagePrompt.create({
+        data: {
+          characterId,
+          type: 'FRONT',
+          promptText: frontPrompt,
+        },
+      }),
+      this.prisma.imagePrompt.create({
+        data: {
+          characterId,
+          type: 'PROFILE',
+          promptText: profilePrompt,
+        },
+      }),
     ]);
 
-    return { front, back, profile };
+    const results: {
+      front?: Buffer;
+      profile?: Buffer;
+    } = {};
+
+    await Promise.all([
+      this.generateAndTrack(frontPrompt, front.id, results, 'front'),
+      this.generateAndTrack(profilePrompt, profile.id, results, 'profile'),
+    ]);
+
+    return {
+      front: results.front!,
+      profile: results.profile!,
+    };
+  }
+
+  private async generateAndTrack(
+    prompt: string,
+    promptId: string,
+    results: Record<string, Buffer>,
+    label: string,
+  ) {
+    try {
+      const image = await this.openai.generateImageBase64(prompt);
+      results[label] = image;
+      await this.prisma.imagePrompt.update({
+        where: { id: promptId },
+        data: {
+          success: true,
+        },
+      });
+    } catch (error) {
+      console.error(`Image generation failed for ${label}:`, error);
+      await this.prisma.imagePrompt.update({
+        where: { id: promptId },
+        data: {
+          success: false,
+          errorMessage:
+            error instanceof Error ? error.message : 'Unknown error',
+        },
+      });
+    }
   }
 }

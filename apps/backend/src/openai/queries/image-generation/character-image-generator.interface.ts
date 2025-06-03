@@ -1,7 +1,7 @@
 export interface CharacterImageGenerator {
   execute(input: {
+    characterId: string;
     frontPrompt: string;
-    backPrompt: string;
     profilePrompt: string;
-  }): Promise<{ front: Buffer; back: Buffer; profile: Buffer }>;
+  }): Promise<{ front: Buffer; profile: Buffer }>;
 }
