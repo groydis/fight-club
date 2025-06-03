@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { STATIC_USERS } from './static.users';
 import { UserRole, UserStatus } from '@prisma/client';
-import { AuthenticatedRequest } from 'src/common/types/extended-request';
+import { AuthenticatedRequest } from '../common/types/extended-request';
 
 export const mockSupabaseUser = {
   id: STATIC_USERS.activeUser1,

@@ -9,6 +9,7 @@ import { CharactersModule } from './characters/characters.module';
 import { OpenAiModule } from './openai/openai.module';
 import { MiddlewareModule } from './middleware/middleware.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { CharacterModule } from './character/character.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PrismaModule } from './prisma/prisma.module';
     OpenAiModule,
     SupabaseModule,
     UserModule,
+    CharacterModule,
     CharactersModule,
     MiddlewareModule,
   ],

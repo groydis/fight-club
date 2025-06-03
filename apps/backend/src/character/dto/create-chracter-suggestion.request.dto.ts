@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class SuggestCharacterStatsDto {
+export class CreateCharacterSuggestionRequestDto {
   @IsString()
   @IsNotEmpty()
   name: string;

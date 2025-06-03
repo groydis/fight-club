@@ -1,35 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CharactersController } from '../characters.controller';
-import { ListCharactersService } from '../services/list-characters.service';
-import { PrismaService } from '../../prisma/prisma.service';
-import { AuthGuard } from '../../auth/auth.guard';
-import { AllowAllAuthGuard } from '../../test-utils/mock-auth.guard';
-import {
-  createMockAuthUser,
-  MockAuthUser,
-} from '../../test-utils/create-mock-auth-user';
-import { CharacterStatus } from '@prisma/client';
-import { AuthenticatedRequest } from '../../common/types/extended-request';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { ListCharactersService } from '../list-characters.service';
+import { faker } from '@faker-js/faker/.';
+import { CharacterStatus, UserRole, UserStatus } from '@prisma/client';
 
-describe('CharactersController', () => {
-  let controller: CharactersController;
+describe('ListCharactersService', () => {
   let service: ListCharactersService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [CharactersController],
       providers: [ListCharactersService, PrismaService],
-    })
-      .overrideGuard(AuthGuard)
-      .useClass(AllowAllAuthGuard)
-      .compile();
+    }).compile();
 
-    controller = module.get<CharactersController>(CharactersController);
-    service = module.get<ListCharactersService>(ListCharactersService);
+    service = module.get(ListCharactersService);
   });
 
-  describe('GET /characters', () => {
-    let testUser: MockAuthUser;
+  describe('execute', () => {
+    const testUserId = faker.string.uuid();
+    const testUserEmail = faker.internet.email();
     const testCharacters = [
       {
         id: 'char-001',
@@ -46,6 +34,7 @@ describe('CharactersController', () => {
         status: CharacterStatus.READY,
         lore: 'Master of the gravy realm',
         imageProfileUrl: 'https://cdn/test1.png',
+        userId: testUserId,
       },
       {
         id: 'char-002',
@@ -62,40 +51,47 @@ describe('CharactersController', () => {
         status: CharacterStatus.PROCESSING,
         lore: 'Greedy for all things saucy',
         imageProfileUrl: 'https://cdn/test2.png',
+        userId: testUserId,
       },
     ];
 
     beforeEach(async () => {
-      testUser = await createMockAuthUser(service['prisma']);
+      await service['prisma'].user.create({
+        data: {
+          id: testUserId,
+          name: 'authyBoy',
+          email: testUserEmail,
+          role: UserRole.USER,
+          status: UserStatus.ACTIVE,
+        },
+      });
       for (const char of testCharacters) {
-        await service['prisma'].character.create({
-          data: { ...char, userId: testUser.id },
-        });
+        await service['prisma'].character.create({ data: char });
       }
     });
 
     afterEach(async () => {
       await service['prisma'].character.deleteMany({
-        where: { userId: testUser.id },
+        where: { userId: testUserId },
+      });
+      await service['prisma'].user.deleteMany({
+        where: { id: testUserId },
       });
     });
 
-    it('returns characters belonging to the authenticated user', async () => {
-      const req = {
-        user: { ...testUser.requestUser },
-      } as unknown as AuthenticatedRequest;
-
-      const result = await controller.getCharacters(req);
+    it('should return characters belonging to a user in descending order of creation', async () => {
+      const result = await service.execute(testUserId);
 
       expect(result).toHaveLength(2);
-
+      expect(result[0].id).toBe('char-002');
+      expect(result[1].id).toBe('char-001');
+      // TODO: We have changed the type so we need todo a more thourough check
       expect(result[0]).toMatchObject({
         id: 'char-002',
         name: 'Sauce Goblin',
         imageProfileUrl: 'https://cdn/test2.png',
         status: CharacterStatus.PROCESSING,
       });
-
       expect(result[1]).toMatchObject({
         id: 'char-001',
         name: 'Gravy Wizard',

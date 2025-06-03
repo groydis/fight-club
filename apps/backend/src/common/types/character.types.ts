@@ -1,3 +1,5 @@
+import { MoveType } from '@prisma/client';
+
 export type CharacterStats = {
   strength: number;
   agility: number;
@@ -66,3 +68,33 @@ export type FullCharacter = {
     effectValue: number;
   }[];
 };
+
+export type StatType =
+  | 'strength'
+  | 'agility'
+  | 'constitution'
+  | 'luck'
+  | 'intelligence'
+  | 'charisma';
+
+export class CharacterMove {
+  name: string;
+  description: string;
+  effectValue: number;
+  primaryStat: StatType;
+  type: MoveType;
+}
+
+export class Character {
+  id: string;
+  name: string;
+  description: string;
+  lore: string;
+  stats: Record<string, number>;
+  status: string;
+  imageFrontUrl?: string;
+  imageBackUrl?: string;
+  imageProfileUrl?: string;
+  moves: CharacterMove[];
+  userId?: string;
+}

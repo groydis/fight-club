@@ -1,56 +1,26 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { SuggestCharacterStatsDto } from './dto/suggest-character-stats.dto';
-import { GenerateCharacterSuggestionsService } from '../openai/queries/generate-character-suggestions.service';
-import { CharacterSuggestion } from '../common/types/character.types';
-import { CreateCharacterDto } from './dto/create-character.dto';
-import { GenerateEnrichCharacterService } from '../openai/queries/generate-character-enrichment.service';
-import { PrismaService } from '../prisma/prisma.service';
-import { CharacterStatus, MoveType, Prisma } from '@prisma/client';
-import { toCharacterDto } from './mappers/character.mapper';
-import { CharacterDto } from './dto/character.dto';
+import { Injectable, Inject } from '@nestjs/common';
 
-import { CharacterImageGenerator } from '../openai/queries/image-generation/character-image-generator.interface';
-import { FileStorage } from '../common/storage/file-storage.interface';
-import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../common/tokens';
-import { CharacterListItemDto } from './dto/character-list.dto';
+import { FileStorage } from '../../common/storage/file-storage.interface';
+import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
+import { GenerateEnrichCharacterService } from '../../openai/queries/generate-character-enrichment.service';
+import { CharacterImageGenerator } from '../../openai/queries/image-generation/character-image-generator.interface';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CreateCharacterDto } from '../dto/create-character.request.dto';
+import { toCharacterDto } from '../mappers/character.mapper';
+import { Character } from '../../common/types/character.types';
+import { CharacterStatus, MoveType, Prisma } from '@prisma/client';
 
 @Injectable()
-export class CharactersService {
+export class CreateCharacterService {
   constructor(
-    private readonly characterSuggestions: GenerateCharacterSuggestionsService,
-    private readonly prisma: PrismaService, // Todo: create prisma service in nuxt
+    private readonly prisma: PrismaService,
     private readonly enrichCharacter: GenerateEnrichCharacterService,
     @Inject(CHARACTER_IMAGE_GENERATOR)
     private readonly imageGenerator: CharacterImageGenerator,
     @Inject(FILE_STORAGE)
     private readonly fileStorage: FileStorage,
   ) {}
-
-  async getCharactersForUser(userId: string): Promise<CharacterListItemDto[]> {
-    return this.prisma.character.findMany({
-      where: { userId },
-      select: {
-        id: true,
-        name: true,
-        imageProfileUrl: true,
-        status: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-  }
-
-  async suggestCharacter(
-    dto: SuggestCharacterStatsDto,
-  ): Promise<CharacterSuggestion> {
-    return this.characterSuggestions.execute(dto.name, dto.description);
-  }
-
-  async createCharacter(
-    dto: CreateCharacterDto,
-    userId: string,
-  ): Promise<CharacterDto> {
+  async execute(dto: CreateCharacterDto, userId: string): Promise<Character> {
     const { name, description, stats, basicMoves, specialMoves } = dto;
 
     // 1️⃣ Enrich character with lore, move descriptions, and effect values

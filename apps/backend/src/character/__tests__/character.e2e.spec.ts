@@ -7,7 +7,6 @@ import { ConfigModule } from '@nestjs/config';
 import { OpenAiModule } from '../../openai/openai.module';
 import { SupabaseModule } from '../../supabase/supabase.module';
 import { UserModule } from '../../user/user.module';
-import { CharactersModule } from '../characters.module';
 import { ValidationPipe } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GenerateEnrichCharacterService } from '../../openai/queries/generate-character-enrichment.service';
@@ -28,8 +27,9 @@ import {
 } from '../../test-utils/mock-character.data';
 import { AuthGuard } from '../../auth/auth.guard';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { CharacterModule } from '../character.module';
 
-describe('CharactersController (e2e)', () => {
+describe('Character (e2e)', () => {
   describe('Authenticated requests', () => {
     let app: INestApplication;
 
@@ -40,7 +40,7 @@ describe('CharactersController (e2e)', () => {
           SupabaseModule,
           PrismaModule,
           OpenAiModule,
-          CharactersModule,
+          CharacterModule,
         ],
         providers: [Reflector],
       })
@@ -72,10 +72,10 @@ describe('CharactersController (e2e)', () => {
       await app.close();
     });
 
-    describe('POST /api/characters/suggestion', () => {
-      it('POST /api/characters/suggestion returns a valid enriched suggestion payload', async () => {
+    describe('POST /api/character/suggestion', () => {
+      it('POST /api/character/suggestion returns a valid enriched suggestion payload', async () => {
         const res = await request(app.getHttpServer() as import('http').Server)
-          .post('/api/characters/suggestion')
+          .post('/api/character/suggestion')
           .send({
             name: 'Groovy Gravy',
             description: 'The sauciest soup-slinger in the outer rim.',
@@ -95,28 +95,28 @@ describe('CharactersController (e2e)', () => {
 
       it('should return 400 if name is missing', async () => {
         await request(app.getHttpServer() as import('http').Server)
-          .post('/api/characters/suggestion')
+          .post('/api/character/suggestion')
           .send({ description: 'Missing name' })
           .expect(400);
       });
 
       it('should return 400 if description is missing', async () => {
         await request(app.getHttpServer() as import('http').Server)
-          .post('/api/characters/suggestion')
+          .post('/api/character/suggestion')
           .send({ name: 'MissingDesc' })
           .expect(400);
       });
 
       it('should return 400 if fields are empty strings', async () => {
         await request(app.getHttpServer() as import('http').Server)
-          .post('/api/characters/suggestion')
+          .post('/api/character/suggestion')
           .send({ name: '', description: '' })
           .expect(400);
       });
     });
 
-    describe('POST /api/characters', () => {
-      it('POST /api/characters creates a new character and returns DTO', async () => {
+    describe('POST /api/character', () => {
+      it('POST /api/character creates a new character and returns DTO', async () => {
         const payload = {
           name: 'Groovy Gravy',
           description: 'The sauciest soup-slinger in the outer rim.',
@@ -143,8 +143,8 @@ describe('CharactersController (e2e)', () => {
           })),
         };
 
-        const res = await request(app.getHttpServer())
-          .post('/api/characters')
+        const res = await request(app.getHttpServer() as import('http').Server)
+          .post('/api/character')
           .send(payload)
           .expect(201);
 
@@ -176,8 +176,8 @@ describe('CharactersController (e2e)', () => {
           specialMoves: mockSuggestion.specialMoves.slice(0, 2),
         };
 
-        await request(app.getHttpServer())
-          .post('/api/characters')
+        await request(app.getHttpServer() as import('http').Server)
+          .post('/api/character')
           .send(invalidPayload)
           .expect(400);
       });
@@ -190,8 +190,8 @@ describe('CharactersController (e2e)', () => {
           specialMoves: mockSuggestion.specialMoves.slice(0, 2),
         };
 
-        await request(app.getHttpServer())
-          .post('/api/characters')
+        await request(app.getHttpServer() as import('http').Server)
+          .post('/api/character')
           .send(invalidPayload)
           .expect(400);
       });
@@ -206,8 +206,8 @@ describe('CharactersController (e2e)', () => {
           specialMoves: mockSuggestion.specialMoves.slice(0, 2),
         };
 
-        await request(app.getHttpServer())
-          .post('/api/characters')
+        await request(app.getHttpServer() as import('http').Server)
+          .post('/api/character')
           .send(invalidPayload)
           .expect(400);
       });
@@ -221,8 +221,8 @@ describe('CharactersController (e2e)', () => {
           specialMoves: mockSuggestion.specialMoves.slice(0, 2),
         };
 
-        await request(app.getHttpServer())
-          .post('/api/characters')
+        await request(app.getHttpServer() as import('http').Server)
+          .post('/api/character')
           .send(invalidPayload)
           .expect(400);
       });
@@ -236,8 +236,8 @@ describe('CharactersController (e2e)', () => {
           specialMoves: mockSuggestion.specialMoves.slice(0, 2),
         };
 
-        await request(app.getHttpServer())
-          .post('/api/characters')
+        await request(app.getHttpServer() as import('http').Server)
+          .post('/api/character')
           .send(invalidPayload)
           .expect(400);
       });
@@ -254,7 +254,7 @@ describe('CharactersController (e2e)', () => {
           OpenAiModule,
           SupabaseModule,
           UserModule,
-          CharactersModule,
+          CharacterModule,
         ],
         providers: [
           Reflector,
@@ -297,14 +297,14 @@ describe('CharactersController (e2e)', () => {
 
     it('should return 401 if unauthenticated', async () => {
       await request(app.getHttpServer() as import('http').Server)
-        .post('/api/characters/suggestion')
+        .post('/api/character/suggestion')
         .send({ name: 'Blocked User', description: 'Should not get in' })
         .expect(401);
     });
 
     it('should return 401 if unauthenticated', async () => {
       await request(app.getHttpServer() as import('http').Server)
-        .post('/api/characters')
+        .post('/api/character')
         .send({ name: 'Blocked User', description: 'Should not get in' })
         .expect(401);
     });
