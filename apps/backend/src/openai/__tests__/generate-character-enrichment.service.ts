@@ -33,6 +33,12 @@ describe('GenerateEnrichCharacterService', () => {
 
   const validEnrichment: CharacterEnrichmentResult = {
     lore: 'Born in a bubbling cauldron of regret, Groovy Gravy fights to return flavor to a tasteless world.',
+    imagePromptPortrait:
+      'A portrait of Groovy Gravy, a sentient gravy monster with a mischievous grin, oozing from a soup pot.',
+    imagePromptBackFacing:
+      'Groovy Gravy, back view, showing its thick, flowing gravy texture and a hint of steam rising from its surface.',
+    imagePromptFullBodyCombat:
+      'Groovy Gravy in a dynamic combat pose, swinging its gravy-covered arms with boiling gravy splashing around.',
     basicMoves: [
       {
         name: 'Slop Swing',

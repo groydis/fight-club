@@ -1,6 +1,10 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import OpenAIApi from 'openai';
-import { ChatCompletion, ChatCompletionMessageParam } from 'openai/resources';
+import {
+  ChatCompletion,
+  ChatCompletionMessageParam,
+  ModerationCreateResponse,
+} from 'openai/resources';
 
 type Message = {
   text: string;
@@ -15,6 +19,23 @@ export class ChatGptService {
     this.openai = new OpenAIApi({
       apiKey: process.env.OPENAI_API_KEY,
     });
+  }
+
+  async checkModeration(
+    text: string,
+  ): Promise<{ flagged: boolean; categories: Record<string, boolean> }> {
+    try {
+      const result: ModerationCreateResponse =
+        await this.openai.moderations.create({ input: text });
+      const [moderation] = result.results;
+      return {
+        flagged: moderation.flagged,
+        categories: moderation.categories as unknown as Record<string, boolean>,
+      };
+    } catch (e) {
+      console.error('Moderation check failed:', e);
+      throw new ServiceUnavailableException('Moderation check failed');
+    }
   }
 
   async chatGptRequest<T>(prompt: string, messages: Message[]): Promise<T> {

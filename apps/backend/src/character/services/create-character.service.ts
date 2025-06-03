@@ -67,22 +67,30 @@ export class CreateCharacterService {
 
     // 3️⃣ Queue AI image generation (background job or event emitter)
     void this.queueImageGeneration(
+      userId,
       character.id,
       name,
-      description,
-      enrichment.lore,
-      stats as unknown as Record<string, number>,
+      enrichment.imagePromptFullBodyCombat,
+      enrichment.imagePromptBackFacing,
+      enrichment.imagePromptPortrait,
+      // description,
+      // enrichment.lore,
+      // stats as unknown as Record<string, number>,
     );
 
     return toCharacterDto(character);
   }
 
   private async queueImageGeneration(
+    userId: string,
     characterId: string,
     name: string,
-    description: string,
-    lore: string,
-    stats: Record<string, number>,
+    frontPrompt: string,
+    backPrompt: string,
+    profilePrompt: string,
+    // description: string,
+    // lore: string,
+    // stats: Record<string, number>,
   ) {
     console.log(
       `[ImageGen] Queuing image generation for ${name} (${characterId})`,
@@ -90,15 +98,14 @@ export class CreateCharacterService {
 
     try {
       const { front, back, profile } = await this.imageGenerator.execute({
-        name,
-        description,
-        lore,
-        stats,
+        frontPrompt,
+        backPrompt,
+        profilePrompt,
       });
 
-      const frontPath = `characters/${characterId}-front.png`;
-      const backPath = `characters/${characterId}-back.png`;
-      const profilePath = `characters/${characterId}-profile.png`;
+      const frontPath = `${userId}/characters/${characterId}/front.png`;
+      const backPath = `${userId}/characters/${characterId}/back.png`;
+      const profilePath = `${userId}/characters/${characterId}/profile.png`;
 
       const [frontUrl, backUrl, profileUrl] = await Promise.all([
         this.fileStorage.upload(frontPath, front, 'image/png'),
