@@ -5,10 +5,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { SupabaseService } from '../supabase/supabase.service';
+import { SupabaseService } from '../services/supabase/supabase.service';
 import { IS_PUBLIC_KEY } from '../common/decorators/public.decorator';
 import { Reflector } from '@nestjs/core';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../services/prisma/prisma.service';
 import { UserRole, UserStatus } from '@prisma/client';
 
 @Injectable()

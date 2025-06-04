@@ -2,8 +2,8 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { AuthGuard } from '../auth/auth.guard';
-import { SupabaseModule } from '../supabase/supabase.module';
-import { PrismaModule } from '../prisma/prisma.module';
+import { SupabaseModule } from '../services/supabase/supabase.module';
+import { PrismaModule } from '../services/prisma/prisma.module';
 
 @Module({
   imports: [SupabaseModule, PrismaModule],

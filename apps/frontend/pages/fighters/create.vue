@@ -6,7 +6,7 @@
       Begin crafting your fighter. Start with a name and a short description of who they are or what they’re about.
     </p>
 
-    <form class="space-y-4" @submit.prevent="submitCharacter">
+    <form class="space-y-4" @submit.prevent="submitCreateCharacterSuggestion">
       <!-- Name Field -->
       <div>
         <label class="block font-semibold mb-1">Name</label>
@@ -158,18 +158,36 @@
         ⚠️ Once you submit your fighter, there’s no turning back. Make sure everything looks good before finalizing.
       </div>
 
-      <button
+      <!-- <button
         class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white"
+        @click="finaliseCharacter"
       >
-        Finalize Fighter
-      </button>
+        Finalise Fighter
+      </button> -->
+
+      <button
+        type="submit"
+        :disabled="loading"
+        class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white disabled:opacity-50"
+        @click="finaliseCharacter"
+      >
+        <span v-if="loading" class="flex items-center gap-2">
+          <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+          </svg>
+          Finalising...
+        </span>
+        <span v-else>Finalise Fighter</span>
+    </button>
+
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { CharacterSuggestion, SuggestCharacterStatsDto } from '@/types/character'
+import type { CharacterSuggestion, SuggestCharacterStatsDto, Character, CreateCharacterDto } from '@/types/character'
 import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
 import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
 
@@ -181,20 +199,20 @@ const form = ref<SuggestCharacterStatsDto>({
 const loading = ref(false)
 const suggestion = ref<CharacterSuggestion | null>(null)
 
-const submitCharacter = async () => {
+const submitCreateCharacterSuggestion = async () => {
   loading.value = true
   suggestion.value = null
 
   try {
     const { execute, data, error } = await useCustomFetch<CharacterSuggestion, SuggestCharacterStatsDto>(
-      '/api/characters/suggestion',
+      '/api/character/suggestion',
       {
         method: 'POST',
         body: form.value,
       }
     )
 
-    await execute() // ✅ this is the important bit
+    await execute()
 
     if (error.value) throw error.value
 
@@ -251,4 +269,39 @@ function isSelected(index: number, type: 'basic' | 'special') {
   const selected = type === 'basic' ? selectedBasicMoves : selectedSpecialMoves
   return selected.value.includes(index)
 }
+
+const finaliseCharacter = async () => {
+  if (!suggestion.value) return;
+  loading.value = true
+
+  try {
+    const payload = {
+      name: form.value.name,
+      description: form.value.description,
+      stats: suggestion.value.stats,
+      basicMoves: selectedBasicMoves.value.map((i) => suggestion.value!.basicMoves[i]),
+      specialMoves: selectedSpecialMoves.value.map((i) => suggestion.value!.specialMoves[i]),
+    };
+
+    const { execute, data, error } = await useCustomFetch<Character, CreateCharacterDto>(
+      '/api/character',
+      {
+        method: 'POST',
+        body: payload,
+      }
+    );
+
+    await execute();
+
+    if (error.value) throw error.value;
+
+    console.log('Character created!', data.value);
+    navigateTo('/fighters');
+  } catch (err) {
+    console.error('Failed to finalize character:', err);
+  } finally {
+    loading.value = false
+  }
+};
+
 </script>

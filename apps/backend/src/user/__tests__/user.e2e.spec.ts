@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import request from 'supertest';
 import { UserModule } from '../user.module';
-import { SupabaseModule } from '../../supabase/supabase.module';
+import { SupabaseModule } from '../../services/supabase/supabase.module';
 import { UserController } from '../user.controller';
 import { AuthGuard } from '../../auth/auth.guard';
 import {
@@ -12,7 +12,7 @@ import {
   local,
   mockSupabaseUser,
 } from '../../test-utils/mock-auth.guard';
-import { PrismaModule } from '../../prisma/prisma.module';
+import { PrismaModule } from '../../services/prisma/prisma.module';
 import { Reflector } from '@nestjs/core';
 
 describe('UserController (e2e)', () => {

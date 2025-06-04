@@ -8,8 +8,8 @@ import {
   local,
   mockSupabaseUser,
 } from '../../test-utils/mock-auth.guard';
-import { PrismaModule } from '../../prisma/prisma.module';
-import { SupabaseModule } from '../../supabase/supabase.module';
+import { PrismaModule } from '../../services/prisma/prisma.module';
+import { SupabaseModule } from '../../services/supabase/supabase.module';
 
 describe('UserController (integration)', () => {
   let app: INestApplication;
