@@ -33,6 +33,8 @@ jobs:
       SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      LEONARDO_API_KEY: ${{ secrets.LEONARDO_API_KEY }}
+      LEONARDO_API_BASE: ${{ secrets.LEONARDO_API_BASE }}
 
     defaults:
       run:

@@ -4,9 +4,9 @@ import {
   UnauthorizedException,
   CanActivate,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { STATIC_USERS } from './static.users';
 import { UserRole, UserStatus } from '@prisma/client';
+import { AuthenticatedRequest } from '../common/types/extended-request';
 
 export const mockSupabaseUser = {
   id: STATIC_USERS.activeUser1,
@@ -40,11 +40,11 @@ export const local = {
 @Injectable()
 export class AllowAllAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const req = context.switchToHttp().getRequest<Request>();
-    req.user = {
+    const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    req.user = req.user ?? {
       supabase: mockSupabaseUser,
       local,
-    };
+    }; // fallback
     return true;
   }
 }

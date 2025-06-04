@@ -1,24 +1,12 @@
 import { Module } from '@nestjs/common';
 import { CharactersController } from './characters.controller';
-import { CharactersService } from './characters.service';
-import { OpenAiModule } from '../openai/openai.module';
-import { SupabaseModule } from '../supabase/supabase.module';
-import { PrismaModule } from '../prisma/prisma.module';
-import { FILE_STORAGE } from '../common/tokens';
-import { MockFileStorage } from '../common/storage/mock-file-storage.service';
-import { SupabaseFileStorage } from '../common/storage/supabase-file-storage.service';
-
-const useMockServices = process.env.USE_MOCK_SERVICES === 'true';
+import { SupabaseModule } from '../services/supabase/supabase.module';
+import { PrismaModule } from '../services/prisma/prisma.module';
+import { ListCharactersService } from './services/list-characters.service';
 
 @Module({
-  imports: [PrismaModule, SupabaseModule, OpenAiModule],
+  imports: [PrismaModule, SupabaseModule],
   controllers: [CharactersController],
-  providers: [
-    CharactersService,
-    {
-      provide: FILE_STORAGE,
-      useClass: useMockServices ? MockFileStorage : SupabaseFileStorage, // Replace later
-    },
-  ],
+  providers: [ListCharactersService],
 })
 export class CharactersModule {}

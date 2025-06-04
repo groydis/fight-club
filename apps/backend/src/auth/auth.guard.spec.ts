@@ -1,7 +1,7 @@
 import { AuthGuard } from './auth.guard';
 import { Reflector } from '@nestjs/core';
-import { SupabaseService } from '../supabase/supabase.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { SupabaseService } from '../services/supabase/supabase.service';
+import { PrismaService } from '../services/prisma/prisma.service';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { UserRole, UserStatus } from '@prisma/client';
 import { faker } from '@faker-js/faker';
