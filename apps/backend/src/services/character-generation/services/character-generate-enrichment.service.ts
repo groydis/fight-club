@@ -1,5 +1,5 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
-import { ChatGptService } from '../openai.service';
+import { OpenAIService } from '../../openai/openai.service';
 import { generateCharacterPrompt } from '../prompts/generate-character-enrichment.prompt';
 import {
   BaseCharacterInput,
@@ -31,8 +31,8 @@ function isValidEnrichedMove(m: unknown): m is EnrichedMove {
 }
 
 @Injectable()
-export class GenerateEnrichCharacterService {
-  constructor(private readonly chatGpt: ChatGptService) {}
+export class CharacterGenerateEnrichmentService {
+  constructor(private readonly openAIService: OpenAIService) {}
 
   async execute(input: BaseCharacterInput): Promise<CharacterEnrichmentResult> {
     const { name, description, stats, basicMoves, specialMoves } = input;
@@ -46,7 +46,7 @@ export class GenerateEnrichCharacterService {
 
     try {
       const result =
-        await this.chatGpt.chatGptRequest<CharacterEnrichmentResult>(
+        await this.openAIService.chatGptRequest<CharacterEnrichmentResult>(
           prompt,
           [],
         );

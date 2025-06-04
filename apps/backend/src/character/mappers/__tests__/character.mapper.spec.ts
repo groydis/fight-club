@@ -19,7 +19,6 @@ describe('toCharacterDto', () => {
       luck: 5,
     },
     imageFrontUrl: null,
-    imageBackUrl: null,
     imageProfileUrl: null,
     createdAt: new Date(),
     updatedAt: new Date(),

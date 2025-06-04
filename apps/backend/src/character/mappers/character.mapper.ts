@@ -16,7 +16,6 @@ export function toCharacterDto(character: FullCharacter): Character {
     stats: character.stats as Record<string, number>,
     status: character.status,
     imageFrontUrl: character.imageFrontUrl ?? undefined,
-    imageBackUrl: character.imageBackUrl ?? undefined,
     imageProfileUrl: character.imageProfileUrl ?? undefined,
     moves: character.moves.map((move) => ({
       name: move.name,

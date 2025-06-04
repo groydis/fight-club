@@ -12,7 +12,7 @@ import { AuthGuard } from '../auth/auth.guard';
 import { CreateCharacterSuggestionRequestDto } from './dto/create-chracter-suggestion.request.dto';
 import { CreateCharacterSuggestionService } from './services/create-character-suggestion.service';
 import { CreateCharacterDto } from './dto/create-character.request.dto';
-import { AuthenticatedRequest } from 'src/common/types/extended-request';
+import { AuthenticatedRequest } from '../common/types/extended-request';
 import { CreateCharacterService } from './services/create-character.service';
 import { GetCharacterService } from './services/get-character.service';
 

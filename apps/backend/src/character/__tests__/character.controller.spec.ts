@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GenerateCharacterSuggestionsService } from '../../services/openai/queries/generate-character-suggestions.service';
-import { GenerateEnrichCharacterService } from '../../services/openai/queries/generate-character-enrichment.service';
+import { CharacterGenerateSuggestionsService } from '../../services/character-generation/services/character-generate-suggestions.service';
+import { CharacterGenerateEnrichmentService } from '../../services/character-generation/services/character-generate-enrichment.service';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { CharacterStatus, MoveType } from '@prisma/client';
 import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
@@ -28,7 +28,6 @@ import { GetCharacterService } from '../services/get-character.service';
 const mockImageGenerator = {
   execute: jest.fn().mockResolvedValue({
     front: Buffer.from('mock front'),
-    back: Buffer.from('mock back'),
     profile: Buffer.from('mock profile'),
   }),
 };
@@ -51,11 +50,11 @@ describe('CharactersController', () => {
         CreateCharacterService,
         PrismaService,
         {
-          provide: GenerateCharacterSuggestionsService,
+          provide: CharacterGenerateSuggestionsService,
           useValue: { execute: jest.fn().mockResolvedValue(mockSuggestion) },
         },
         {
-          provide: GenerateEnrichCharacterService,
+          provide: CharacterGenerateEnrichmentService,
           useValue: { execute: jest.fn().mockResolvedValue(mockEnriched) },
         },
         {
@@ -173,13 +172,14 @@ describe('CharactersController', () => {
       const result = await controller.create(createDto, mockRequest);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
-
+      console.log('Result:', result);
       expect(result).toMatchObject({
         name: createDto.name,
         description: createDto.description,
         lore: mockEnriched.lore,
         status: CharacterStatus.PROCESSING,
         stats: createDto.stats,
+        id: expect.any(String),
       });
 
       expect(result.moves).toHaveLength(4);
@@ -199,13 +199,12 @@ describe('CharactersController', () => {
       );
 
       expect(mockImageGenerator.execute).toHaveBeenCalledWith({
-        name: createDto.name,
-        description: createDto.description,
-        lore: mockEnriched.lore,
-        stats: createDto.stats,
+        characterId: result.id,
+        frontPrompt: mockEnriched.imagePromptFullBodyCombat,
+        profilePrompt: mockEnriched.imagePromptPortrait,
       });
 
-      expect(mockFileStorage.upload).toHaveBeenCalledTimes(3);
+      expect(mockFileStorage.upload).toHaveBeenCalledTimes(2);
     });
   });
 });

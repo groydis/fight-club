@@ -12,7 +12,7 @@ type Message = {
 };
 
 @Injectable()
-export class ChatGptService {
+export class OpenAIService {
   public openai: OpenAIApi;
 
   constructor() {

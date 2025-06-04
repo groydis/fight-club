@@ -2,21 +2,21 @@ import { Injectable, Inject } from '@nestjs/common';
 
 import { FileStorage } from '../../common/storage/file-storage.interface';
 import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
-import { GenerateEnrichCharacterService } from '../../services/openai/queries/generate-character-enrichment.service';
-import { CharacterImageGenerator } from '../../services/openai/queries/image-generation/character-image-generator.interface';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { CreateCharacterDto } from '../dto/create-character.request.dto';
 import { toCharacterDto } from '../mappers/character.mapper';
 import { Character } from '../../common/types/character.types';
 import { CharacterStatus, MoveType, Prisma } from '@prisma/client';
+import { GenerateCharacterImage } from '../../services/image-generation/services/generate-character-image.service';
+import { CharacterGenerateEnrichmentService } from '../../services/character-generation/services/character-generate-enrichment.service';
 
 @Injectable()
 export class CreateCharacterService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly enrichCharacter: GenerateEnrichCharacterService,
+    private readonly enrichCharacter: CharacterGenerateEnrichmentService,
     @Inject(CHARACTER_IMAGE_GENERATOR)
-    private readonly imageGenerator: CharacterImageGenerator,
+    private readonly generateCharacterImage: GenerateCharacterImage,
     @Inject(FILE_STORAGE)
     private readonly fileStorage: FileStorage,
   ) {}
@@ -71,7 +71,6 @@ export class CreateCharacterService {
       character.id,
       name,
       enrichment.imagePromptFullBodyCombat,
-      enrichment.imagePromptBackFacing,
       enrichment.imagePromptPortrait,
     );
 
@@ -83,7 +82,6 @@ export class CreateCharacterService {
     characterId: string,
     name: string,
     frontPrompt: string,
-    backPrompt: string,
     profilePrompt: string,
   ) {
     console.log(
@@ -91,7 +89,7 @@ export class CreateCharacterService {
     );
 
     try {
-      const { front, profile } = await this.imageGenerator.execute({
+      const { front, profile } = await this.generateCharacterImage.execute({
         characterId,
         frontPrompt,
         profilePrompt,

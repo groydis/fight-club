@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GenerateCharacterSuggestionsService } from '../queries/generate-character-suggestions.service';
-import { ChatGptService } from '../openai.service';
-import { CharacterSuggestion } from '../../../common/types/character.types';
+import { OpenAIService } from '../../../openai/openai.service';
+import { CharacterSuggestion } from '../../../../common/types/character.types';
 import { ServiceUnavailableException } from '@nestjs/common';
+import { CharacterGenerateSuggestionsService } from '../character-generate-suggestions.service';
 
 describe('GenerateCharacterSuggestionsService', () => {
-  let service: GenerateCharacterSuggestionsService;
+  let service: CharacterGenerateSuggestionsService;
 
   const validSuggestion: CharacterSuggestion = {
     stats: {
@@ -41,15 +41,15 @@ describe('GenerateCharacterSuggestionsService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        GenerateCharacterSuggestionsService,
+        CharacterGenerateSuggestionsService,
         {
-          provide: ChatGptService,
+          provide: OpenAIService,
           useValue: mockChatGptService,
         },
       ],
     }).compile();
 
-    service = module.get(GenerateCharacterSuggestionsService);
+    service = module.get(CharacterGenerateSuggestionsService);
   });
 
   it('should return valid character suggestions', async () => {

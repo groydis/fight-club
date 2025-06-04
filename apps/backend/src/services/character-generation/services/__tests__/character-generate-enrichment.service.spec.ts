@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GenerateEnrichCharacterService } from '../queries/generate-character-enrichment.service';
-import { ChatGptService } from '../openai.service';
+import { OpenAIService } from '../../../openai/openai.service';
 import {
   BaseCharacterInput,
   CharacterEnrichmentResult,
-} from '../../../common/types/character.types';
+} from '../../../../common/types/character.types';
 import { ServiceUnavailableException } from '@nestjs/common';
+import { CharacterGenerateEnrichmentService } from '../character-generate-enrichment.service';
 
 describe('GenerateEnrichCharacterService', () => {
-  let service: GenerateEnrichCharacterService;
+  let service: CharacterGenerateEnrichmentService;
 
   const baseInput: BaseCharacterInput = {
     name: 'Groovy Gravy',
@@ -74,15 +74,15 @@ describe('GenerateEnrichCharacterService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        GenerateEnrichCharacterService,
+        CharacterGenerateEnrichmentService,
         {
-          provide: ChatGptService,
+          provide: OpenAIService,
           useValue: mockChatGptService,
         },
       ],
     }).compile();
 
-    service = module.get(GenerateEnrichCharacterService);
+    service = module.get(CharacterGenerateEnrichmentService);
   });
 
   it('should return enriched character data', async () => {

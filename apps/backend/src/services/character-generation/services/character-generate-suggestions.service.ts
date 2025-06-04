@@ -1,11 +1,11 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
-import { ChatGptService } from '../openai.service';
+import { OpenAIService } from '../../openai/openai.service';
 import { CharacterSuggestion } from '../../../common/types/character.types';
 import { generateCharacterSuggestionsPrompt } from '../prompts/generate-character-suggestions.prompt';
 
 @Injectable()
-export class GenerateCharacterSuggestionsService {
-  constructor(private readonly chatGpt: ChatGptService) {}
+export class CharacterGenerateSuggestionsService {
+  constructor(private readonly openAIService: OpenAIService) {}
 
   async execute(
     name: string,
@@ -14,10 +14,11 @@ export class GenerateCharacterSuggestionsService {
     const prompt = generateCharacterSuggestionsPrompt(name, description);
 
     try {
-      const result = await this.chatGpt.chatGptRequest<CharacterSuggestion>(
-        prompt,
-        [],
-      );
+      const result =
+        await this.openAIService.chatGptRequest<CharacterSuggestion>(
+          prompt,
+          [],
+        );
 
       // Validate stats
       const stats = result.stats;

@@ -45,7 +45,6 @@ model Character {
   stats           Json
   status          CharacterStatus @default(PROCESSING)
   imageFrontUrl   String?
-  imageBackUrl    String?
   imageProfileUrl String?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt

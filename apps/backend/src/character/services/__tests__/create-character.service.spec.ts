@@ -3,7 +3,7 @@ import { mockEnriched } from '../../../test-utils/mock-character.data';
 import { CreateCharacterService } from '../create-character.service';
 import { STATIC_USERS } from '../../../test-utils/static.users';
 import { PrismaService } from '../../../services/prisma/prisma.service';
-import { GenerateEnrichCharacterService } from '../../../services/openai/queries/generate-character-enrichment.service';
+import { CharacterGenerateEnrichmentService } from '../../../services/character-generation/services/character-generate-enrichment.service';
 import {
   CHARACTER_IMAGE_GENERATOR,
   FILE_STORAGE,
@@ -30,7 +30,7 @@ describe('CreateCharacterService', () => {
         CreateCharacterService,
         PrismaService,
         {
-          provide: GenerateEnrichCharacterService,
+          provide: CharacterGenerateEnrichmentService,
           useValue: mockEnrichService,
         },
         {

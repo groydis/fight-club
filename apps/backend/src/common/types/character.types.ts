@@ -96,7 +96,6 @@ export class Character {
   stats: Record<string, number>;
   status: string;
   imageFrontUrl?: string;
-  imageBackUrl?: string;
   imageProfileUrl?: string;
   moves: CharacterMove[];
   userId?: string;
