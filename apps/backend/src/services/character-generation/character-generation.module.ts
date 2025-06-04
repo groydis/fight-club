@@ -1,13 +1,15 @@
-// src/character-image/character-image.module.ts
+// src/character-generation/character-generation.module.ts
 
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { PrismaModule } from '../prisma/prisma.module';
-import { LeonardoModule } from '../leonoardo/leonardo.module';
+
 import { CharacterGenerateEnrichmentService } from './services/character-generate-enrichment.service';
 import { CharacterGenerateSuggestionsService } from './services/character-generate-suggestions.service';
+import { OpenAIModule } from '../openai/openai.module';
+
 @Module({
-  imports: [HttpModule, PrismaModule, LeonardoModule],
+  imports: [HttpModule, PrismaModule, OpenAIModule],
   providers: [
     CharacterGenerateSuggestionsService,
     CharacterGenerateEnrichmentService,

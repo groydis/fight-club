@@ -11,9 +11,8 @@ import { MiddlewareModule } from './middleware/middleware.module';
 import { PrismaModule } from './services/prisma/prisma.module';
 import { CharacterModule } from './character/character.module';
 import { LeonardoModule } from './services/leonoardo/leonardo.module';
-import { CharacterGenerateEnrichmentService } from './services/character-generation/services/character-generate-enrichment.service';
-import { CharacterGenerateSuggestionsService } from './services/character-generation/services/character-generate-suggestions.service';
-import { GenerateCharacterImage } from './services/image-generation/services/generate-character-image.service';
+import { CharacterGenerationModule } from './services/character-generation/character-generation.module';
+import { ImageGenerationModule } from './services/image-generation/image-generation.module';
 
 @Module({
   imports: [
@@ -21,10 +20,9 @@ import { GenerateCharacterImage } from './services/image-generation/services/gen
     PrismaModule,
     OpenAIModule,
     LeonardoModule,
-    CharacterGenerateEnrichmentService,
-    CharacterGenerateSuggestionsService,
-    GenerateCharacterImage,
     SupabaseModule,
+    CharacterGenerationModule,
+    ImageGenerationModule,
     UserModule,
     CharacterModule,
     CharactersModule,
