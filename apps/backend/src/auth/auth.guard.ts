@@ -84,7 +84,7 @@ export class AuthGuard implements CanActivate {
     // Inject user into request for downstream handlers
     request['user'] = {
       supabase: user, // Raw Supabase user
-      local: localUser, // Your app's DB user
+      local: localUser, // DB user
     };
 
     return true;

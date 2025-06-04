@@ -97,10 +97,6 @@ export class LeonardoService {
     }
   }
 
-  /**
-   * Poll until the generation is COMPLETE or FAILED.
-   * On success, return an array of image URLs.
-   */
   async waitForCompletion(
     generationId: string,
     intervalMs = 3000,

@@ -53,7 +53,6 @@ export class CharacterGenerateEnrichmentService {
           [],
         );
 
-      // ✅ Validate required shape
       if (
         !result.lore ||
         !Array.isArray(result.basicMoves) ||

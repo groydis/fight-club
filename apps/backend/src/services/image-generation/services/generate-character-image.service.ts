@@ -22,6 +22,7 @@ export class GenerateCharacterImage implements CharacterImageGenerator {
   }): Promise<{ front: Buffer; profile: Buffer }> {
     const { characterId, frontPrompt, profilePrompt } = input;
 
+    // TODO: make this one request - eg make a profile picture, now get this chaacter and put them in a fight pose
     // 1) Create two entries in imagePrompt (one for FRONT, one for PROFILE)
     const [frontRecord, profileRecord] = await Promise.all([
       this.prisma.imagePrompt.create({
@@ -68,7 +69,6 @@ export class GenerateCharacterImage implements CharacterImageGenerator {
   ) {
     try {
       // ────────── A) Kick off a Leonardo.ai generation ───────────
-      // You could choose your own modelId, width/height, etc. Hardcode or get from config.
       const generationId = await this.leo.generateImage({
         prompt: promptText,
         modelId: '6bef9f1b-29cb-40c7-b9df-32b51c1f67d3',
