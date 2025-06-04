@@ -23,7 +23,9 @@ function isValidEnrichedMove(m: unknown): m is EnrichedMove {
 
   return (
     typeof maybe.name === 'string' &&
+    maybe.name.trim().length > 0 &&
     typeof maybe.description === 'string' &&
+    maybe.description.trim().length > 0 &&
     typeof maybe.effectValue === 'number' &&
     maybe.effectValue >= 10 &&
     maybe.effectValue <= 100

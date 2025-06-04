@@ -100,13 +100,12 @@ describe('CreateCharacterService', () => {
       expect(mockEnrichService.execute).toHaveBeenCalledWith(createDto);
 
       expect(mockImageGenerator.execute).toHaveBeenCalledWith({
-        name: createDto.name,
-        description: createDto.description,
-        lore: mockEnriched.lore,
-        stats: createDto.stats,
+        characterId: result.id,
+        frontPrompt: mockEnriched.imagePromptFullBodyCombat,
+        profilePrompt: mockEnriched.imagePromptPortrait,
       });
 
-      expect(mockFileStorage.upload).toHaveBeenCalledTimes(3);
+      expect(mockFileStorage.upload).toHaveBeenCalledTimes(2);
 
       const persisted = await service['prisma'].character.findUnique({
         where: { id: result.id },

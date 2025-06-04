@@ -24,7 +24,6 @@ export type CharacterSuggestion = {
 export type CharacterEnrichmentResult = {
   lore: string;
   imagePromptPortrait: string;
-  imagePromptBackFacing: string;
   imagePromptFullBodyCombat: string;
   basicMoves: {
     name: string;

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CreateCharacterSuggestionService } from '../create-character-suggestion.service';
 import { mockSuggestion } from '../../../test-utils/mock-character.data';
 import { PrismaService } from '../../../services/prisma/prisma.service';
-import { GenerateCharacterSuggestionsService } from '../../../services/character-generation/services/character-generate-suggestions.service';
+import { CharacterGenerateSuggestionsService } from '../../../services/character-generation/services/character-generate-suggestions.service';
 import { suggestDto } from '../../../test-utils/mock-dtos';
 
 describe('CreateCharacterSuggestionService', () => {
@@ -18,7 +18,7 @@ describe('CreateCharacterSuggestionService', () => {
         CreateCharacterSuggestionService,
         PrismaService,
         {
-          provide: GenerateCharacterSuggestionsService,
+          provide: CharacterGenerateSuggestionsService,
           useValue: mockSuggestionService,
         },
       ],
