@@ -1,6 +1,6 @@
 // src/leonardo/leonardo.service.ts
 
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
 import { firstValueFrom } from 'rxjs';
@@ -21,8 +21,8 @@ interface GenerationResponse {
   };
 }
 
-interface GenerationStatusResponse {
-  sdGenerationJob: {
+interface GetGenerationStatusResponse {
+  generations_by_pk: {
     generationId: string;
     status: 'PENDING' | 'COMPLETE' | 'FAILED';
     generated_images: {
@@ -35,6 +35,8 @@ interface GenerationStatusResponse {
 
 @Injectable()
 export class LeonardoService {
+  private readonly logger = new Logger(LeonardoService.name);
+
   constructor(private readonly httpService: HttpService) {}
 
   async generateImage(data: GenerationRequest): Promise<string> {
@@ -55,21 +57,28 @@ export class LeonardoService {
       const { data: body } = await response$;
       return body.sdGenerationJob.generationId;
     } catch (err: any) {
-      // Now `err` is `any`, so you can inspect `.response` and `.message`
+      // Extract the raw response body if it exists
+      const leoError = err.response?.data ?? err.message ?? err;
+      this.logger.error(
+        `Leonardo generation failed: ${JSON.stringify(leoError, null, 2)}`,
+      );
+
+      // Throw a 400 or 500 depending on what came back
+      const status = err.response?.status ?? 500;
       throw new HttpException(
-        `Leonardo generation error: ${err.response?.data || err.message}`,
-        err.response?.status || 500,
+        `Leonardo generation error: ${JSON.stringify(leoError)}`,
+        status,
       );
     }
   }
 
   async getGenerationStatus(
     generationId: string,
-  ): Promise<GenerationStatusResponse> {
+  ): Promise<GetGenerationStatusResponse> {
     try {
-      const response$: Promise<AxiosResponse<GenerationStatusResponse>> =
+      const response$: Promise<AxiosResponse<GetGenerationStatusResponse>> =
         firstValueFrom(
-          this.httpService.get<GenerationStatusResponse>(
+          this.httpService.get<GetGenerationStatusResponse>(
             `/generations/${generationId}`,
           ),
         );
@@ -77,34 +86,49 @@ export class LeonardoService {
       const { data: body } = await response$;
       return body;
     } catch (err: any) {
+      const leoError = err.response?.data ?? err.message ?? err;
+      this.logger.error(
+        `Leonardo status check failed: ${JSON.stringify(leoError, null, 2)}`,
+      );
       throw new HttpException(
-        `Leonardo status check error: ${err.response?.data || err.message}`,
-        err.response?.status || 500,
+        `Leonardo status check error: ${JSON.stringify(leoError)}`,
+        err.response?.status ?? 500,
       );
     }
   }
 
+  /**
+   * Poll until the generation is COMPLETE or FAILED.
+   * On success, return an array of image URLs.
+   */
   async waitForCompletion(
     generationId: string,
     intervalMs = 3000,
     timeoutMs = 120000,
   ): Promise<string[]> {
     const start = Date.now();
-    while (true) {
-      const { sdGenerationJob } = await this.getGenerationStatus(generationId);
 
-      if (sdGenerationJob.status === 'COMPLETE') {
-        return sdGenerationJob.generated_images.map((img) => img.url);
+    while (true) {
+      // 1) call getGenerationStatus and pull out generations_by_pk
+      const fullStatus = await this.getGenerationStatus(generationId);
+      const job = fullStatus.generations_by_pk;
+
+      // 2) once status === 'COMPLETE', return all image URLs
+      if (job.status === 'COMPLETE') {
+        return job.generated_images.map((img) => img.url);
       }
 
-      if (sdGenerationJob.status === 'FAILED') {
+      // 3) if 'FAILED', throw
+      if (job.status === 'FAILED') {
         throw new HttpException('Image generation failed', 500);
       }
 
+      // 4) if we've timed out, throw
       if (Date.now() - start > timeoutMs) {
         throw new HttpException('Image generation timed out', 408);
       }
 
+      // 5) otherwise wait and retry
       await this.delay(intervalMs);
     }
   }

@@ -71,9 +71,9 @@ export class GenerateCharacterImage implements CharacterImageGenerator {
       // You could choose your own modelId, width/height, etc. Hardcode or get from config.
       const generationId = await this.leo.generateImage({
         prompt: promptText,
-        modelId: 'MODEL_ID_YOU_WANT', // e.g. '6bef9f1b-29cb-40c7-b9df-32b51c1f67d3'
-        width: 1024,
-        height: 1024,
+        modelId: '6bef9f1b-29cb-40c7-b9df-32b51c1f67d3',
+        width: 512,
+        height: 512,
         num_images: 1,
         // optional: negative_prompt, guidance_scale, etc.
       });
