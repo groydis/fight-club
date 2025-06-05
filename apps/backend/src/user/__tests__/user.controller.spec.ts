@@ -11,6 +11,8 @@ import { createMockAuthUser } from '../../test-utils/create-mock-auth-user';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { UpdateUserService } from '../services/update-user.service';
 import { STATIC_USERS } from '../../test-utils/static.users';
+import { UpdateUserAvatarService } from '../services/update-user-avatar.service';
+import { FileStorageModule } from '../../services/storage/file-storage.module';
 
 describe('UserController (integration)', () => {
   let app: INestApplication;
@@ -18,8 +20,8 @@ describe('UserController (integration)', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [SupabaseModule, PrismaModule],
-      providers: [PrismaService, UpdateUserService],
+      imports: [SupabaseModule, PrismaModule, FileStorageModule],
+      providers: [PrismaService, UpdateUserService, UpdateUserAvatarService],
       controllers: [UserController],
     })
       .overrideGuard(AuthGuard)

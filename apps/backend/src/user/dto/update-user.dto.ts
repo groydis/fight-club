@@ -7,8 +7,9 @@ import {
   Matches,
 } from 'class-validator';
 
+// TODO: --- my god we need some profanity filtering
 // Simple profanity‐blocking regex (replace or expand as needed)
-const PROFANITY_REGEX = /(fuck|shit|bitch|damn)/i;
+// const PROFANITY_REGEX = /(fuck|shit|bitch|damn)/i;
 
 export class UpdateUserDto {
   @IsOptional()

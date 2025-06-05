@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 
-import { FileStorage } from '../../common/storage/file-storage.interface';
+import { FileStorage } from '../../services/storage/interfaces/file-storage.interface';
 import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { CreateCharacterDto } from '../dto/create-character.request.dto';

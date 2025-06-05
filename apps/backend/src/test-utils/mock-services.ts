@@ -1,3 +1,5 @@
+import { FileStorage } from '../services/storage/interfaces/file-storage.interface';
+
 // test-utils/mock-services.ts
 export const mockImageGenerator = {
   execute: jest.fn().mockResolvedValue({
@@ -7,6 +9,11 @@ export const mockImageGenerator = {
   }),
 };
 
-export const mockFileStorage = {
-  upload: jest.fn().mockResolvedValue('https://example.com/mock-image.png'),
+export const mockFileStorage: FileStorage = {
+  upload: jest.fn(
+    async (uploadPath: string, fileBuffer: Buffer, contentType: string) => {
+      // Always return this exact pattern so tests can assert on it:
+      return `https://mock-storage.local/${uploadPath}`;
+    },
+  ),
 };

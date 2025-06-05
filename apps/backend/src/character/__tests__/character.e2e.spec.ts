@@ -11,7 +11,7 @@ import { Reflector } from '@nestjs/core';
 import { CharacterGenerateSuggestionsService } from '../../services/character-generation/services/character-generate-suggestions.service';
 import { CharacterGenerateEnrichmentService } from '../../services/character-generation/services/character-generate-enrichment.service';
 import { MockGenerateImage } from '../../services/image-generation/services/mock-generate-image.service';
-import { MockFileStorage } from '../../common/storage/mock-file-storage.service';
+import { MockFileStorage } from '../../services/storage/services/mock-file-storage.service';
 import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
 import {
   AllowAllAuthGuard,

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FileStorage } from './file-storage.interface';
+import { FileStorage } from '../interfaces/file-storage.interface';
 
 @Injectable()
 export class MockFileStorage implements FileStorage {

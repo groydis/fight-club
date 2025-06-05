@@ -17,8 +17,6 @@ export class UpdateUserService {
     },
   ): Promise<User> {
     try {
-      console.log('New Data');
-      console.log(data);
       return await this.prisma.user.update({
         where: { id },
         data,
@@ -28,6 +26,7 @@ export class UpdateUserService {
           username: true,
           email: true,
           bio: true,
+          avatarUrl: true,
           role: true,
           status: true,
           createdAt: true,

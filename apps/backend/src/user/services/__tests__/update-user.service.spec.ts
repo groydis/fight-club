@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException } from '@nestjs/common';
-import { PrismaService } from '../../services/prisma/prisma.service';
-import { UpdateUserService } from './update-user.service';
+import { PrismaService } from '../../../services/prisma/prisma.service';
+import { UpdateUserService } from '../update-user.service';
 import { faker } from '@faker-js/faker';
 import {
   createMockAuthUser,
   MockAuthUser,
-} from '../../test-utils/create-mock-auth-user';
+} from '../../../test-utils/create-mock-auth-user';
 
 describe('UpdateUsersService (Integration)', () => {
   let prisma: PrismaService;

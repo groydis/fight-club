@@ -1,19 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import request from 'supertest';
-import { UserModule } from '../user.module';
-import { SupabaseModule } from '../../services/supabase/supabase.module';
-import { UserController } from '../user.controller';
 import { AuthGuard } from '../../auth/auth.guard';
 import {
   AllowAllAuthGuard,
   DenyAllAuthGuard,
   local,
 } from '../../test-utils/mock-auth.guard';
-import { PrismaModule } from '../../services/prisma/prisma.module';
 import { Reflector } from '@nestjs/core';
-import { UpdateUserService } from '../services/update-user.service';
+import { mockFileStorage } from '../../test-utils/mock-services';
+import { UserModule } from '../user.module';
+import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from '../../services/prisma/prisma.module';
+import { SupabaseModule } from '../../services/supabase/supabase.module';
+import { FILE_STORAGE } from '../../common/tokens';
 
 describe('UserController (e2e)', () => {
   describe('Authenticated request', () => {
@@ -27,9 +27,10 @@ describe('UserController (e2e)', () => {
           PrismaModule,
           UserModule,
         ],
-        controllers: [UserController],
-        providers: [Reflector, UpdateUserService],
+        providers: [Reflector],
       })
+        .overrideProvider(FILE_STORAGE)
+        .useValue(mockFileStorage)
         .overrideGuard(AuthGuard)
         .useClass(AllowAllAuthGuard)
         .compile();
@@ -67,9 +68,10 @@ describe('UserController (e2e)', () => {
           PrismaModule,
           UserModule,
         ],
-        controllers: [UserController],
-        providers: [UpdateUserService],
+        providers: [Reflector],
       })
+        .overrideProvider(FILE_STORAGE)
+        .useValue(mockFileStorage)
         .overrideGuard(AuthGuard)
         .useClass(DenyAllAuthGuard)
         .compile();

@@ -13,7 +13,7 @@
             :src="user.avatarUrl"
             alt="Avatar"
             class="object-cover w-full h-full"
-          />
+          >
           <svg
             v-else
             xmlns="http://www.w3.org/2000/svg"
@@ -31,16 +31,16 @@
           <input
             type="file"
             accept="image/*"
-            @change="onFileChange"
             :disabled="savingAvatar"
             class="block text-sm text-gray-400 file:bg-gray-700 file:text-white file:px-3 file:py-1 file:rounded"
-          />
+            @change="onFileChange"
+          >
           <p v-if="avatarError" class="text-red-500 text-sm mt-1">{{ avatarError }}</p>
         </div>
       </div>
 
       <!-- Name Field -->
-      <form @submit.prevent="updateProfile" class="space-y-4">
+      <form class="space-y-4" @submit.prevent="updateProfile">
         <div>
           <label class="block font-semibold mb-1">Name</label>
           <input
@@ -49,7 +49,7 @@
             type="text"
             class="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none"
             required
-          />
+          >
         </div>
 
         <!-- Profile/Bio Field (optional editing if you want later) -->
@@ -61,7 +61,7 @@
             rows="3"
             class="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none"
             placeholder="Tell us a bit about yourself..."
-          ></textarea>
+          />
         </div>
 
         <!-- Email (read-only) -->
@@ -72,7 +72,7 @@
             type="email"
             readonly
             class="w-full p-2 rounded bg-gray-800 border border-gray-700 text-gray-400 cursor-not-allowed"
-          />
+          >
         </div>
 
         <!-- Save Button -->
@@ -112,8 +112,8 @@
       <div class="mt-8 border-t border-gray-700 pt-6">
         <h2 class="text-xl font-semibold text-red-500 mb-2">Danger Zone</h2>
         <button
-          @click="confirmDelete"
           class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white"
+          @click="confirmDelete"
         >
           Delete Account
         </button>

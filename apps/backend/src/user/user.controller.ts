@@ -8,16 +8,28 @@ import {
   UseGuards,
   Body,
   BadRequestException,
+  UseInterceptors,
+  UploadedFile,
+  Post,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { AuthGuard } from '../auth/auth.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserService } from './services/update-user.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import { User } from '@prisma/client';
+import { UpdateUserAvatarService } from './services/update-user-avatar.service';
 
 @UseGuards(AuthGuard)
 @Controller('api/user')
 export class UserController {
-  constructor(private readonly updateUserService: UpdateUserService) {}
+  constructor(
+    private readonly updateUserService: UpdateUserService,
+    private readonly updateUserAvatarService: UpdateUserAvatarService,
+  ) {}
 
   @Get()
   getUser(@Req() req: Request) {
@@ -43,7 +55,6 @@ export class UserController {
       bio?: string;
     } = {};
 
-    // 2) Username update (if provided) → profanity check
     if (dto.username !== undefined) {
       const PROFANITY_REGEX = /(fuck|shit|bitch|damn)/i;
       if (PROFANITY_REGEX.test(dto.username)) {
@@ -52,22 +63,18 @@ export class UserController {
       updateData.username = dto.username.trim();
     }
 
-    // 3) Name update (if provided)
     if (dto.name !== undefined) {
       updateData.name = dto.name.trim();
     }
 
-    // 4) Email update (if provided)
     if (dto.email !== undefined) {
       updateData.email = dto.email.toLowerCase().trim();
     }
 
-    // 5) Bio update (if provided)
     if (dto.bio !== undefined) {
       updateData.bio = dto.bio.trim();
     }
 
-    // 6) Check that at least one field is actually being updated
     if (
       updateData.username === undefined &&
       updateData.name === undefined &&
@@ -77,5 +84,60 @@ export class UserController {
       throw new BadRequestException('No valid fields provided for update.');
     }
     return this.updateUserService.excute(id, updateData);
+  }
+
+  @Post('avatar')
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      storage: diskStorage({
+        destination: './uploads/avatars',
+        filename: (_req, file, cb) => {
+          // Generate a random filename
+          const ext = path.extname(file.originalname).toLowerCase();
+          const filename = `${uuidv4()}${ext}`;
+          cb(null, filename);
+        },
+      }),
+      fileFilter: (_req, file, cb) => {
+        const allowed = ['image/jpeg', 'image/png', 'image/gif'];
+        if (allowed.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(
+            new BadRequestException('Only JPEG/PNG/GIF images allowed'),
+            false,
+          );
+        }
+      },
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5 MB
+      },
+    }),
+  )
+  async uploadUserAvatar(
+    @Req() req: { user?: { local?: User } },
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    // 1) Ensure the user is authenticated and we have a local profile
+    const currentUser = req.user?.local;
+    if (!currentUser) {
+      throw new BadRequestException('Must be authenticated to upload avatar');
+    }
+
+    // 2) Ensure a file was provided
+    if (!file) {
+      throw new BadRequestException('No file provided for avatar');
+    }
+
+    // 3) Delegate to the service
+    const publicUrl = await this.updateUserAvatarService.execute(
+      currentUser.id,
+      file.filename,
+      file.originalname,
+      file.mimetype,
+    );
+
+    // 4) Return the new URL
+    return { avatarUrl: publicUrl };
   }
 }
