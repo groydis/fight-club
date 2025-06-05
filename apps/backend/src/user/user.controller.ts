@@ -7,10 +7,8 @@ import { AuthGuard } from '../auth/auth.guard';
 export class UserController {
   @Get()
   getUser(@Req() req: Request) {
-    const user = req.user;
-    return {
-      message: 'User authenticated',
-      user,
-    };
+    const user = req.user?.local;
+    console.log({ user });
+    return { user };
   }
 }

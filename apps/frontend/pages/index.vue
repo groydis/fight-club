@@ -19,7 +19,6 @@ import { onMounted } from 'vue'
 const user = useSupabaseUser()
 
 onMounted(() => {
-    console.log(user.value)
   if (user.value) {
     navigateTo('/dashboard')
   }

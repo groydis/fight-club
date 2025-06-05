@@ -10,7 +10,6 @@ import {
   AllowAllAuthGuard,
   DenyAllAuthGuard,
   local,
-  mockSupabaseUser,
 } from '../../test-utils/mock-auth.guard';
 import { PrismaModule } from '../../services/prisma/prisma.module';
 import { Reflector } from '@nestjs/core';
@@ -47,10 +46,12 @@ describe('UserController (e2e)', () => {
         app.getHttpServer() as import('http').Server,
       ).get('/api/user');
       expect(res.status).toBe(200);
-      expect(res.body.message).toBe('User authenticated');
       expect(res.body.user).toBeDefined();
-      expect(res.body.user.supabase.id).toBe(mockSupabaseUser.id);
-      expect(res.body.user.local.id).toBe(local.id);
+      expect(res.body.user.id).toBe(local.id);
+      expect(res.body.user.name).toBe(local.name);
+      expect(res.body.user.email).toBe(local.email);
+      expect(res.body.user.role).toBe(local.role);
+      expect(res.body.user.status).toBe(local.status);
     });
   });
 
