@@ -20,13 +20,15 @@ export async function createMockAuthUser(
   prisma: PrismaService,
 ): Promise<MockAuthUser> {
   const id = faker.string.uuid();
-  const email = faker.internet.email();
+  const email = faker.internet.exampleEmail();
 
   const local = await prisma.user.create({
     data: {
       id,
       name: 'Test User',
       email,
+      username: email,
+      bio: undefined,
       role: UserRole.USER,
       status: UserStatus.ACTIVE,
     },

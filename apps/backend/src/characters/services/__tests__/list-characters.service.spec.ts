@@ -17,7 +17,7 @@ describe('ListCharactersService', () => {
 
   describe('execute', () => {
     const testUserId = faker.string.uuid();
-    const testUserEmail = faker.internet.email();
+    const testUserEmail = faker.internet.exampleEmail();
     const testCharacters = [
       {
         id: 'char-001',

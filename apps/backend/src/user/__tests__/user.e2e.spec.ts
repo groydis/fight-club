@@ -13,6 +13,7 @@ import {
 } from '../../test-utils/mock-auth.guard';
 import { PrismaModule } from '../../services/prisma/prisma.module';
 import { Reflector } from '@nestjs/core';
+import { UpdateUserService } from '../services/update-user.service';
 
 describe('UserController (e2e)', () => {
   describe('Authenticated request', () => {
@@ -27,7 +28,7 @@ describe('UserController (e2e)', () => {
           UserModule,
         ],
         controllers: [UserController],
-        providers: [Reflector],
+        providers: [Reflector, UpdateUserService],
       })
         .overrideGuard(AuthGuard)
         .useClass(AllowAllAuthGuard)
@@ -67,6 +68,7 @@ describe('UserController (e2e)', () => {
           UserModule,
         ],
         controllers: [UserController],
+        providers: [UpdateUserService],
       })
         .overrideGuard(AuthGuard)
         .useClass(DenyAllAuthGuard)
@@ -84,6 +86,13 @@ describe('UserController (e2e)', () => {
       const res = await request(
         app.getHttpServer() as import('http').Server,
       ).get('/api/user');
+      expect(res.status).toBe(401);
+      expect((res.body as { message: string }).message).toBe('Unauthorized');
+    });
+    it('GET /api/user returns 401 if unauthenticated', async () => {
+      const res = await request(
+        app.getHttpServer() as import('http').Server,
+      ).patch(`/api/user/${local.id}`);
       expect(res.status).toBe(401);
       expect((res.body as { message: string }).message).toBe('Unauthorized');
     });
