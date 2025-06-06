@@ -56,7 +56,7 @@ describe('UserController (integration)', () => {
     });
   });
 
-  describe('PATCH /api/user/:id', () => {
+  describe('PATCH /api/user', () => {
     const testUserIds: string[] = [];
     const validUpdate = {
       username: faker.internet.userName(),
@@ -77,9 +77,7 @@ describe('UserController (integration)', () => {
       });
 
       const server = app.getHttpServer() as import('http').Server;
-      const res = await request(server)
-        .patch(`/api/user/${STATIC_USERS.activeUser1}`)
-        .send(validUpdate);
+      const res = await request(server).patch(`/api/user`).send(validUpdate);
 
       expect(res.status).toBe(200);
       const updated = res.body;
@@ -106,9 +104,7 @@ describe('UserController (integration)', () => {
 
     it('throws BadRequestException if request body is empty', async () => {
       const server = app.getHttpServer();
-      const res = await request(server)
-        .patch(`/api/user/${STATIC_USERS.activeUser1}`)
-        .send({});
+      const res = await request(server).patch(`/api/user`).send({});
 
       expect(res.status).toBe(400);
     });
@@ -116,21 +112,21 @@ describe('UserController (integration)', () => {
     it('throws BadRequestException if username contains profanity', async () => {
       const server = app.getHttpServer();
       const res = await request(server)
-        .patch(`/api/user/${STATIC_USERS.activeUser1}`)
+        .patch(`/api/user`)
         .send({ username: 'fuck' });
 
       expect(res.status).toBe(400);
     });
 
-    it('throws ForbiddenException if attempting to update user id that is not yours', async () => {
-      const testUser = await createMockAuthUser(prisma);
-      testUserIds.push(testUser.id);
-      const server = app.getHttpServer();
-      const res = await request(server)
-        .patch(`/api/user/${testUser.id}`)
-        .send({ username: 'fuck' });
+    // it('throws ForbiddenException if attempting to update user id that is not yours', async () => {
+    //   const testUser = await createMockAuthUser(prisma);
+    //   testUserIds.push(testUser.id);
+    //   const server = app.getHttpServer();
+    //   const res = await request(server)
+    //     .patch(`/api/user/${testUser.id}`)
+    //     .send({ username: 'fuck' });
 
-      expect(res.status).toBe(403);
-    });
+    //   expect(res.status).toBe(403);
+    // });
   });
 });

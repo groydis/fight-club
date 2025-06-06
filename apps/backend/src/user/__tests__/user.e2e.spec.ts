@@ -92,7 +92,7 @@ describe('UserController (e2e)', () => {
     it('GET /api/user returns 401 if unauthenticated', async () => {
       const res = await request(
         app.getHttpServer() as import('http').Server,
-      ).patch(`/api/user/${local.id}`);
+      ).patch(`/api/user`);
       expect(res.status).toBe(401);
       expect((res.body as { message: string }).message).toBe('Unauthorized');
     });

@@ -1,7 +1,6 @@
 <!-- pages/welcome.vue -->
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 
 /**
  * Tell Nuxt to use the “welcome” layout for this page.
@@ -12,16 +11,38 @@ definePageMeta({
 })
 
 const username = ref('')
-const router = useRouter()
+const loading = ref(false)
 const showForm = ref(false)
 const isValidUsername = computed(() => username.value.trim().length >= 3)
 const headerRef = ref<HTMLElement | null>(null)
 
-function submitUsername() {
+async function submitUsername() {
+  loading.value = false
   const cleanName = username.value.trim()
-  if (!cleanName) return
-  router.push({ path: '/fighters', query: { name: cleanName } })
-}
+    // saving.value = true
+    if (!cleanName) return
+    try {
+      // Replace with your PATCH endpoint
+      const { execute, data, error } = await useCustomFetch(`/api/user`, {
+        method: 'PATCH',
+        body: {
+          username: cleanName
+        },
+      })
+
+      await execute();
+      
+      console.log('UserName: ', data.value);
+
+      if (error.value) throw error.value;
+
+      navigateTo('/fighters');
+    } catch (err: any) {
+      console.error('Failed to update profile:', err)
+    } finally {
+      loading.value = false
+    }
+  }
 
 onMounted(() => {
   const headerEl = headerRef.value
@@ -44,7 +65,7 @@ onMounted(() => {
 <template>
   <div v-cloak class="flex flex-col items-center justify-center min-h-screen px-4 py-8">
     <!-- Optional semi-transparent overlay on top of the gradient (provided by the layout) -->
-    <div class="absolute inset-0 bg-black opacity-50"></div>
+    <div class="absolute inset-0 bg-black opacity-50"/>
 
     <!-- Animated header + reveal form -->
     <div class="relative z-10 flex flex-col items-center space-y-8">
@@ -57,8 +78,8 @@ onMounted(() => {
       <transition name="fade-scale" appear>
         <form
           v-if="showForm"
-          @submit.prevent="submitUsername"
           class="w-full flex flex-col items-center space-y-4"
+          @submit.prevent="submitUsername"
         >
           <label class="w-full text-gray-200 text-center font-medium">
             Please, Provide a user name
@@ -71,7 +92,7 @@ onMounted(() => {
             placeholder="Enter username"
             class="w-1/2 px-4 py-2 rounded bg-gray-700 text-white placeholder-gray-400 
                    focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          >
           <button
             type="submit"
             :disabled="!isValidUsername"

@@ -2,7 +2,6 @@ import {
   Controller,
   ForbiddenException,
   Get,
-  Param,
   Patch,
   Req,
   UseGuards,
@@ -45,15 +44,13 @@ export class UserController {
     return { user };
   }
 
-  @Patch(':id')
-  updateUser(
-    @Req() req: Request,
-    @Param('id') id: string,
-    @Body() dto: UpdateUserDto,
-  ) {
-    const user = req.user?.local;
-    if (user?.id !== id) {
-      throw new ForbiddenException('Cannot edit another user’s profile.');
+  @Patch()
+  updateUser(@Req() req: Request, @Body() dto: UpdateUserDto) {
+    const currentUser = req.user?.local;
+    if (!currentUser) {
+      throw new ForbiddenException(
+        'Must be authenticated to update user profile',
+      );
     }
 
     const updateData: {
@@ -91,7 +88,7 @@ export class UserController {
     ) {
       throw new BadRequestException('No valid fields provided for update.');
     }
-    return this.updateUserService.excute(id, updateData);
+    return this.updateUserService.excute(currentUser.id, updateData);
   }
 
   @Post('avatar')
