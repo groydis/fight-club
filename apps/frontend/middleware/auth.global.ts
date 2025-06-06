@@ -10,7 +10,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   // 2. If we haven’t loaded user yet, fetch from backend with JWT
   if (!userStore.data && !userStore.loading) {
-    userStore.setLoading(true)
+    userStore.loading = true;
     try {
       // Get the current session’s access_token (JWT)
       const {
@@ -40,12 +40,12 @@ export default defineNuxtRouteMiddleware(async (to) => {
       console.error('Failed to fetch user in middleware:', err)
       // You could optionally redirect to /auth on 401, etc.
     } finally {
-      userStore.setLoading(false)
+      userStore.loading = false;
     }
   }
 
   // 3. If user.name === 'Unnamed', redirect to /welcome
-  if (userStore.data && userStore.data.name === 'Unnamed') {
+  if (userStore.data && userStore.data.username === userStore.data.email) {
     if (to.name !== '/choose-username' && to.path !== '/welcome') {
       // TODO:
       return navigateTo('/welcome')

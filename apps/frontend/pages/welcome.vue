@@ -82,7 +82,7 @@ onMounted(() => {
           @submit.prevent="submitUsername"
         >
           <label class="w-full text-gray-200 text-center font-medium">
-            Please, Provide a user name
+            Please, Provide a username
           </label>
           <input
             v-model="username"
