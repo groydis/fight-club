@@ -11,6 +11,7 @@ export const mockImageGenerator = {
 
 export const mockFileStorage: FileStorage = {
   upload: jest.fn(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/require-await
     async (uploadPath: string, fileBuffer: Buffer, contentType: string) => {
       // Always return this exact pattern so tests can assert on it:
       return `https://mock-storage.local/${uploadPath}`;

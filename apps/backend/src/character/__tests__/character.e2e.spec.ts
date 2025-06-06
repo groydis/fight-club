@@ -164,6 +164,7 @@ describe('Character (e2e)', () => {
           profilePrompt: mockEnriched.imagePromptPortrait,
         });
 
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(mockFileStorage.upload).toHaveBeenCalledTimes(2);
       });
 

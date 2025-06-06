@@ -174,7 +174,7 @@ async function updateProfile() {
   saving.value = true
   try {
     // Replace with your PATCH endpoint
-    await useCustomFetch(`/api/users/${user.value.id}`, {
+    await useCustomFetch(`/api/user/${user.value.id}`, {
       method: 'PATCH',
       body: {
         name: form.value.name,
@@ -208,7 +208,7 @@ async function onFileChange(e: Event) {
 
     // POST to your backend avatar upload endpoint
     const res = await useCustomFetch<{ avatarUrl: string }>(
-      `/api/users/${user.value.id}/avatar`,
+      `/api/user/avatar`,
       {
         method: 'POST',
         body: formData,
@@ -236,7 +236,7 @@ function confirmDelete() {
 
 async function deleteAccount() {
   try {
-    await useCustomFetch(`/api/users/${user.value.id}`, { method: 'DELETE' })
+    await useCustomFetch(`/api/user/${user.value.id}`, { method: 'DELETE' })
     // After deletion, redirect to landing or signup
     router.push('/')
   } catch (err) {

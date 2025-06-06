@@ -22,18 +22,26 @@ import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import { User } from '@prisma/client';
 import { UpdateUserAvatarService } from './services/update-user-avatar.service';
+import { GetUserService } from './services/get-user.service';
 
 @UseGuards(AuthGuard)
 @Controller('api/user')
 export class UserController {
   constructor(
+    private readonly getUserService: GetUserService,
     private readonly updateUserService: UpdateUserService,
     private readonly updateUserAvatarService: UpdateUserAvatarService,
   ) {}
 
   @Get()
-  getUser(@Req() req: Request) {
-    const user = req.user?.local;
+  async getUser(@Req() req: { user?: { local?: User } }) {
+    const currentUser = req.user?.local;
+    if (!currentUser) {
+      throw new ForbiddenException(
+        'Must be authenticated to fetch user profile',
+      );
+    }
+    const user = await this.getUserService.excute(currentUser.id);
     return { user };
   }
 

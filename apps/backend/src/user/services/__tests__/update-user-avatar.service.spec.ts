@@ -87,6 +87,7 @@ describe('UpdateUserAvatarService', () => {
     );
 
     // 3) mockFileStorage.upload should have been called with correct arguments
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(mockFileStorage.upload).toHaveBeenCalledWith(
       `user-${testUser.id}/avatar.jpg`,
       expect.any(Buffer),
@@ -118,6 +119,7 @@ describe('UpdateUserAvatarService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
 
     // Ensure upload was never called
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(mockFileStorage.upload).not.toHaveBeenCalled();
   });
 
