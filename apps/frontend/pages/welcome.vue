@@ -37,7 +37,7 @@ async function submitUsername() {
       if (error.value) throw error.value;
 
       navigateTo('/fighters');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to update profile:', err)
     } finally {
       loading.value = false
