@@ -108,17 +108,6 @@
           <span v-else>Save Changes</span>
         </button>
       </form>
-
-      <!-- Delete Account -->
-      <div class="mt-8 border-t border-gray-700 pt-6">
-        <h2 class="text-xl font-semibold text-red-500 mb-2">Danger Zone</h2>
-        <button
-          class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white"
-          @click="confirmDelete"
-        >
-          Delete Account
-        </button>
-      </div>
     </div>
   </div>
 </template>
@@ -126,7 +115,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '~/stores/user'
-const { user, fetchUser, updateProfile, uploadAvatar, deleteAccount, loading } = useUserStore()
+const { user, fetchUser, updateProfile, uploadAvatar, loading } = useUserStore()
 
 const saving = ref(false)
 const savingAvatar = ref(false)
@@ -158,16 +147,5 @@ async function onFileChange(e: Event) {
   if (!input.files?.[0]) return
   const file = input.files[0]
   await uploadAvatar(file)
-}
-
-// Confirm before deleting
-function confirmDelete() {
-  if (
-    confirm(
-      'Are you absolutely sure you want to delete your account? This action cannot be undone.'
-    )
-  ) {
-    deleteAccount()
-  }
 }
 </script>
