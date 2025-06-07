@@ -60,7 +60,6 @@ export type Character = {
   stats: Record<string, number>;
   status: string;
   imageFrontUrl?: string;
-  imageBackUrl?: string;
   imageProfileUrl?: string;
   moves: CharacterMoveDetailed[];
   userId?: string;

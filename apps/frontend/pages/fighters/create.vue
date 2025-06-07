@@ -158,13 +158,6 @@
         ⚠️ Once you submit your fighter, there’s no turning back. Make sure everything looks good before finalizing.
       </div>
 
-      <!-- <button
-        class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white"
-        @click="finaliseCharacter"
-      >
-        Finalise Fighter
-      </button> -->
-
       <button
         type="submit"
         :disabled="loading"

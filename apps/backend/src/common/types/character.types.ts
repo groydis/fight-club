@@ -51,7 +51,6 @@ export type BaseCharacterInput = {
   }[];
 };
 
-// This is what you'll store or return after enrichment
 export type FullCharacter = {
   name: string;
   description: string;

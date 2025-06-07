@@ -105,6 +105,7 @@ describe('CreateCharacterService', () => {
         profilePrompt: mockEnriched.imagePromptPortrait,
       });
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockFileStorage.upload).toHaveBeenCalledTimes(2);
 
       const persisted = await service['prisma'].character.findUnique({

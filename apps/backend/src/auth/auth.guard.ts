@@ -30,6 +30,7 @@ export class AuthGuard implements CanActivate {
     const authHeader = request.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.error('Missing or invalid Authorization header');
       throw new UnauthorizedException(
         'Missing or invalid Authorization header',
       );
@@ -44,6 +45,7 @@ export class AuthGuard implements CanActivate {
     } = await supabase.auth.getUser(token);
 
     if (error || !user) {
+      console.error('Invalid or expired token');
       throw new UnauthorizedException('Invalid or expired token');
     }
 
@@ -58,6 +60,7 @@ export class AuthGuard implements CanActivate {
 
     if (!existingUser) {
       if (!user.email) {
+        console.error('Invalid or expired token');
         throw new UnauthorizedException('Invalid or expired token');
       }
       await this.prisma.user.upsert({
@@ -78,13 +81,14 @@ export class AuthGuard implements CanActivate {
     });
 
     if (localUser?.status === UserStatus.BANNED) {
+      console.error('User is banned');
       throw new UnauthorizedException('User is banned');
     }
 
     // Inject user into request for downstream handlers
     request['user'] = {
       supabase: user, // Raw Supabase user
-      local: localUser, // Your app's DB user
+      local: localUser, // DB user
     };
 
     return true;

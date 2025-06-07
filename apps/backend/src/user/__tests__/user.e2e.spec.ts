@@ -1,19 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import request from 'supertest';
-import { UserModule } from '../user.module';
-import { SupabaseModule } from '../../services/supabase/supabase.module';
-import { UserController } from '../user.controller';
 import { AuthGuard } from '../../auth/auth.guard';
 import {
   AllowAllAuthGuard,
   DenyAllAuthGuard,
   local,
-  mockSupabaseUser,
 } from '../../test-utils/mock-auth.guard';
-import { PrismaModule } from '../../services/prisma/prisma.module';
 import { Reflector } from '@nestjs/core';
+import { mockFileStorage } from '../../test-utils/mock-services';
+import { UserModule } from '../user.module';
+import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from '../../services/prisma/prisma.module';
+import { SupabaseModule } from '../../services/supabase/supabase.module';
+import { FILE_STORAGE } from '../../common/tokens';
 
 describe('UserController (e2e)', () => {
   describe('Authenticated request', () => {
@@ -27,9 +27,10 @@ describe('UserController (e2e)', () => {
           PrismaModule,
           UserModule,
         ],
-        controllers: [UserController],
         providers: [Reflector],
       })
+        .overrideProvider(FILE_STORAGE)
+        .useValue(mockFileStorage)
         .overrideGuard(AuthGuard)
         .useClass(AllowAllAuthGuard)
         .compile();
@@ -47,10 +48,10 @@ describe('UserController (e2e)', () => {
         app.getHttpServer() as import('http').Server,
       ).get('/api/user');
       expect(res.status).toBe(200);
-      expect(res.body.message).toBe('User authenticated');
       expect(res.body.user).toBeDefined();
-      expect(res.body.user.supabase.id).toBe(mockSupabaseUser.id);
-      expect(res.body.user.local.id).toBe(local.id);
+      expect(res.body.user.id).toBe(local.id);
+      // TODO: hard to test thorougly, but we should at least
+      // check the shape of the body is correct
     });
   });
 
@@ -65,8 +66,10 @@ describe('UserController (e2e)', () => {
           PrismaModule,
           UserModule,
         ],
-        controllers: [UserController],
+        providers: [Reflector],
       })
+        .overrideProvider(FILE_STORAGE)
+        .useValue(mockFileStorage)
         .overrideGuard(AuthGuard)
         .useClass(DenyAllAuthGuard)
         .compile();
@@ -83,6 +86,13 @@ describe('UserController (e2e)', () => {
       const res = await request(
         app.getHttpServer() as import('http').Server,
       ).get('/api/user');
+      expect(res.status).toBe(401);
+      expect((res.body as { message: string }).message).toBe('Unauthorized');
+    });
+    it('GET /api/user returns 401 if unauthenticated', async () => {
+      const res = await request(
+        app.getHttpServer() as import('http').Server,
+      ).patch(`/api/user`);
       expect(res.status).toBe(401);
       expect((res.body as { message: string }).message).toBe('Unauthorized');
     });

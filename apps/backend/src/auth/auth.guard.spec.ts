@@ -43,7 +43,7 @@ describe('AuthGuard', () => {
 
     // Create a fresh user each time
     testUserId = faker.string.uuid();
-    testUserEmail = faker.internet.email();
+    testUserEmail = faker.internet.exampleEmail();
 
     supabaseService = {
       getClient: () => ({

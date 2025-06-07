@@ -1,10 +1,11 @@
+<!-- app.vue — keep this as simple as possible! -->
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-blue-900 text-white">
+  <!-- This tells Nuxt: “Wrap every page in the selected layout” -->
+  <NuxtLayout>
     <NuxtPage />
-    <LoadingOverlay />
-  </div>
+  </NuxtLayout>
 </template>
 
 <script setup>
-import LoadingOverlay from '~/components/LoadingOverlay.vue'
+// No additional code here.
 </script>

@@ -25,6 +25,8 @@ export interface LocalUser {
   id: string;
   name: string;
   email: string;
+  username: string | null;
+  bio: string | null;
   role: UserRole;
   status: UserStatus;
   createdAt: Date;
