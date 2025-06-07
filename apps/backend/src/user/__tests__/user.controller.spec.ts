@@ -7,7 +7,6 @@ import { AllowAllAuthGuard, local } from '../../test-utils/mock-auth.guard';
 import { PrismaModule } from '../../services/prisma/prisma.module';
 import { SupabaseModule } from '../../services/supabase/supabase.module';
 import { faker } from '@faker-js/faker';
-import { createMockAuthUser } from '../../test-utils/create-mock-auth-user';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { UpdateUserService } from '../services/update-user.service';
 import { STATIC_USERS } from '../../test-utils/static.users';

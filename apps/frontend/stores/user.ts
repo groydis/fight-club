@@ -44,16 +44,15 @@ export const useUserStore = defineStore('user', () => {
     try {
       loading.value = true
       if (!user.value) throw new Error('No user loaded')
-      console.log('User id: ', user.value.id) // this is undefined 
       const { execute, data, error } = await useCustomFetch(`/api/user`, {
         method: 'PATCH',
         body: fields,
       })
+
       await execute()
-    
       if (error.value) throw error.value;
-      console.log(data);
-      // user.value = { ...data.value, ...fields }
+
+      user.value = { ...data.value, ...fields }
     } catch (err: unknown) {
         console.error('Failed to update user', err)
         error.value = err
@@ -63,16 +62,22 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const uploadAvatar = async (file: File) => {
-    if (!user.value) throw new Error('No user loaded')
-    const formData = new FormData()
-    formData.append('avatar', file)
-    const { execute, data, error } = await useCustomFetch<{ avatarUrl: string }>(`/api/user/avatar`, {
-      method: 'POST',
-      body: formData,
-    })
-    await execute()
-    if (error.value) throw error.value;
-    user.value.avatarUrl = res.avatarUrl
+    try {
+      loading.value = true
+      if (!user.value) throw new Error('No user loaded')
+      const formData = new FormData()
+      formData.append('avatar', file)
+      const { execute, data, error } = await useCustomFetch<{ avatarUrl: string }>(`/api/user/avatar`, {
+        method: 'POST',
+        body: formData,
+      })
+      await execute()
+      if (error.value) throw error.value;
+      user.value.avatarUrl = data.avatarUrl
+    } catch (err: unknown) {
+      console.error('Failed to upload user avatar', err)
+      error.value = err
+    }
   }
 
   const deleteAccount = async () => {
