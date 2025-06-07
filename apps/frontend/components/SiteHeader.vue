@@ -109,14 +109,12 @@ const userStore = useUserStore()
 
 const userName = computed(() => {
   return (
-    userStore.data?.name ||
-    supabaseUser.value?.email?.split('@')[0] ||
-    'Anonymous'
+    userStore.user?.username
   )
 })
 
 const userAvatar = computed(() => {
-  return userStore.data?.avatarUrl || null
+  return userStore.user?.avatarUrl || null
 })
 
 async function logout() {
