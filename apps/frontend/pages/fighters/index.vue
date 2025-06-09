@@ -1,6 +1,6 @@
 <template>
-  <div class="flex justify-center items-center min-h-screen">
-    <div class="p-10">
+  <div class="min-h-screen flex items-center justify-center bg-zinc-950 text-white px-4">
+    <div class="w-full max-w-6xl py-10 space-y-8">
       <!-- Character Select Screen -->
       <div
         v-if="!selectedCharacter"
@@ -9,7 +9,7 @@
         <button
           v-for="index in 10"
           :key="index"
-          class="relative border-2 border-transparent hover:border-fuchsia-500 transition rounded-xl overflow-hidden group"
+          class="relative border border-zinc-800 hover:border-red-600 transition rounded-xl overflow-hidden group bg-zinc-900 shadow-md"
           @click="
             characters[index - 1]
               ? selectCharacter(characters[index - 1])
@@ -19,10 +19,10 @@
           <img
             :src="characters[index - 1]?.imageProfileUrl || '/images/question-mark.png'"
             :alt="characters[index - 1]?.name || 'Create Fighter'"
-            class="w-full aspect-square object-cover bg-black/50"
+            class="w-full aspect-square object-cover bg-black/60"
           >
           <div
-            class="absolute bottom-0 w-full text-center bg-black/60 text-white text-sm p-1 group-hover:bg-fuchsia-700"
+            class="absolute bottom-0 w-full text-center bg-black/70 text-white text-sm p-1 group-hover:bg-red-700 transition"
           >
             {{ characters[index - 1]?.name || 'Create Character' }}
           </div>
@@ -32,10 +32,10 @@
       <!-- Character Detail Panel -->
       <div
         v-else
-        class="relative max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 p-4"
+        class="relative grid grid-cols-1 md:grid-cols-2 gap-6 bg-zinc-900/60 border border-zinc-800 rounded-lg p-6 shadow-xl"
       >
         <button
-          class="absolute top-2 left-2 bg-gray-800 text-white px-3 py-1 rounded-md text-xs"
+          class="absolute top-2 left-2 bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1 rounded-md text-xs"
           @click="selectedCharacter = null"
         >
           ← Back
@@ -45,37 +45,38 @@
         <img
           :src="selectedCharacter.imageProfileUrl"
           :alt="selectedCharacter.name"
-          class="w-full rounded-xl object-cover aspect-square"
+          class="w-full rounded-lg object-cover aspect-square border border-zinc-700"
         >
 
         <!-- Right: Details -->
         <div class="space-y-6">
-          <!-- Name / Description / Lore -->
+          <!-- Name / Lore -->
           <div>
-            <h2 class="text-3xl font-bold">{{ selectedCharacter.name }}</h2>
-            <p class="text-sm text-gray-300">{{ selectedCharacter.lore }}</p>
+            <h2 class="text-3xl font-bold text-red-600 tracking-wide uppercase">
+              {{ selectedCharacter.name }}
+            </h2>
+            <p class="text-sm text-zinc-400 italic">{{ selectedCharacter.lore }}</p>
           </div>
 
-          <!-- Stats (read-only) -->
+          <!-- Stats -->
           <div>
-            <h3 class="text-xl font-semibold mb-2">Stats</h3>
+            <h3 class="text-xl font-semibold text-white uppercase mb-2">Stats</h3>
             <div class="grid grid-cols-2 gap-2">
               <div
                 v-for="([statKey, statVal], idx) in statEntries"
                 :key="idx"
                 class="flex items-center gap-2"
               >
-                <!-- Emoji + Stat Name -->
                 <span class="text-2xl">{{ STAT_EMOJI_MAP[statKey] }}</span>
-                <span class="capitalize font-medium">{{ statKey }}:</span>
-                <span class="font-bold">{{ statVal }}</span>
+                <span class="capitalize text-zinc-300">{{ statKey }}:</span>
+                <span class="font-bold text-white">{{ statVal }}</span>
                 <span
                   v-tippy="{
                     content: STAT_EXPLANATION_MAP[statKey],
                     placement: 'top',
                     theme: 'light-border'
                   }"
-                  class="cursor-help text-gray-500"
+                  class="cursor-help text-zinc-500"
                 >
                   (?)
                 </span>
@@ -85,21 +86,29 @@
 
           <!-- Moves -->
           <div>
-            <h3 class="text-xl font-semibold mb-2">Basic Moves</h3>
-            <div class="list-disc list-inside space-y-1">
-              <div v-for="(move, i) in basicMoves" :key="i" class="gap-2">
-                <span class="text-2xl pr-1">{{ STAT_EMOJI_MAP[move.primaryStat] }}</span>
-                <span class="capitalize font-medium">{{ move.name }}</span>
-                <p class="text-sm text-gray-400"> {{ move.description }}</p>
+            <h3 class="text-xl font-semibold text-white uppercase mb-2">Basic Moves</h3>
+            <div class="space-y-3">
+              <div
+                v-for="(move, i) in basicMoves"
+                :key="i"
+                class="border-l-4 border-red-600 pl-3"
+              >
+                <span class="text-xl">{{ STAT_EMOJI_MAP[move.primaryStat] }}</span>
+                <span class="font-medium text-white">{{ move.name }}</span>
+                <p class="text-sm text-zinc-400">{{ move.description }}</p>
               </div>
             </div>
 
-            <h3 class="text-xl font-semibold mt-4 mb-2">Special Moves</h3>
-            <div class="list-disc list-inside space-y-1">
-              <div v-for="(move, i) in specialMoves" :key="i">
-                <span class="text-2xl pr-1">{{ STAT_EMOJI_MAP[move.primaryStat]  }}</span>
-                <span class="font-medium">{{ move.name }}</span>
-                <p class="text-sm text-gray-400"> {{ move.description }}</p>
+            <h3 class="text-xl font-semibold text-white uppercase mt-6 mb-2">Special Moves</h3>
+            <div class="space-y-3">
+              <div
+                v-for="(move, i) in specialMoves"
+                :key="i"
+                class="border-l-4 border-purple-600 pl-3"
+              >
+                <span class="text-xl">{{ STAT_EMOJI_MAP[move.primaryStat] }}</span>
+                <span class="font-medium text-white">{{ move.name }}</span>
+                <p class="text-sm text-zinc-400">{{ move.description }}</p>
               </div>
             </div>
           </div>
@@ -108,6 +117,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'

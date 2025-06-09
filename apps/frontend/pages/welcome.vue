@@ -63,41 +63,46 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-cloak class="flex flex-col items-center justify-center min-h-screen px-4 py-8">
-    <!-- Optional semi-transparent overlay on top of the gradient (provided by the layout) -->
-    <div class="absolute inset-0 bg-black opacity-50"/>
+  <div v-cloak class="relative flex flex-col items-center justify-center min-h-screen px-4 py-12 bg-zinc-950 text-zinc-100">
+    <!-- Optional semi-transparent overlay (can be removed if layout already does this) -->
+    <div class="absolute inset-0 bg-black opacity-40 pointer-events-none" />
 
     <!-- Animated header + reveal form -->
-    <div class="relative z-10 flex flex-col items-center space-y-8">
-      <!-- 1) Starting state: hidden + scaled up -->
-      <h1 ref="headerRef" class="text-white font-bold text-center start-hidden">
+    <div class="relative z-10 flex flex-col items-center space-y-10 w-full max-w-xl">
+      <!-- 1) Header: starts hidden & scaled -->
+      <h1
+        ref="headerRef"
+        class="text-center text-3xl sm:text-5xl font-extrabold tracking-tight text-rose-600 start-hidden"
+      >
         Welcome to Fight Club
       </h1>
 
-      <!-- 2) Form only appears after `showForm` becomes true -->
+      <!-- 2) Form appears after animation -->
       <transition name="fade-scale" appear>
         <form
           v-if="showForm"
-          class="w-full flex flex-col items-center space-y-4"
+          class="w-full flex flex-col items-center space-y-6"
           @submit.prevent="submitUsername"
         >
-          <label class="w-full text-gray-200 text-center font-medium">
-            Please, Provide a username
+          <label class="text-center text-zinc-300 text-lg font-medium">
+            Choose your username to enter
           </label>
+
           <input
             v-model="username"
             type="text"
-            required
             maxlength="20"
+            required
             placeholder="Enter username"
-            class="w-1/2 px-4 py-2 rounded bg-gray-700 text-white placeholder-gray-400 
-                   focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full sm:w-2/3 px-4 py-2 rounded bg-zinc-900 border border-zinc-700 placeholder-zinc-500 
+                   text-zinc-100 focus:outline-none focus:ring-2 focus:ring-rose-600"
           >
+
           <button
             type="submit"
             :disabled="!isValidUsername"
-            class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded 
-                   disabled:opacity-50"
+            class="w-full sm:w-2/3 px-4 py-2 rounded bg-rose-600 hover:bg-rose-700 text-white font-bold 
+                   tracking-wide transition disabled:opacity-50"
           >
             Continue
           </button>

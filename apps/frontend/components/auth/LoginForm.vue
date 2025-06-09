@@ -1,46 +1,56 @@
 <template>
   <form class="flex flex-col gap-6" @submit.prevent="onSubmit">
-    <h1 class="text-2xl font-bold text-white tracking-wide uppercase">Enter the ring</h1>
+    <!-- Title -->
+    <h1 class="text-2xl font-extrabold text-zinc-100 tracking-wide text-center uppercase">
+      Enter the Ring
+    </h1>
 
-    <!-- Email -->
+    <!-- Email Field -->
     <div class="flex flex-col gap-1">
-      <label for="email" class="text-xs font-medium text-zinc-400">Email</label>
+      <label for="email" class="text-xs font-semibold text-zinc-400">Email</label>
       <input
         id="email"
         v-model="form.email"
         type="email"
         required
-        class="bg-zinc-800 text-white border border-zinc-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+        class="bg-zinc-900 text-zinc-100 placeholder-zinc-500 border border-zinc-700 rounded px-4 py-2 
+               focus:outline-none focus:ring-2 focus:ring-rose-600"
       >
     </div>
 
-    <!-- Password -->
+    <!-- Password Field -->
     <div class="flex flex-col gap-1">
-      <label for="password" class="text-xs font-medium text-zinc-400">Password</label>
+      <label for="password" class="text-xs font-semibold text-zinc-400">Password</label>
       <input
         id="password"
         v-model="form.password"
         type="password"
         required
-        class="bg-zinc-800 text-white border border-zinc-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+        class="bg-zinc-900 text-zinc-100 placeholder-zinc-500 border border-zinc-700 rounded px-4 py-2 
+               focus:outline-none focus:ring-2 focus:ring-rose-600"
       >
     </div>
 
-    <!-- Submit -->
+    <!-- Submit Button -->
     <button
       type="submit"
-      class="mt-2 bg-red-600 text-white font-bold py-2 rounded-md hover:bg-red-700 transition-all uppercase tracking-wider"
+      class="mt-2 bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 rounded 
+             uppercase tracking-wider shadow-sm hover:shadow-md transition-all"
     >
       Login
     </button>
 
     <!-- Navigation Links -->
     <p class="mt-4 text-center text-sm text-zinc-400">
-      <NuxtLink to="/auth?view=forgot-password" class="underline hover:text-red-500">Forgot Password?</NuxtLink>
+      <NuxtLink to="/auth?view=forgot-password" class="underline hover:text-rose-500">
+        Forgot Password?
+      </NuxtLink>
     </p>
     <p class="text-center text-sm text-zinc-400">
       No account?
-      <NuxtLink to="/auth?view=signup" class="underline hover:text-red-500">Sign up</NuxtLink>
+      <NuxtLink to="/auth?view=signup" class="underline hover:text-rose-500">
+        Sign up
+      </NuxtLink>
     </p>
   </form>
 </template>

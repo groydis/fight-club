@@ -1,31 +1,31 @@
 <template>
-  <div class="max-w-2xl mx-auto p-6 space-y-6">
-    <h1 class="text-3xl font-bold">Create Fighter</h1>
+  <div class="max-w-2xl mx-auto p-6 space-y-6 bg-zinc-900/60 border border-zinc-800 rounded-lg shadow-2xl">
+    <h1 class="text-4xl font-extrabold text-red-600 tracking-wide uppercase">Create Fighter</h1>
 
-    <p class="text-sm text-gray-400">
-      Begin crafting your fighter. Start with a name and a short description of who they are or what they’re about.
+    <p class="text-sm text-zinc-400 italic">
+      This is your canvas. Give us a name, a vibe, and we’ll sketch out a killer.
     </p>
 
     <form class="space-y-4" @submit.prevent="submitCreateCharacterSuggestion">
       <!-- Name Field -->
       <div>
-        <label class="block font-semibold mb-1">Name</label>
+        <label class="block text-sm font-semibold text-zinc-300 mb-1 tracking-wide uppercase">Name</label>
         <input
           v-model="form.name"
           :disabled="loading"
           type="text"
-          class="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none"
+          class="w-full p-3 rounded bg-zinc-950 border border-zinc-700 focus:outline-none focus:ring focus:ring-red-500 text-white"
           required
         >
       </div>
 
       <!-- Description Field -->
       <div>
-        <label class="block font-semibold mb-1">Description</label>
+        <label class="block text-sm font-semibold text-zinc-300 mb-1 tracking-wide uppercase">Description</label>
         <textarea
           v-model="form.description"
           :disabled="loading"
-          class="w-full p-2 rounded bg-gray-800 border border-gray-700 focus:outline-none"
+          class="w-full p-3 rounded bg-zinc-950 border border-zinc-700 focus:outline-none focus:ring focus:ring-red-500 text-white"
           rows="4"
           required
         />
@@ -35,7 +35,7 @@
       <button
         type="submit"
         :disabled="loading"
-        class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white disabled:opacity-50"
+        class="bg-red-700 hover:bg-red-800 px-4 py-2 rounded text-white font-semibold tracking-wide transition-all disabled:opacity-40"
       >
         <span v-if="loading" class="flex items-center gap-2">
           <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -44,7 +44,6 @@
           </svg>
           Generating...
         </span>
-
         <span v-else>Generate Fighter</span>
       </button>
     </form>
@@ -53,8 +52,8 @@
     <div v-if="suggestion" class="mt-10 space-y-8">
       <!-- Stats -->
       <div>
-        <h2 class="text-2xl font-bold mb-2">Stats</h2>
-        <p class="text-sm text-gray-400 mb-4">
+        <h2 class="text-2xl font-bold text-zinc-200 mb-2 uppercase">Stats</h2>
+        <p class="text-sm text-zinc-400 mb-4">
           These stats are suggestions based on your fighter’s description. You may modify them, but they will directly impact your fighter’s performance in battle.
         </p>
         <p class="text-sm text-yellow-400 mt-2">
@@ -67,12 +66,12 @@
             class="flex items-center gap-2"
           >
             <div class="flex items-center gap-1 w-36">
-              <label class="capitalize">
+              <label class="capitalize text-white">
                 {{ STAT_EMOJI_MAP[key] }} {{ key }}
               </label>
               <span
                 v-tippy="{ content: STAT_EXPLANATION_MAP[key], placement: 'top', theme: 'light-border' }"
-                class="cursor-help"
+                class="text-zinc-400 hover:text-red-400 transition cursor-help"
               >
                 (?)
               </span>
@@ -81,7 +80,7 @@
             <div class="flex items-center gap-1">
               <button
                 type="button"
-                class="bg-gray-700 px-2 py-1 rounded text-white hover:bg-gray-600 disabled:opacity-30"
+                class="bg-zinc-800 border border-zinc-600 px-2 py-1 rounded text-white hover:bg-red-700 hover:border-red-600 disabled:opacity-30"
                 :disabled="value <= MIN_POINTS_PER_STAT"
                 @click="decreaseStat(key)"
               >-</button>
@@ -89,12 +88,12 @@
               <input
                 :value="value"
                 readonly
-                class="w-12 text-center p-1 rounded bg-gray-800 border border-gray-700"
+                class="w-12 text-center p-1 rounded bg-zinc-950 border border-zinc-700 text-white"
               >
 
               <button
                 type="button"
-                class="bg-gray-700 px-2 py-1 rounded text-white hover:bg-gray-600 disabled:opacity-30"
+                class="bg-zinc-800 border border-zinc-600 px-2 py-1 rounded text-white hover:bg-red-700 hover:border-red-600 disabled:opacity-30"
                 :disabled="remainingPoints <= 0 || value >= MAX_POINTS_PER_STAT"
                 @click="increaseStat(key)"
               >+</button>
@@ -105,7 +104,7 @@
 
       <!-- Basic Moves -->
       <div>
-        <h2 class="text-2xl font-bold mb-2">Basic Moves</h2>
+        <h2 class="text-2xl font-bold text-zinc-200 mb-2 uppercase">Basic Moves</h2>
         <p v-if="selectedBasicMoves.length < 2" class="text-sm text-yellow-400 mt-2">
           Please select 2 basic moves.
         </p>
@@ -116,8 +115,8 @@
             type="button"
             class="p-2 rounded border text-left transition-all"
             :class="{
-              'bg-blue-700 border-blue-500 text-white': isSelected(index, 'basic'),
-              'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700': !isSelected(index, 'basic'),
+              'bg-red-700 border-red-600 text-white': isSelected(index, 'basic'),
+              'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700': !isSelected(index, 'basic'),
               'opacity-50 cursor-not-allowed': !isSelected(index, 'basic') && selectedBasicMoves.length >= 2
             }"
             :disabled="!isSelected(index, 'basic') && selectedBasicMoves.length >= 2"
@@ -130,7 +129,7 @@
 
       <!-- Special Moves -->
       <div>
-        <h2 class="text-2xl font-bold mb-2">Special Moves</h2>
+        <h2 class="text-2xl font-bold text-zinc-200 mb-2 uppercase">Special Moves</h2>
         <p v-if="selectedSpecialMoves.length < 2" class="text-sm text-yellow-400 mt-2">
           Please select 2 special moves.
         </p>
@@ -141,8 +140,8 @@
             type="button"
             class="p-2 rounded border text-left transition-all"
             :class="{
-              'bg-purple-700 border-purple-500 text-white': isSelected(index, 'special'),
-              'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700': !isSelected(index, 'special'),
+              'bg-purple-800 border-purple-600 text-white': isSelected(index, 'special'),
+              'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700': !isSelected(index, 'special'),
               'opacity-50 cursor-not-allowed': !isSelected(index, 'special') && selectedSpecialMoves.length >= 2
             }"
             :disabled="!isSelected(index, 'special') && selectedSpecialMoves.length >= 2"
@@ -153,15 +152,15 @@
         </div>
       </div>
 
-      <!-- Warning & Finalize -->
-      <div class="bg-yellow-900 text-yellow-300 p-4 rounded text-sm">
+      <!-- Warning & Finalise -->
+      <div class="bg-red-950 border border-red-700 text-red-300 p-4 rounded text-sm tracking-wide">
         ⚠️ Once you submit your fighter, there’s no turning back. Make sure everything looks good before finalizing.
       </div>
 
       <button
         type="submit"
         :disabled="loading"
-        class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white disabled:opacity-50"
+        class="bg-red-700 hover:bg-red-800 px-4 py-2 rounded text-white font-semibold tracking-wide transition-all disabled:opacity-40"
         @click="finaliseCharacter"
       >
         <span v-if="loading" class="flex items-center gap-2">
@@ -172,11 +171,11 @@
           Finalising...
         </span>
         <span v-else>Finalise Fighter</span>
-    </button>
-
+      </button>
     </div>
   </div>
 </template>
+
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
