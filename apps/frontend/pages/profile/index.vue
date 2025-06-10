@@ -111,6 +111,7 @@
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '~/stores/user'
 
+const { showLoading, hideLoading } = useLoading()
 const { user, fetchUser, updateProfile, uploadAvatar, loading } = useUserStore()
 const saving = ref(false)
 const savingAvatar = ref(false)
@@ -129,6 +130,7 @@ onMounted(async () => {
 })
 
 async function submitProfileUpdate() {
+  showLoading()
   saving.value = true
   try {
     await updateProfile(form.value)
@@ -136,6 +138,7 @@ async function submitProfileUpdate() {
     console.error('Failed to update profile:', err)
   } finally {
     saving.value = false
+    hideLoading();
   }
 }
 
@@ -145,6 +148,7 @@ async function onFileChange(e: Event) {
   const file = input.files[0]
   savingAvatar.value = true
   avatarError.value = ''
+  showLoading()
   try {
     await uploadAvatar(file)
   } catch (err: unknown) {
@@ -152,6 +156,7 @@ async function onFileChange(e: Event) {
     console.error('Failed to upload avatar:', err)
   } finally {
     savingAvatar.value = false
+    hideLoading()
   }
 }
 </script>

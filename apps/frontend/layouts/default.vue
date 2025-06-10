@@ -1,5 +1,8 @@
 <template>
   <div class="flex flex-col min-h-screen bg-zinc-950 text-zinc-100">
+    <!-- Loading overlay -->
+    <LoadingOverlay />
+
     <!-- Top header -->
     <SiteHeader />
     <div class="border-t border-zinc-800" />
@@ -12,5 +15,6 @@
 </template>
 
 <script setup>
+import LoadingOverlay from '~/components/LoadingOverlay.vue'
 import SiteHeader from '~/components/SiteHeader.vue'
 </script>

@@ -182,6 +182,7 @@ import { ref, computed } from 'vue'
 import type { CharacterSuggestion, SuggestCharacterStatsDto, Character, CreateCharacterDto } from '@/types/character'
 import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
 import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
+const { showLoading, hideLoading } = useLoading()
 
 const form = ref<SuggestCharacterStatsDto>({
   name: '',
@@ -196,6 +197,7 @@ const submitCreateCharacterSuggestion = async () => {
   suggestion.value = null
 
   try {
+    showLoading()
     const { execute, data, error } = await useCustomFetch<CharacterSuggestion, SuggestCharacterStatsDto>(
       '/api/character/suggestion',
       {
@@ -216,6 +218,7 @@ const submitCreateCharacterSuggestion = async () => {
     console.error('Failed to fetch character suggestion:', err)
   } finally {
     loading.value = false
+    hideLoading()
   }
 }
 
@@ -267,6 +270,7 @@ const finaliseCharacter = async () => {
   loading.value = true
 
   try {
+    showLoading()
     const payload = {
       name: form.value.name,
       description: form.value.description,
@@ -293,6 +297,7 @@ const finaliseCharacter = async () => {
     console.error('Failed to finalize character:', err);
   } finally {
     loading.value = false
+    hideLoading()
   }
 };
 

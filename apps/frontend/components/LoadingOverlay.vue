@@ -1,9 +1,10 @@
+<!-- components/LoadingOverlay.vue -->
 <template>
   <div
     v-if="loading"
-    class="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center"
+    class="fixed inset-0 z-50 bg-zinc-950 bg-opacity-90 backdrop-blur-sm flex items-center justify-center"
   >
-    <div class="text-white text-xl font-bold animate-pulse">
+    <div class="text-white text-2xl font-black tracking-wide animate-pulse">
       Loading...
     </div>
   </div>

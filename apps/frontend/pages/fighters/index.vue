@@ -130,13 +130,14 @@ import type {
 } from '@/types/character'
 import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
 import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
-
+const { showLoading, hideLoading } = useLoading()
 const characters = ref<Character[]>([])
 const selectedCharacter = ref<Character | null>(null)
 const loading = ref(false)
 const router = useRouter()
 
 const fetchCharacters = async () => {
+  showLoading()
   loading.value = true
   try {
     const { data, error, execute } = await useCustomFetch('/api/characters', {
@@ -150,6 +151,7 @@ const fetchCharacters = async () => {
     console.error('Failed to fetch characters:', err)
   } finally {
     loading.value = false
+    hideLoading()
   }
 }
 

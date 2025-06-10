@@ -10,6 +10,8 @@ definePageMeta({
   layout: 'welcome'
 })
 
+const { showLoading, hideLoading } = useLoading()
+
 const username = ref('')
 const loading = ref(false)
 const showForm = ref(false)
@@ -17,6 +19,7 @@ const isValidUsername = computed(() => username.value.trim().length >= 3)
 const headerRef = ref<HTMLElement | null>(null)
 
 async function submitUsername() {
+  showLoading();
   loading.value = false
   const cleanName = username.value.trim()
     // saving.value = true
@@ -41,6 +44,7 @@ async function submitUsername() {
       console.error('Failed to update profile:', err)
     } finally {
       loading.value = false
+      showLoading();
     }
   }
 
