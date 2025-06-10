@@ -44,7 +44,7 @@ async function submitUsername() {
       console.error('Failed to update profile:', err)
     } finally {
       loading.value = false
-      showLoading();
+      hideLoading();
     }
   }
 
