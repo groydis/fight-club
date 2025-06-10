@@ -8,6 +8,7 @@ export default defineNuxtConfig({
       pathPrefix: false
     }
   ],
+  plugins: ['~/plugins/router-loading.client.ts'],
   modules: [
     '@nuxt/eslint',
     '@nuxt/fonts',
