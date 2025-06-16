@@ -334,6 +334,9 @@ const finaliseCharacter = async () => {
     const payload = {
       name: form.value.name,
       description: form.value.description,
+      gender: form.value.gender,
+      species: form.value.species,
+      alignment: form.value.alignment,
       stats: suggestion.value.stats,
       basicMoves: selectedBasicMoves.value.map((i) => suggestion.value!.basicMoves[i]),
       specialMoves: selectedSpecialMoves.value.map((i) => suggestion.value!.specialMoves[i]),

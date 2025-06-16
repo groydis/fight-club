@@ -7,6 +7,11 @@ import { PrismaService } from '../../../services/prisma/prisma.service';
 import { CharacterImageGenerator } from '../interface/character-image-generator.interface';
 import { firstValueFrom } from 'rxjs';
 
+enum ImagePromptType {
+  FRONT = 'FRONT',
+  PROFILE = 'PROFILE',
+}
+
 @Injectable()
 export class GenerateCharacterImage implements CharacterImageGenerator {
   constructor(
@@ -27,15 +32,21 @@ export class GenerateCharacterImage implements CharacterImageGenerator {
       this.prisma.imagePrompt.create({
         data: {
           characterId,
-          type: 'FRONT',
-          promptText: visualDescription,
+          type: ImagePromptType.FRONT,
+          promptText: this.buildLeonardoPrompt(
+            visualDescription,
+            ImagePromptType.FRONT,
+          ),
         },
       }),
       this.prisma.imagePrompt.create({
         data: {
           characterId,
-          type: 'PROFILE',
-          promptText: visualDescription,
+          type: ImagePromptType.PROFILE,
+          promptText: this.buildLeonardoPrompt(
+            visualDescription,
+            ImagePromptType.PROFILE,
+          ),
         },
       }),
     ]);
@@ -63,6 +74,31 @@ export class GenerateCharacterImage implements CharacterImageGenerator {
       front: results.front!,
       profile: results.profile!,
     };
+  }
+
+  private buildLeonardoPrompt(
+    visualDescription: string,
+    type: ImagePromptType,
+  ): string {
+    if (type === ImagePromptType.FRONT) {
+      return `
+  front-facing, head-and-shoulders portrait of: ${visualDescription}.
+  The style should reflect the character's vibe — dark, gritty, humorous, or otherwise. 
+  No text, logos, or weapons. Neutral or blurred background.
+  `.trim();
+    }
+
+    if (type === ImagePromptType.PROFILE) {
+      return `
+  side-on, full-body pixel art sprite of: ${visualDescription}. 
+  The character is posed as if ready to fight in a retro 2D fighting game. 
+  Adapt the pose to suit the character's species and anatomy — it may not be humanoid.
+  Minimal color palette. No background. No text or logos.
+  `.trim();
+    }
+
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    throw new Error(`Unknown prompt type: ${type}`);
   }
 
   private async generateAndTrack(
