@@ -26,35 +26,56 @@ enum UserRole {
   ADMIN
 }
 
+enum CharacterGender {
+  Male
+  Female
+  Other
+  Unknown
+}
+
+enum CharacterAlignment {
+  LawfulGood
+  NeutralGood
+  ChaoticGood
+  LawfulNeutral
+  TrueNeutral
+  ChaoticNeutral
+  LawfulEvil
+  NeutralEvil
+  ChaoticEvil
+}
+
 model User {
-  id          String     @id
-  name        String
-  username    String?    @unique
-  email       String     @unique
-  bio         String?
-  avatarUrl   String?
-  role        UserRole   @default(USER)
-  status      UserStatus @default(PENDING)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  characters  Character[]
+  id         String      @id
+  name       String
+  username   String?     @unique
+  email      String      @unique
+  bio        String?
+  avatarUrl  String?
+  role       UserRole    @default(USER)
+  status     UserStatus  @default(PENDING)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  characters Character[]
 }
 
 model Character {
-  id              String          @id @default(uuid())
+  id              String              @id @default(uuid())
   name            String
   description     String
   lore            String
   stats           Json
-  status          CharacterStatus @default(PROCESSING)
+  status          CharacterStatus     @default(PROCESSING)
   imageFrontUrl   String?
-
   imageProfileUrl String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  gender          CharacterGender?
+  species         String?
+  alignment       CharacterAlignment?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
   moves           CharacterMove[]
   userId          String?
-  user            User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   ImagePrompt ImagePrompt[]
 }
@@ -68,7 +89,7 @@ model CharacterMove {
   type        MoveType
   characterId String
 
-  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 }
 
 enum MoveType {
@@ -83,16 +104,16 @@ enum CharacterStatus {
 }
 
 model ImagePrompt {
-  id            String   @id @default(uuid())
-  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  characterId   String
+  id          String    @id @default(uuid())
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  characterId String
 
-  type          PromptType
-  promptText    String
-  success       Boolean   @default(false)
-  errorMessage  String?   // optional error message
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  type         PromptType
+  promptText   String
+  success      Boolean    @default(false)
+  errorMessage String? // optional error message
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
 enum PromptType {

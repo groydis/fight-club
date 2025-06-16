@@ -56,6 +56,9 @@ export type FullCharacter = {
   description: string;
   lore: string;
   stats: CharacterStats;
+  gender?: CharacterGender;
+  species?: string;
+  alignment?: CharacterAlignment;
   basicMoves: {
     name: string;
     primaryStat: keyof CharacterStats;
@@ -93,8 +96,30 @@ export class Character {
   lore: string;
   stats: Record<string, number>;
   status: string;
+  gender?: CharacterGender;
+  species?: string;
+  alignment?: CharacterAlignment;
   imageFrontUrl?: string;
   imageProfileUrl?: string;
   moves: CharacterMove[];
   userId?: string;
+}
+
+export enum CharacterGender {
+  Male = 'Male',
+  Female = 'Female',
+  Other = 'Other',
+  Unknown = 'Unknown',
+}
+
+export enum CharacterAlignment {
+  LawfulGood = 'LawfulGood',
+  NeutralGood = 'NeutralGood',
+  ChaoticGood = 'ChaoticGood',
+  LawfulNeutral = 'LawfulNeutral',
+  TrueNeutral = 'TrueNeutral',
+  ChaoticNeutral = 'ChaoticNeutral',
+  LawfulEvil = 'LawfulEvil',
+  NeutralEvil = 'NeutralEvil',
+  ChaoticEvil = 'ChaoticEvil',
 }
