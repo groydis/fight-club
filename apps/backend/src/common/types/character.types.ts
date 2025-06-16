@@ -23,8 +23,7 @@ export type CharacterSuggestion = {
 
 export type CharacterEnrichmentResult = {
   lore: string;
-  imagePromptPortrait: string;
-  imagePromptFullBodyCombat: string;
+  visualDescription: string;
   basicMoves: {
     name: string;
     description: string;
@@ -41,6 +40,9 @@ export type BaseCharacterInput = {
   name: string;
   description: string;
   stats: CharacterStats;
+  gender: CharacterGender;
+  species: string;
+  alignment: CharacterAlignment;
   basicMoves: {
     name: string;
     primaryStat: keyof CharacterStats;

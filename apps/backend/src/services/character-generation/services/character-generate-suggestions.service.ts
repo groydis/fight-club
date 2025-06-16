@@ -1,6 +1,10 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { OpenAIService } from '../../openai/openai.service';
-import { CharacterSuggestion } from '../../../common/types/character.types';
+import {
+  CharacterAlignment,
+  CharacterGender,
+  CharacterSuggestion,
+} from '../../../common/types/character.types';
 import { generateCharacterSuggestionsPrompt } from '../prompts/generate-character-suggestions.prompt';
 
 @Injectable()
@@ -10,8 +14,17 @@ export class CharacterGenerateSuggestionsService {
   async execute(
     name: string,
     description: string,
+    gender: CharacterGender,
+    species: string,
+    alignment: CharacterAlignment,
   ): Promise<CharacterSuggestion> {
-    const prompt = generateCharacterSuggestionsPrompt(name, description);
+    const prompt = generateCharacterSuggestionsPrompt(
+      name,
+      description,
+      gender,
+      species,
+      alignment,
+    );
 
     try {
       const result =

@@ -17,10 +17,9 @@ export class GenerateCharacterImage implements CharacterImageGenerator {
 
   async execute(input: {
     characterId: string;
-    frontPrompt: string;
-    profilePrompt: string;
+    visualDescription: string;
   }): Promise<{ front: Buffer; profile: Buffer }> {
-    const { characterId, frontPrompt, profilePrompt } = input;
+    const { characterId, visualDescription } = input;
 
     // TODO: make this one request - eg make a profile picture, now get this chaacter and put them in a fight pose
     // 1) Create two entries in imagePrompt (one for FRONT, one for PROFILE)
@@ -29,14 +28,14 @@ export class GenerateCharacterImage implements CharacterImageGenerator {
         data: {
           characterId,
           type: 'FRONT',
-          promptText: frontPrompt,
+          promptText: visualDescription,
         },
       }),
       this.prisma.imagePrompt.create({
         data: {
           characterId,
           type: 'PROFILE',
-          promptText: profilePrompt,
+          promptText: visualDescription,
         },
       }),
     ]);
@@ -46,9 +45,14 @@ export class GenerateCharacterImage implements CharacterImageGenerator {
 
     // 3) Kick off both generations in parallel
     await Promise.all([
-      this.generateAndTrack(frontPrompt, frontRecord.id, results, 'front'),
       this.generateAndTrack(
-        profilePrompt,
+        visualDescription,
+        frontRecord.id,
+        results,
+        'front',
+      ),
+      this.generateAndTrack(
+        visualDescription,
         profileRecord.id,
         results,
         'profile',

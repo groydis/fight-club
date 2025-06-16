@@ -19,6 +19,43 @@
         >
       </div>
 
+      <!-- Gender -->
+      <select
+        v-model="form.gender"
+        :disabled="loading"
+        class="w-full p-3 rounded bg-zinc-950 border border-zinc-700 focus:outline-none focus:ring focus:ring-red-500 text-white"
+      >
+        <option v-for="option in genderOptions" :key="option.value" :value="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+
+
+      <!-- Species -->
+      <div>
+        <label class="block text-sm font-semibold text-zinc-300 mb-1 tracking-wide uppercase">Species</label>
+        <input
+          v-model="form.species"
+          :disabled="loading"
+          type="text"
+          placeholder="e.g. Human, Orc, Talking Fridge"
+          class="w-full p-3 rounded bg-zinc-950 border border-zinc-700 focus:outline-none focus:ring focus:ring-red-500 text-white"
+        >
+      </div>
+
+      <!-- Alignment -->
+      <select
+        v-model="form.alignment"
+        :disabled="loading"
+        class="w-full p-3 rounded bg-zinc-950 border border-zinc-700 focus:outline-none focus:ring focus:ring-red-500 text-white"
+      >
+        <option v-for="option in alignmentOptions" :key="option.value" :value="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+
+
+
       <!-- Description Field -->
       <div>
         <label class="block text-sm font-semibold text-zinc-300 mb-1 tracking-wide uppercase">Description</label>
@@ -179,14 +216,37 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { CharacterSuggestion, SuggestCharacterStatsDto, Character, CreateCharacterDto } from '@/types/character'
+import type { CharacterSuggestion, SuggestCharacterStatsDto, Character, CreateCharacterDto} from '@/types/character'
+import { CharacterGender, CharacterAlignment } from '@/types/character'
 import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
 import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
 const { showLoading, hideLoading } = useLoading()
 
+const genderOptions = [
+  { value: CharacterGender.Male, label: 'Male' },
+  { value: CharacterGender.Female, label: 'Female' },
+  { value: CharacterGender.Other, label: 'Other' },
+  { value: CharacterGender.Unknown, label: 'Unknown' },
+]
+
+const alignmentOptions = [
+  { value: CharacterAlignment.LawfulGood, label: 'Lawful Good' },
+  { value: CharacterAlignment.NeutralGood, label: 'Neutral Good' },
+  { value: CharacterAlignment.ChaoticGood, label: 'Chaotic Good' },
+  { value: CharacterAlignment.LawfulNeutral, label: 'Lawful Neutral' },
+  { value: CharacterAlignment.TrueNeutral, label: 'True Neutral' },
+  { value: CharacterAlignment.ChaoticNeutral, label: 'Chaotic Neutral' },
+  { value: CharacterAlignment.LawfulEvil, label: 'Lawful Evil' },
+  { value: CharacterAlignment.NeutralEvil, label: 'Neutral Evil' },
+  { value: CharacterAlignment.ChaoticEvil, label: 'Chaotic Evil' },
+]
+
 const form = ref<SuggestCharacterStatsDto>({
   name: '',
   description: '',
+  gender: CharacterGender.Unknown,
+  species: '',
+  alignment: CharacterAlignment.TrueNeutral
 })
 
 const loading = ref(false)

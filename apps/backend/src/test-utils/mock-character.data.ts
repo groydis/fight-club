@@ -30,10 +30,8 @@ export const mockSuggestion: CharacterSuggestion = {
 
 export const mockEnriched = {
   lore: 'Forged in the depths of a forgotten soup kitchen.',
-  imagePromptPortrait:
+  visualDescription:
     'A wise old wizard with a ladle, surrounded by bubbling cauldrons of gravy.',
-  imagePromptFullBodyCombat:
-    'A heroic figure wielding a giant spoon, ready for battle in a kitchen arena.',
   basicMoves: [
     {
       name: 'Spoon Slam',

@@ -2,7 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { OpenAIService } from '../../../openai/openai.service';
 import {
   BaseCharacterInput,
+  CharacterAlignment,
   CharacterEnrichmentResult,
+  CharacterGender,
 } from '../../../../common/types/character.types';
 import { ServiceUnavailableException } from '@nestjs/common';
 import { CharacterGenerateEnrichmentService } from '../character-generate-enrichment.service';
@@ -13,6 +15,9 @@ describe('GenerateEnrichCharacterService', () => {
   const baseInput: BaseCharacterInput = {
     name: 'Groovy Gravy',
     description: 'An oozing menace from the soup dimension.',
+    gender: CharacterGender.Male,
+    species: 'Human',
+    alignment: CharacterAlignment.TrueNeutral,
     stats: {
       strength: 5,
       agility: 5,
@@ -33,10 +38,8 @@ describe('GenerateEnrichCharacterService', () => {
 
   const validEnrichment: CharacterEnrichmentResult = {
     lore: 'Born in a bubbling cauldron of regret, Groovy Gravy fights to return flavor to a tasteless world.',
-    imagePromptPortrait:
+    visualDescription:
       'A portrait of Groovy Gravy, a sentient gravy monster with a mischievous grin, oozing from a soup pot.',
-    imagePromptFullBodyCombat:
-      'Groovy Gravy in a dynamic combat pose, swinging its gravy-covered arms with boiling gravy splashing around.',
     basicMoves: [
       {
         name: 'Slop Swing',

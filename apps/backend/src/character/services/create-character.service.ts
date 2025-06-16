@@ -21,12 +21,24 @@ export class CreateCharacterService {
     private readonly fileStorage: FileStorage,
   ) {}
   async execute(dto: CreateCharacterDto, userId: string): Promise<Character> {
-    const { name, description, stats, basicMoves, specialMoves } = dto;
+    const {
+      name,
+      description,
+      gender,
+      species,
+      alignment,
+      stats,
+      basicMoves,
+      specialMoves,
+    } = dto;
 
     // 1️⃣ Enrich character with lore, move descriptions, and effect values
     const enrichment = await this.enrichCharacter.execute({
       name,
       description,
+      gender,
+      species,
+      alignment,
       stats,
       basicMoves,
       specialMoves,
@@ -70,8 +82,7 @@ export class CreateCharacterService {
       userId,
       character.id,
       name,
-      enrichment.imagePromptFullBodyCombat,
-      enrichment.imagePromptPortrait,
+      enrichment.visualDescription,
     );
 
     return toCharacterDto(character);
@@ -81,8 +92,7 @@ export class CreateCharacterService {
     userId: string,
     characterId: string,
     name: string,
-    frontPrompt: string,
-    profilePrompt: string,
+    visualDescription: string,
   ) {
     console.log(
       `[ImageGen] Queuing image generation for ${name} (${characterId})`,
@@ -91,8 +101,7 @@ export class CreateCharacterService {
     try {
       const { front, profile } = await this.generateCharacterImage.execute({
         characterId,
-        frontPrompt,
-        profilePrompt,
+        visualDescription,
       });
 
       const frontPath = `${userId}/characters/${characterId}/front.png`;

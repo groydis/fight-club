@@ -38,6 +38,9 @@ describe('CreateCharacterSuggestionService', () => {
       expect(mockSuggestionService.execute).toHaveBeenCalledWith(
         suggestDto.name,
         suggestDto.description,
+        suggestDto.gender,
+        suggestDto.species,
+        suggestDto.alignment,
       );
     });
 

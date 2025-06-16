@@ -7,8 +7,8 @@ import {
   Max,
   IsIn,
   IsDefined,
-  IsOptional,
   IsEnum,
+  IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import {
@@ -74,18 +74,16 @@ export class CreateCharacterDto {
   @IsString()
   description: string;
 
-  @IsOptional()
+  @IsString()
   @IsEnum(CharacterGender)
-  gender?: string;
+  gender: CharacterGender;
 
-  @IsOptional()
   @IsString()
-  species?: string;
+  @IsNotEmpty()
+  species: string;
 
-  @IsOptional()
-  @IsString()
   @IsEnum(CharacterAlignment)
-  alignment?: string;
+  alignment: CharacterAlignment;
 
   @IsDefined()
   @ValidateNested()

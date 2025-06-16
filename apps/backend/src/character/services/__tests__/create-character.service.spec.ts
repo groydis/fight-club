@@ -101,8 +101,7 @@ describe('CreateCharacterService', () => {
 
       expect(mockImageGenerator.execute).toHaveBeenCalledWith({
         characterId: result.id,
-        frontPrompt: mockEnriched.imagePromptFullBodyCombat,
-        profilePrompt: mockEnriched.imagePromptPortrait,
+        visualDescription: mockEnriched.visualDescription,
       });
 
       // eslint-disable-next-line @typescript-eslint/unbound-method
