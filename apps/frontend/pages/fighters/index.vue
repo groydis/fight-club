@@ -17,7 +17,7 @@
           "
         >
           <img
-            :src="characters[index - 1]?.imageProfileUrl || '/images/question-mark.png'"
+            :src="characters[index - 1]?.imageFrontUrl || '/images/question-mark.png'"
             :alt="characters[index - 1]?.name || 'Create Fighter'"
             class="w-full aspect-square object-cover bg-black/60"
           >
@@ -52,7 +52,7 @@
           <!-- Profile Picture -->
           <div class="flex flex-col items-center">
             <img
-              :src="selectedCharacter.imageProfileUrl"
+              :src="selectedCharacter.imageFrontUrl"
               :alt="selectedCharacter.name + ' Profile Picture'"
               class="w-64 rounded-lg object-cover aspect-square border border-zinc-700"
             >
@@ -62,7 +62,7 @@
           <!-- Combat Stance -->
           <div class="flex flex-col items-center">
             <img
-              :src="selectedCharacter.imageFrontUrl"
+              :src="selectedCharacter.imageProfileUrl"
               :alt="selectedCharacter.name + ' Combat Pose'"
               class="w-64 rounded-lg object-cover aspect-square border border-zinc-700"
             >

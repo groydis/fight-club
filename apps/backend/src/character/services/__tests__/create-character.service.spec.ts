@@ -102,6 +102,7 @@ describe('CreateCharacterService', () => {
       expect(mockImageGenerator.execute).toHaveBeenCalledWith({
         characterId: result.id,
         visualDescription: mockEnriched.visualDescription,
+        imageGenerationHints: mockEnriched.imageGenerationHints,
       });
 
       // eslint-disable-next-line @typescript-eslint/unbound-method

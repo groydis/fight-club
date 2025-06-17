@@ -201,6 +201,7 @@ describe('CharactersController', () => {
       expect(mockImageGenerator.execute).toHaveBeenCalledWith({
         characterId: result.id,
         visualDescription: mockEnriched.visualDescription,
+        imageGenerationHints: mockEnriched.imageGenerationHints,
       });
 
       expect(mockFileStorage.upload).toHaveBeenCalledTimes(2);

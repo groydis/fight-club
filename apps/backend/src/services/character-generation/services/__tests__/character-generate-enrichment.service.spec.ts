@@ -38,8 +38,39 @@ describe('GenerateEnrichCharacterService', () => {
 
   const validEnrichment: CharacterEnrichmentResult = {
     lore: 'Born in a bubbling cauldron of regret, Groovy Gravy fights to return flavor to a tasteless world.',
-    visualDescription:
-      'A portrait of Groovy Gravy, a sentient gravy monster with a mischievous grin, oozing from a soup pot.',
+    visualDescription: {
+      facialFeatures:
+        'Sharp, angular jawline with high cheekbones and glowing yellow eyes. A jagged scar runs down the left side of the face, barely missing the eye. Eyebrows are thin and arched, giving a perpetually suspicious look.',
+      bodyType:
+        'Tall and lean with a wiry frame. Long limbs and clawed fingers. Posture is always tense, as if ready to spring into action.',
+      personalityVibe:
+        'Cunning and unpredictable, like a rogue who thrives in chaos. Gives off an unsettling, unblinking confidence.',
+      outfit:
+        'Dark, asymmetrical leather armor with reinforced shoulder plating. A hooded cloak frayed at the edges, and various pouches strapped to the waist.',
+      colorPalette:
+        'Muted greys, tarnished golds, and glowing amber highlights.',
+      species: 'Voidborne Half-elf',
+      genderPresentation:
+        'Androgynous with a slight masculine lean, accentuated by angular features and a low voice.',
+      visualSymbols: [
+        'A broken compass hanging from a chain',
+        'A glowing rune tattooed across the right forearm',
+        'A torn faction insignia sewn onto the cloak',
+      ],
+    },
+    imageGenerationHints: {
+      characterType: 'chaotic void rogue',
+      modelPreference: '6c95de60-a0bc-4f90-b637-ee8971caf3b0', // Leonardo "Character Portraits"
+      negativePrompt:
+        'no duck features, no cartoon eyes, no goofy hats, avoid neon colors, no exaggerated proportions',
+      preferredStyleId: '8e2bc543-6ee2-45f9-bcd9-594b6ce84dcd', // Portrait
+      recommendedImagePromptOverrides: {
+        frontPoseHint:
+          'smirking slightly with one hand half-raised in a conjuring gesture',
+        profilePoseHint:
+          'crouched in a ready stance, one hand hovering near a hidden blade',
+      },
+    },
     basicMoves: [
       {
         name: 'Slop Swing',

@@ -5,7 +5,11 @@ import { CHARACTER_IMAGE_GENERATOR, FILE_STORAGE } from '../../common/tokens';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { CreateCharacterDto } from '../dto/create-character.request.dto';
 import { toCharacterDto } from '../mappers/character.mapper';
-import { Character } from '../../common/types/character.types';
+import {
+  Character,
+  ImageGenerationHints,
+  VisualDescription,
+} from '../../common/types/character.types';
 import { CharacterStatus, MoveType, Prisma } from '@prisma/client';
 import { GenerateCharacterImage } from '../../services/image-generation/services/generate-character-image.service';
 import { CharacterGenerateEnrichmentService } from '../../services/character-generation/services/character-generate-enrichment.service';
@@ -83,6 +87,7 @@ export class CreateCharacterService {
       character.id,
       name,
       enrichment.visualDescription,
+      enrichment.imageGenerationHints,
     );
 
     return toCharacterDto(character);
@@ -92,7 +97,8 @@ export class CreateCharacterService {
     userId: string,
     characterId: string,
     name: string,
-    visualDescription: string,
+    visualDescription: VisualDescription,
+    imageGenerationHints: ImageGenerationHints,
   ) {
     console.log(
       `[ImageGen] Queuing image generation for ${name} (${characterId})`,
@@ -102,6 +108,7 @@ export class CreateCharacterService {
       const { front, profile } = await this.generateCharacterImage.execute({
         characterId,
         visualDescription,
+        imageGenerationHints,
       });
 
       const frontPath = `${userId}/characters/${characterId}/front.png`;

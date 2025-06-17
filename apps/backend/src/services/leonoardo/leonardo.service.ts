@@ -13,6 +13,8 @@ interface GenerationRequest {
   num_images: number;
   negative_prompt?: string;
   guidance_scale?: number;
+  styleId?: string;
+  transparency?: boolean;
 }
 
 interface GenerationResponse {
@@ -51,6 +53,7 @@ export class LeonardoService {
             num_images: data.num_images,
             negative_prompt: data.negative_prompt,
             guidance_scale: data.guidance_scale,
+            styleUUID: data.styleId,
           }),
         );
 

@@ -167,6 +167,7 @@ describe('Character (e2e)', () => {
         expect(mockImageGenerator.execute).toHaveBeenCalledWith({
           characterId: body.id,
           visualDescription: mockEnriched.visualDescription,
+          imageGenerationHints: mockEnriched.imageGenerationHints,
         });
 
         // eslint-disable-next-line @typescript-eslint/unbound-method

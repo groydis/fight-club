@@ -31,59 +31,90 @@ ${specialMoves
   .map((m, i) => `  ${i + 1}. "${m.name}" (Primary Stat: ${m.primaryStat})`)
   .join('\n')}
 
-Your tasks are:
-
 ---
 
 ### 1. Backstory Lore
 Write a short character backstory (under 150 words).  
-Use the name, gender, species, alignment, description, and stats to inform personality, history, and quirks.  
-This backstory should read like a flavor-rich character bio — suitable for a game loading screen.
-
-Avoid generic filler — be weird, be bold. If the character is overpowered, lean into it. If they're pathetic, make it tragic or hilarious. Dark humor is welcome.
+Use the character's information and stats to build a distinct, memorable bio.  
+The tone can be tragic, hilarious, mysterious, or unsettling — but never boring.
 
 ---
 
 ### 2. Move Descriptions
 For each move (basic and special), generate:
-- A creative 1–2 sentence description that reflects the move's **theme**, **name**, and **primary stat**.
-- A base effect value between 10 and 100, appropriate to the type and stat.  
-Feel free to be funny, menacing, strange, or stylish — just stay in tone.
+- A creative 1–2 sentence description based on the move name and primary stat.
+- A base effect value (10–100) appropriate to the stat and tone.
 
 ---
 
-### 3. Visual Description
-Write a richly detailed, **safe-for-work visual description** of this character. This will be used to guide AI image generation.
+### 3. Visual Description (Structured)
+Create a structured object that breaks down the character’s visual appearance.  
+This will be used to generate AI art, so it must focus on physical traits, outfit, body shape, and mood — **not lore or stats directly**.
 
-Use the name, gender, species, alignment, and description.  
-Also interpret the **stats** visually:
-- High strength may mean visible muscles or physical size
-- High charisma could show through charm, posture, fashion, or presence
-- High intelligence might be expressed in gaze, accessories, or attire
-- Constitution might influence scars, armor, build
-- Agility could inform posture, movement tension, outfit style
-- Luck might be implied through symbolic details, like dice tattoos or rabbit feet
+Use the following format:
 
-Don't mention any stats directly — describe what they imply visually.  
-Include clothing, physical traits, posture, expression, and genre flavor.  
-Do **not** include names, move names, or anything unsafe (e.g. weapons, gore, nudity, etc).  
-This will be passed to an image generation system. Output only the description.
+"visualDescription": {
+  "facialFeatures": "string",
+  "bodyType": "string",
+  "personalityVibe": "string",
+  "outfit": "string",
+  "colorPalette": "string",
+  "species": "string",
+  "genderPresentation": "string",
+  "visualSymbols": ["string", ...]
+}
 
 ---
 
-### Output Format
-Respond only with valid JSON in the following format:
+### 4. Image Generation Hints
+Based on the visual description and species, generate hints for configuring an AI image generation pipeline.
+
+Respond with:
+
+"imageGenerationHints": {
+  "characterType": "string", // e.g. 'cybernetic duck rogue', 'mutant brawler toaster'
+  "modelPreference": "string", // optional - Leonardo model ID
+  "negativePrompt": "string", // what to avoid during image generation (e.g. 'realism, human face, background, text')
+  "preferredStyleId": "string", // optional - style uuid
+  "recommendedImagePromptOverrides": {
+    "frontPoseHint": "string",
+    "profilePoseHint": "string"
+  }
+}
+
+---
+
+### Final Output Format
+
+Respond only with valid JSON:
 
 {
   "lore": "string",
-  "visualDescription": "string",
+  "visualDescription": {
+    "facialFeatures": "string",
+    "bodyType": "string",
+    "personalityVibe": "string",
+    "outfit": "string",
+    "colorPalette": "string",
+    "species": "string",
+    "genderPresentation": "string",
+    "visualSymbols": ["string", ...]
+  },
+  "imageGenerationHints": {
+    "characterType": "string",
+    "modelPreference": "string",
+    "negativePrompt": "string",
+    "preferredStyleId": "string",
+    "recommendedImagePromptOverrides": {
+      "frontPoseHint": "string",
+      "profilePoseHint": "string"
+    }
+  },
   "basicMoves": [
-    { "name": "string", "description": "string", "effectValue": number },
-    ...
+    { "name": "string", "description": "string", "effectValue": number }
   ],
   "specialMoves": [
-    { "name": "string", "description": "string", "effectValue": number },
-    ...
+    { "name": "string", "description": "string", "effectValue": number }
   ]
 }
 `;
