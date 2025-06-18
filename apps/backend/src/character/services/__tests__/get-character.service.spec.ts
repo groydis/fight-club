@@ -89,5 +89,17 @@ describe('ListCharactersService', () => {
         status: CharacterStatus.READY,
       });
     });
+
+    it('should throw if the character is archived', async () => {
+      // Archive the character
+      await service['prisma'].character.update({
+        where: { id: 'char-001' },
+        data: { archived: true },
+      });
+
+      await expect(
+        service.execute(testUserId, 'char-001'),
+      ).rejects.toThrowError(); // You can customize the error type/message if needed
+    });
   });
 });

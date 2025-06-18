@@ -9,7 +9,7 @@ export class ListCharactersService {
 
   async execute(userId: string): Promise<Character[]> {
     const characters = await this.prisma.character.findMany({
-      where: { userId },
+      where: { userId, archived: false },
       include: {
         moves: true,
       },

@@ -99,5 +99,24 @@ describe('ListCharactersService', () => {
         status: CharacterStatus.READY,
       });
     });
+
+    it('should not return characters that are archived', async () => {
+      // Archive one character
+      await service['prisma'].character.update({
+        where: { id: 'char-002' },
+        data: { archived: true },
+      });
+
+      const result = await service.execute(testUserId);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe('char-001');
+      expect(result[0]).toMatchObject({
+        id: 'char-001',
+        name: 'Gravy Wizard',
+        imageProfileUrl: 'https://cdn/test1.png',
+        status: CharacterStatus.READY,
+      });
+    });
   });
 });

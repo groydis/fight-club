@@ -76,8 +76,8 @@ model Character {
   moves           CharacterMove[]
   userId          String?
   user            User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  ImagePrompt ImagePrompt[]
+  ImagePrompt     ImagePrompt[]
+  archived        Boolean             @default(false)
 }
 
 model CharacterMove {
