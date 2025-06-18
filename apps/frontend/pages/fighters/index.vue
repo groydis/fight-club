@@ -27,6 +27,29 @@
             {{ characters[index - 1]?.name || 'Create Character' }}
           </div>
         </button>
+        <!-- Pagination Controls -->
+        <div v-if="!selectedCharacter && totalPages > 1" class="flex justify-center gap-4 mt-4">
+          <button
+            class="bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1 rounded"
+            :disabled="currentPage === 1"
+            @click="changePage(currentPage - 1)"
+          >
+            ← Prev
+          </button>
+
+          <span class="text-zinc-400 text-sm self-center">
+            Page {{ currentPage }} of {{ totalPages }}
+          </span>
+
+          <button
+            class="bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1 rounded"
+            :disabled="currentPage === totalPages"
+            @click="changePage(currentPage + 1)"
+          >
+            Next →
+          </button>
+</div>
+
       </div>
 
       <!-- Character Detail Panel -->
@@ -179,12 +202,17 @@ import type {
 import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
 import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
+import { useUserStore } from '~/stores/user'
 
 const { showLoading, hideLoading } = useLoading()
+const { user } = useUserStore()
 const characters = ref<Character[]>([])
 const selectedCharacter = ref<Character | null>(null)
 const loading = ref(false)
 const router = useRouter()
+
+const currentPage = ref(1)
+const totalPages = ref(1)
 
 const fetchCharacters = async () => {
   showLoading()
@@ -192,11 +220,22 @@ const fetchCharacters = async () => {
   try {
     const { data, error, execute } = await useCustomFetch('/api/characters', {
       method: 'GET',
+      query: { page: currentPage.value, userId: user?.id},
     })
+
     await execute()
     if (error.value) throw error.value
 
-    characters.value = (data.value as Character[]) || []
+    const payload = data.value as {
+      items: Character[]
+      totalCount: number
+      totalPages: number
+      currentPage: number
+    }
+
+    characters.value = payload.items || []
+    totalPages.value = payload.totalPages
+    currentPage.value = payload.currentPage
   } catch (err) {
     console.error('Failed to fetch characters:', err)
   } finally {
@@ -259,6 +298,10 @@ const handleDeleteConfirmed = async () => {
 
     selectedCharacter.value = null
     await fetchCharacters()
+    if (characters.value.length === 0 && currentPage.value > 1) {
+      currentPage.value--
+      await fetchCharacters()
+    }
   } catch (err) {
     console.error('Failed to delete character:', err)
     alert('Failed to delete character. Try again.')
@@ -267,6 +310,12 @@ const handleDeleteConfirmed = async () => {
     showConfirmModal.value = false
   }
 }
+
+const changePage = async (page: number) => {
+  currentPage.value = page
+  await fetchCharacters()
+}
+
 
 
 </script>

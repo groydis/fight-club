@@ -93,7 +93,14 @@ describe('CharactersController', () => {
         user: { ...testUser.requestUser },
       } as unknown as AuthenticatedRequest;
 
-      const result = await controller.getCharacters(req);
+      const result = await controller.getCharacters(
+        req,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        testUser.id,
+      );
 
       expect(result.items).toHaveLength(2);
       expect(result.totalCount).toBe(2);

@@ -9,6 +9,7 @@ describe('ListCharactersService', () => {
   let testUserId: string;
   let char1Id: string;
   let char2Id: string;
+  let char3Id: string;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,6 +20,7 @@ describe('ListCharactersService', () => {
     testUserId = faker.string.uuid();
     char1Id = faker.string.uuid();
     char2Id = faker.string.uuid();
+    char3Id = faker.string.uuid();
 
     const testUserEmail = faker.internet.exampleEmail();
 
@@ -67,6 +69,23 @@ describe('ListCharactersService', () => {
         imageProfileUrl: 'https://cdn/test2.png',
         userId: testUserId,
       },
+      {
+        id: char3Id,
+        name: 'Saucey Goblin',
+        description: 'Lurks in condiment caves',
+        stats: {
+          strength: 5,
+          agility: 5,
+          intelligence: 5,
+          charisma: 5,
+          luck: 5,
+          constitution: 5,
+        },
+        status: CharacterStatus.PROCESSING,
+        lore: 'Greedy for all things saucy',
+        imageProfileUrl: 'https://cdn/test2.png',
+        userId: '0d9ff8c4-28b1-4c17-bfe0-d9f8e2c3ad01',
+      },
     ];
 
     for (const char of testCharacters) {
@@ -77,6 +96,9 @@ describe('ListCharactersService', () => {
   afterEach(async () => {
     await service['prisma'].character.deleteMany({
       where: { userId: testUserId },
+    });
+    await service['prisma'].character.deleteMany({
+      where: { id: char3Id },
     });
     await service['prisma'].user.deleteMany({
       where: { id: testUserId },
@@ -107,6 +129,14 @@ describe('ListCharactersService', () => {
       imageProfileUrl: 'https://cdn/test1.png',
       status: CharacterStatus.READY,
     });
+  });
+
+  it('should return an empty result if no characters match userId', async () => {
+    const result = await service.execute({ userId: 'non-existent-id' });
+
+    expect(result.items).toHaveLength(0);
+    expect(result.totalCount).toBe(0);
+    expect(result.totalPages).toBe(0);
   });
 
   it('should not return characters that are archived', async () => {

@@ -17,7 +17,7 @@ export class CharactersController {
     @Query('limit') limit?: string,
     @Query('sortBy') sortBy?: 'createdAt',
     @Query('order') order?: 'asc' | 'desc',
-    @Query('username') userId?: string,
+    @Query('userId') userId?: string,
   ): Promise<PaginatedResult<Character>> {
     return this.listCharactersService.execute({
       page: page ? parseInt(page) : undefined,
