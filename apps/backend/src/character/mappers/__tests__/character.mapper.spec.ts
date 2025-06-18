@@ -25,6 +25,7 @@ describe('toCharacterDto', () => {
     imageProfileUrl: null,
     createdAt: new Date(),
     updatedAt: new Date(),
+    archived: false,
     moves: [
       {
         id: 'move_1',
