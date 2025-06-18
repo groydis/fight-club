@@ -1,11 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../../../services/prisma/prisma.service';
 import { ListCharactersService } from '../list-characters.service';
-import { faker } from '@faker-js/faker/.';
+import { faker } from '@faker-js/faker';
 import { CharacterStatus, UserRole, UserStatus } from '@prisma/client';
 
 describe('ListCharactersService', () => {
   let service: ListCharactersService;
+  let testUserId: string;
+  let char1Id: string;
+  let char2Id: string;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -13,14 +16,25 @@ describe('ListCharactersService', () => {
     }).compile();
 
     service = module.get(ListCharactersService);
-  });
+    testUserId = faker.string.uuid();
+    char1Id = faker.string.uuid();
+    char2Id = faker.string.uuid();
 
-  describe('execute', () => {
-    const testUserId = faker.string.uuid();
     const testUserEmail = faker.internet.exampleEmail();
+
+    await service['prisma'].user.create({
+      data: {
+        id: testUserId,
+        name: 'authyBoy',
+        email: testUserEmail,
+        role: UserRole.USER,
+        status: UserStatus.ACTIVE,
+      },
+    });
+
     const testCharacters = [
       {
-        id: 'char-001',
+        id: char1Id,
         name: 'Gravy Wizard',
         description: 'A wizard of the sauce arts',
         stats: {
@@ -37,7 +51,7 @@ describe('ListCharactersService', () => {
         userId: testUserId,
       },
       {
-        id: 'char-002',
+        id: char2Id,
         name: 'Sauce Goblin',
         description: 'Lurks in condiment caves',
         stats: {
@@ -55,68 +69,65 @@ describe('ListCharactersService', () => {
       },
     ];
 
-    beforeEach(async () => {
-      await service['prisma'].user.create({
-        data: {
-          id: testUserId,
-          name: 'authyBoy',
-          email: testUserEmail,
-          role: UserRole.USER,
-          status: UserStatus.ACTIVE,
-        },
-      });
-      for (const char of testCharacters) {
-        await service['prisma'].character.create({ data: char });
-      }
+    for (const char of testCharacters) {
+      await service['prisma'].character.create({ data: char });
+    }
+  });
+
+  afterEach(async () => {
+    await service['prisma'].character.deleteMany({
+      where: { userId: testUserId },
+    });
+    await service['prisma'].user.deleteMany({
+      where: { id: testUserId },
+    });
+  });
+
+  it('should return characters belonging to a user in descending order of creation', async () => {
+    const result = await service.execute({ userId: testUserId });
+
+    expect(result.items).toHaveLength(2);
+    expect(result.totalCount).toBe(2);
+    expect(result.totalPages).toBe(1);
+    expect(result.currentPage).toBe(1);
+
+    expect(result.items[0].id).toBe(char2Id);
+    expect(result.items[1].id).toBe(char1Id);
+
+    expect(result.items[0]).toMatchObject({
+      id: char2Id,
+      name: 'Sauce Goblin',
+      imageProfileUrl: 'https://cdn/test2.png',
+      status: CharacterStatus.PROCESSING,
     });
 
-    afterEach(async () => {
-      await service['prisma'].character.deleteMany({
-        where: { userId: testUserId },
-      });
-      await service['prisma'].user.deleteMany({
-        where: { id: testUserId },
-      });
+    expect(result.items[1]).toMatchObject({
+      id: char1Id,
+      name: 'Gravy Wizard',
+      imageProfileUrl: 'https://cdn/test1.png',
+      status: CharacterStatus.READY,
+    });
+  });
+
+  it('should not return characters that are archived', async () => {
+    await service['prisma'].character.update({
+      where: { id: char2Id },
+      data: { archived: true },
     });
 
-    it('should return characters belonging to a user in descending order of creation', async () => {
-      const result = await service.execute(testUserId);
+    const result = await service.execute({ userId: testUserId });
 
-      expect(result).toHaveLength(2);
-      expect(result[0].id).toBe('char-002');
-      expect(result[1].id).toBe('char-001');
-      // TODO: We have changed the type so we need todo a more thourough check
-      expect(result[0]).toMatchObject({
-        id: 'char-002',
-        name: 'Sauce Goblin',
-        imageProfileUrl: 'https://cdn/test2.png',
-        status: CharacterStatus.PROCESSING,
-      });
-      expect(result[1]).toMatchObject({
-        id: 'char-001',
-        name: 'Gravy Wizard',
-        imageProfileUrl: 'https://cdn/test1.png',
-        status: CharacterStatus.READY,
-      });
-    });
+    expect(result.items).toHaveLength(1);
+    expect(result.totalCount).toBe(1);
+    expect(result.totalPages).toBe(1);
+    expect(result.currentPage).toBe(1);
 
-    it('should not return characters that are archived', async () => {
-      // Archive one character
-      await service['prisma'].character.update({
-        where: { id: 'char-002' },
-        data: { archived: true },
-      });
-
-      const result = await service.execute(testUserId);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].id).toBe('char-001');
-      expect(result[0]).toMatchObject({
-        id: 'char-001',
-        name: 'Gravy Wizard',
-        imageProfileUrl: 'https://cdn/test1.png',
-        status: CharacterStatus.READY,
-      });
+    expect(result.items[0].id).toBe(char1Id);
+    expect(result.items[0]).toMatchObject({
+      id: char1Id,
+      name: 'Gravy Wizard',
+      imageProfileUrl: 'https://cdn/test1.png',
+      status: CharacterStatus.READY,
     });
   });
 });
