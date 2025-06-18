@@ -11,6 +11,7 @@ import { SupabaseFileStorage } from '../services/storage/services/supabase-file-
 import { GetCharacterService } from './services/get-character.service';
 import { ImageGenerationModule } from '../services/image-generation/image-generation.module';
 import { CharacterGenerationModule } from '../services/character-generation/character-generation.module';
+import { DeleteCharacterService } from './services/delete-character.service';
 
 const useMockServices = process.env.USE_MOCK_SERVICES === 'true';
 
@@ -25,6 +26,7 @@ const useMockServices = process.env.USE_MOCK_SERVICES === 'true';
   controllers: [CharacterController],
   providers: [
     GetCharacterService,
+    DeleteCharacterService,
     CreateCharacterSuggestionService,
     CreateCharacterService,
     {

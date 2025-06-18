@@ -9,7 +9,7 @@ export class GetCharacterService {
 
   async execute(userId: string, characterId: string): Promise<Character> {
     const character = await this.prisma.character.findFirstOrThrow({
-      where: { userId, id: characterId }, // We want to ensure the user owns the character (for now)
+      where: { userId, id: characterId, archived: false }, // We want to ensure the user owns the character (for now)
       include: {
         moves: true,
       },
