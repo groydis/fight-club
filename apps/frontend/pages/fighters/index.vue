@@ -17,7 +17,7 @@
           "
         >
           <img
-            :src="characters[index - 1]?.imageProfileUrl || '/images/question-mark.png'"
+            :src="characters[index - 1]?.imageFrontUrl || '/images/question-mark.png'"
             :alt="characters[index - 1]?.name || 'Create Fighter'"
             class="w-full aspect-square object-cover bg-black/60"
           >
@@ -41,13 +41,34 @@
           ← Back
         </button>
 
-        <!-- Left: Profile Image -->
+        <!-- Left: Profile Image 
         <img
           :src="selectedCharacter.imageProfileUrl"
           :alt="selectedCharacter.name"
           class="w-full rounded-lg object-cover aspect-square border border-zinc-700"
-        >
+        > -->
+        <!-- Images -->
+        <div class="flex flex-col gap-6">
+          <!-- Profile Picture -->
+          <div class="flex flex-col items-center">
+            <img
+              :src="selectedCharacter.imageFrontUrl"
+              :alt="selectedCharacter.name + ' Profile Picture'"
+              class="w-64 rounded-lg object-cover aspect-square border border-zinc-700"
+            >
+            <span class="mt-2 text-sm text-zinc-400">Profile Picture</span>
+          </div>
 
+          <!-- Combat Stance -->
+          <div class="flex flex-col items-center">
+            <img
+              :src="selectedCharacter.imageProfileUrl"
+              :alt="selectedCharacter.name + ' Combat Pose'"
+              class="w-64 rounded-lg object-cover aspect-square border border-zinc-700"
+            >
+            <span class="mt-2 text-sm text-zinc-400">Combat Pose</span>
+          </div>
+        </div>
         <!-- Right: Details -->
         <div class="space-y-6">
           <!-- Name / Lore -->
@@ -56,6 +77,13 @@
               {{ selectedCharacter.name }}
             </h2>
             <p class="text-sm text-zinc-400 italic">{{ selectedCharacter.lore }}</p>
+          </div>
+
+          <!-- Character Info -->
+          <div class="text-sm text-zinc-400 space-y-1">
+            <p><span class="text-zinc-300 font-semibold">Gender:</span> {{ selectedCharacter.gender || 'Unknown' }}</p>
+            <p><span class="text-zinc-300 font-semibold">Species:</span> {{ selectedCharacter.species || 'Unknown' }}</p>
+            <p><span class="text-zinc-300 font-semibold">Alignment:</span> {{ selectedCharacter.alignment || 'Unknown' }}</p>
           </div>
 
           <!-- Stats -->

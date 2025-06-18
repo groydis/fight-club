@@ -1,15 +1,23 @@
 export const generateCharacterPrompt = (
   name: string,
   description: string,
+  gender: string,
+  species: string,
+  alignment: string,
   stats: Record<string, number>,
   basicMoves: { name: string; primaryStat: string }[],
   specialMoves: { name: string; primaryStat: string }[],
 ): string => `
-You are an AI assistant for a gritty, darkly humorous character generator.
+You are an AI assistant for a gritty, darkly humorous character generator used in a turn-based combat game.
 
 Here is a new character submission:
-Name: ${name}
-Description: ${description}
+
+Name: ${name}  
+Gender: ${gender}  
+Species: ${species}  
+Alignment: ${alignment}  
+Description: ${description}  
+
 Stats:
 ${JSON.stringify(stats, null, 2)}
 
@@ -23,36 +31,90 @@ ${specialMoves
   .map((m, i) => `  ${i + 1}. "${m.name}" (Primary Stat: ${m.primaryStat})`)
   .join('\n')}
 
-Your tasks are:
+---
 
-1. Generate a short lore paragraph (under 150 words) that explains the personality and history of the character, matching the tone of the name, description, and stats.
+### 1. Backstory Lore
+Write a short character backstory (under 150 words).  
+Use the character's information and stats to build a distinct, memorable bio.  
+The tone can be tragic, hilarious, mysterious, or unsettling — but never boring.
 
-2. For each move (both Basic Moves and Special Moves), generate:
-   - A creative 1–2 sentence description that reflects the move's name and primary stat.
-   - A base effect value between 10 and 100 that is appropriate to the move type and stat.
+---
 
-3. Write two **safe, structured image generation prompts** that will be used with the gpt-image-1 model to generate visuals of this character. These prompts must not include names, stats, or violence, and must avoid any content that could trigger moderation filters. Each prompt must start and end with specific generation rules. Provide:
+### 2. Move Descriptions
+For each move (basic and special), generate:
+- A creative 1–2 sentence description based on the move name and primary stat.
+- A base effect value (10–100) appropriate to the stat and tone.
 
-   - **imagePromptPortrait**: A safe, descriptive prompt for a front-facing, head-and-shoulders portrait. Character expression should match personality. End with: "No text or logos. Neutral or blurred background".
-     - Start with: **front-facing, head-and-shoulders portrait**.
-     - End with: **"No text or logos. Neutral or blurred background"**.
+---
 
-   - **imagePromptFullBodyCombat**: A safe, descriptive prompt for a full-body, combat-ready stance as if in a fighting RPG video game. Character should appear confident and tense. End with: "Transparent background. No text or logos. No visual effects."
-     - Start with: **full-body combat-ready stance as if he is the character in a fighting RPG video game, side-profile of a pixel-art style martial artist:**
-     - End with: **"Minimal color palette and blocky pixel detail. Transparent background. No text or logos. No visual effects."**
+### 3. Visual Description (Structured)
+Create a structured object that breaks down the character’s visual appearance.  
+This will be used to generate AI art, so it must focus on physical traits, outfit, body shape, and mood — **not lore or stats directly**.
 
-Output only valid JSON in the following format:
+Use the following format:
+
+"visualDescription": {
+  "facialFeatures": "string",
+  "bodyType": "string",
+  "personalityVibe": "string",
+  "outfit": "string",
+  "colorPalette": "string",
+  "species": "string",
+  "genderPresentation": "string",
+  "visualSymbols": ["string", ...]
+}
+
+---
+
+### 4. Image Generation Hints
+Based on the visual description and species, generate hints for configuring an AI image generation pipeline.
+
+Respond with:
+
+"imageGenerationHints": {
+  "characterType": "string", // e.g. 'cybernetic duck rogue', 'mutant brawler toaster'
+  "modelPreference": "string", // optional - Leonardo model ID
+  "negativePrompt": "string", // what to avoid during image generation (e.g. 'realism, human face, background, text')
+  "preferredStyleId": "string", // optional - style uuid
+  "recommendedImagePromptOverrides": {
+    "frontPoseHint": "string",
+    "profilePoseHint": "string"
+  }
+}
+
+---
+
+### Final Output Format
+
+Respond only with valid JSON:
+
 {
   "lore": "string",
-  "imagePromptPortrait": "string",
-  "imagePromptFullBodyCombat": "string",
+  "visualDescription": {
+    "facialFeatures": "string",
+    "bodyType": "string",
+    "personalityVibe": "string",
+    "outfit": "string",
+    "colorPalette": "string",
+    "species": "string",
+    "genderPresentation": "string",
+    "visualSymbols": ["string", ...]
+  },
+  "imageGenerationHints": {
+    "characterType": "string",
+    "modelPreference": "string",
+    "negativePrompt": "string",
+    "preferredStyleId": "string",
+    "recommendedImagePromptOverrides": {
+      "frontPoseHint": "string",
+      "profilePoseHint": "string"
+    }
+  },
   "basicMoves": [
-    { "name": "string", "description": "string", "effectValue": number },
-    ...
+    { "name": "string", "description": "string", "effectValue": number }
   ],
   "specialMoves": [
-    { "name": "string", "description": "string", "effectValue": number },
-    ...
+    { "name": "string", "description": "string", "effectValue": number }
   ]
 }
 `;

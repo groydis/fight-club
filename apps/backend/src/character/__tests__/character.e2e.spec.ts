@@ -79,6 +79,9 @@ describe('Character (e2e)', () => {
           .send({
             name: 'Groovy Gravy',
             description: 'The sauciest soup-slinger in the outer rim.',
+            gender: 'Male',
+            species: 'Human',
+            alignment: 'TrueNeutral',
           })
           .expect(201);
 
@@ -120,6 +123,9 @@ describe('Character (e2e)', () => {
         const payload = {
           name: 'Groovy Gravy',
           description: 'The sauciest soup-slinger in the outer rim.',
+          gender: 'Male',
+          species: 'Human',
+          alignment: 'TrueNeutral',
           stats: mockSuggestion.stats,
           basicMoves: mockSuggestion.basicMoves.slice(0, 2).map((move) => ({
             name: move.name,
@@ -160,8 +166,8 @@ describe('Character (e2e)', () => {
 
         expect(mockImageGenerator.execute).toHaveBeenCalledWith({
           characterId: body.id,
-          frontPrompt: mockEnriched.imagePromptFullBodyCombat,
-          profilePrompt: mockEnriched.imagePromptPortrait,
+          visualDescription: mockEnriched.visualDescription,
+          imageGenerationHints: mockEnriched.imageGenerationHints,
         });
 
         // eslint-disable-next-line @typescript-eslint/unbound-method

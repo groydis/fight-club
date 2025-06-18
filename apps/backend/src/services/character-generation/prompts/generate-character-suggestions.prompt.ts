@@ -1,10 +1,22 @@
 export const generateCharacterSuggestionsPrompt = (
   name: string,
   description: string,
+  gender: string,
+  species: string,
+  alignment: string,
 ): string => `
 You're a game designer creating characters for a turn-based combat game.
 
-Using the provided name and description, suggest a character build.
+Using the provided name, description, gender, species, and alignment, suggest a character build.
+
+### Character Context:
+- Name: ${name}
+- Description: ${description}
+- Gender: ${gender}
+- Species: ${species}
+- Alignment: ${alignment}
+
+Use this context to shape how the character fights, what kind of moves they would use, and how their stats should be distributed.
 
 ### Part 1: Stats
 Distribute exactly 30 points across the following 6 stats:
@@ -18,7 +30,7 @@ Distribute exactly 30 points across the following 6 stats:
 Rules:
 - Each stat must be at least 1
 - The total must equal exactly 30
-- Use the description to infer logical allocations
+- Use the full character context to infer logical allocations
 
 ### Part 2: Moves
 Suggest:
@@ -27,7 +39,7 @@ Suggest:
 
 Each move must be associated with a primary stat. This stat is the main attribute that powers or influences the move.
 
-Use the character theme and description for inspiration. Only provide the move names and their associated primary stat — do not include any additional descriptions or effects.
+Base your move ideas on the character’s description, species, alignment, and personality. Only provide the move names and their associated primary stat — do not include any additional descriptions or effects.
 
 ### Output format:
 Respond only with valid JSON in the following format:
@@ -48,7 +60,4 @@ Respond only with valid JSON in the following format:
     { "name": "...", "primaryStat": "agility" }
   ]
 }
-
-Name: ${name}
-Description: ${description}
 `;

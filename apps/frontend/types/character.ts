@@ -18,9 +18,32 @@ export type CharacterSuggestion = {
   specialMoves: CharacterMove[]
 }
 
+export enum CharacterGender {
+  Male = 'Male',
+  Female = 'Female',
+  Other = 'Other',
+  Unknown = 'Unknown',
+}
+
+export enum CharacterAlignment {
+  LawfulGood = 'LawfulGood',
+  NeutralGood = 'NeutralGood',
+  ChaoticGood = 'ChaoticGood',
+  LawfulNeutral = 'LawfulNeutral',
+  TrueNeutral = 'TrueNeutral',
+  ChaoticNeutral = 'ChaoticNeutral',
+  LawfulEvil = 'LawfulEvil',
+  NeutralEvil = 'NeutralEvil',
+  ChaoticEvil = 'ChaoticEvil',
+}
+
+
 export type SuggestCharacterStatsDto = {
   name: string
   description: string
+  gender: CharacterGender
+  species: string,
+  alignment: CharacterAlignment
 }
 
 export type CreateCharacterDto = {

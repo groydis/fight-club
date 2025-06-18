@@ -200,8 +200,8 @@ describe('CharactersController', () => {
 
       expect(mockImageGenerator.execute).toHaveBeenCalledWith({
         characterId: result.id,
-        frontPrompt: mockEnriched.imagePromptFullBodyCombat,
-        profilePrompt: mockEnriched.imagePromptPortrait,
+        visualDescription: mockEnriched.visualDescription,
+        imageGenerationHints: mockEnriched.imageGenerationHints,
       });
 
       expect(mockFileStorage.upload).toHaveBeenCalledTimes(2);

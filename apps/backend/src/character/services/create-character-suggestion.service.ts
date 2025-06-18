@@ -11,6 +11,12 @@ export class CreateCharacterSuggestionService {
   async execute(
     dto: CreateCharacterSuggestionRequestDto,
   ): Promise<CharacterSuggestion> {
-    return this.characterSuggestions.execute(dto.name, dto.description);
+    return this.characterSuggestions.execute(
+      dto.name,
+      dto.description,
+      dto.gender,
+      dto.species,
+      dto.alignment,
+    );
   }
 }
