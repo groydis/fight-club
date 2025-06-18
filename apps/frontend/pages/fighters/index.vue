@@ -140,9 +140,29 @@
               </div>
             </div>
           </div>
+          <!-- Delete Character -->
+          <div class="pt-4">
+            <button
+              class="bg-red-800 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-md"
+              @click="confirmDelete"
+            >
+              🗑️ Delete Character
+            </button>
+          </div>
         </div>
       </div>
     </div>
+      <ConfirmModal
+        v-if="showConfirmModal"
+        :title="`Delete ${selectedCharacter?.name}?`"
+        body="This action can not be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        :loading="isDeleting"
+        autoFocus="cancel"
+        @confirm="handleDeleteConfirmed"
+        @cancel="showConfirmModal = false"
+      />
   </div>
 </template>
 
@@ -158,6 +178,8 @@ import type {
 } from '@/types/character'
 import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
 import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
+import ConfirmModal from '@/components/ui/ConfirmModal.vue'
+
 const { showLoading, hideLoading } = useLoading()
 const characters = ref<Character[]>([])
 const selectedCharacter = ref<Character | null>(null)
@@ -214,4 +236,37 @@ const specialMoves = computed<CharacterMoveDetailed[]>(() => {
       m.type === ('SPECIAL' as unknown as MoveType)
   )
 })
+
+const showConfirmModal = ref(false)
+const isDeleting = ref(false)
+
+const confirmDelete = () => {
+  showConfirmModal.value = true
+}
+
+const handleDeleteConfirmed = async () => {
+  if (!selectedCharacter.value) return
+
+  isDeleting.value = true
+  try {
+    const { error, execute } = await useCustomFetch('/api/character', {
+      method: 'DELETE',
+      query: { id: selectedCharacter.value.id },
+    })
+
+    await execute()
+    if (error.value) throw error.value
+
+    selectedCharacter.value = null
+    await fetchCharacters()
+  } catch (err) {
+    console.error('Failed to delete character:', err)
+    alert('Failed to delete character. Try again.')
+  } finally {
+    isDeleting.value = false
+    showConfirmModal.value = false
+  }
+}
+
+
 </script>
