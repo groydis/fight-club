@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
 
 const props = defineProps<{
   title: string
@@ -51,8 +51,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'confirm'): void
-  (e: 'cancel'): void
+  (e: 'confirm' | 'cancel'): void
 }>()
 
 const modalContainer = ref<HTMLElement | null>(null)
