@@ -10,6 +10,7 @@ import {
 } from '../../test-utils/create-mock-auth-user';
 import { CharacterStatus } from '@prisma/client';
 import { AuthenticatedRequest } from '../../common/types/extended-request';
+import { faker } from '@faker-js/faker';
 
 describe('CharactersController', () => {
   let controller: CharactersController;
@@ -30,47 +31,54 @@ describe('CharactersController', () => {
 
   describe('GET /characters', () => {
     let testUser: MockAuthUser;
-    const testCharacters = [
-      {
-        id: 'char-001',
-        name: 'Gravy Wizard',
-        description: 'A wizard of the sauce arts',
-        stats: {
-          strength: 5,
-          agility: 5,
-          intelligence: 5,
-          charisma: 5,
-          luck: 5,
-          constitution: 5,
-        },
-        status: CharacterStatus.READY,
-        lore: 'Master of the gravy realm',
-        imageProfileUrl: 'https://cdn/test1.png',
-      },
-      {
-        id: 'char-002',
-        name: 'Sauce Goblin',
-        description: 'Lurks in condiment caves',
-        stats: {
-          strength: 5,
-          agility: 5,
-          intelligence: 5,
-          charisma: 5,
-          luck: 5,
-          constitution: 5,
-        },
-        status: CharacterStatus.PROCESSING,
-        lore: 'Greedy for all things saucy',
-        imageProfileUrl: 'https://cdn/test2.png',
-      },
-    ];
+    let char1Id: string;
+    let char2Id: string;
 
     beforeEach(async () => {
+      char1Id = faker.string.uuid();
+      char2Id = faker.string.uuid();
+
       testUser = await createMockAuthUser(service['prisma']);
+
+      const testCharacters = [
+        {
+          id: char1Id,
+          name: 'Gravy Wizard',
+          description: 'A wizard of the sauce arts',
+          stats: {
+            strength: 5,
+            agility: 5,
+            intelligence: 5,
+            charisma: 5,
+            luck: 5,
+            constitution: 5,
+          },
+          status: CharacterStatus.READY,
+          lore: 'Master of the gravy realm',
+          imageProfileUrl: 'https://cdn/test1.png',
+          userId: testUser.id,
+        },
+        {
+          id: char2Id,
+          name: 'Sauce Goblin',
+          description: 'Lurks in condiment caves',
+          stats: {
+            strength: 5,
+            agility: 5,
+            intelligence: 5,
+            charisma: 5,
+            luck: 5,
+            constitution: 5,
+          },
+          status: CharacterStatus.PROCESSING,
+          lore: 'Greedy for all things saucy',
+          imageProfileUrl: 'https://cdn/test2.png',
+          userId: testUser.id,
+        },
+      ];
+
       for (const char of testCharacters) {
-        await service['prisma'].character.create({
-          data: { ...char, userId: testUser.id },
-        });
+        await service['prisma'].character.create({ data: char });
       }
     });
 
@@ -85,19 +93,29 @@ describe('CharactersController', () => {
         user: { ...testUser.requestUser },
       } as unknown as AuthenticatedRequest;
 
-      const result = await controller.getCharacters(req);
+      const result = await controller.getCharacters(
+        req,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        testUser.id,
+      );
 
-      expect(result).toHaveLength(2);
+      expect(result.items).toHaveLength(2);
+      expect(result.totalCount).toBe(2);
+      expect(result.currentPage).toBe(1);
+      expect(result.totalPages).toBe(1);
 
-      expect(result[0]).toMatchObject({
-        id: 'char-002',
+      expect(result.items[0]).toMatchObject({
+        id: char2Id,
         name: 'Sauce Goblin',
         imageProfileUrl: 'https://cdn/test2.png',
         status: CharacterStatus.PROCESSING,
       });
 
-      expect(result[1]).toMatchObject({
-        id: 'char-001',
+      expect(result.items[1]).toMatchObject({
+        id: char1Id,
         name: 'Gravy Wizard',
         imageProfileUrl: 'https://cdn/test1.png',
         status: CharacterStatus.READY,

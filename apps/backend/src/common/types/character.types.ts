@@ -127,6 +127,7 @@ export class Character {
   imageFrontUrl?: string;
   imageProfileUrl?: string;
   moves: CharacterMove[];
+  trainer?: string;
   userId?: string;
 }
 

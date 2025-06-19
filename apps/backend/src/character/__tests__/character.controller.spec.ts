@@ -133,11 +133,7 @@ describe('CharactersController', () => {
     });
 
     it('returns a valid character object from the controller', async () => {
-      const req = {
-        user: { ...testUser.requestUser },
-      } as unknown as AuthenticatedRequest;
-
-      const result = await controller.get(req, 'char-001');
+      const result = await controller.get('char-001');
 
       expect(result).toMatchObject({
         id: 'char-001',

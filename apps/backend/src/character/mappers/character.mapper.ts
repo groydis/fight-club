@@ -9,6 +9,7 @@ import {
 export type FullCharacter = Prisma.CharacterGetPayload<{
   include: {
     moves: true;
+    user: true;
   };
 }>;
 
@@ -32,6 +33,7 @@ export function toCharacterDto(character: FullCharacter): Character {
       primaryStat: move.stat as StatType,
       type: move.type,
     })),
+    trainer: character.user?.username || undefined,
     userId: character.userId ?? undefined,
   };
 }

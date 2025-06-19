@@ -1,4 +1,5 @@
 import { UserRole, UserStatus, PrismaClient } from '@prisma/client';
+import { faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
 
@@ -69,6 +70,68 @@ async function main() {
       update: {},
       create: user,
     });
+  }
+
+  const genders = ['Male', 'Female', 'Other', 'Unknown'] as const;
+  const alignments = [
+    'LawfulGood',
+    'NeutralGood',
+    'ChaoticGood',
+    'LawfulNeutral',
+    'TrueNeutral',
+    'ChaoticNeutral',
+    'LawfulEvil',
+    'NeutralEvil',
+    'ChaoticEvil',
+  ] as const;
+  const statKeys = ['strength', 'agility', 'intelligence', 'charisma', 'luck'];
+
+  for (const user of STATIC_USERS.filter(
+    (u) => u.status === UserStatus.ACTIVE,
+  )) {
+    for (let i = 0; i < 25; i++) {
+      const char = await prisma.character.create({
+        data: {
+          name: faker.person.fullName(),
+          description: faker.lorem.sentence(),
+          lore: faker.lorem.paragraph(),
+          stats: {
+            strength: faker.number.int({ min: 1, max: 10 }),
+            agility: faker.number.int({ min: 1, max: 10 }),
+            intelligence: faker.number.int({ min: 1, max: 10 }),
+            charisma: faker.number.int({ min: 1, max: 10 }),
+            luck: faker.number.int({ min: 1, max: 10 }),
+          },
+          gender: faker.helpers.arrayElement(genders),
+          alignment: faker.helpers.arrayElement(alignments),
+          species: 'human',
+          userId: user.id,
+          imageFrontUrl: '/images/question-mark.png',
+          imageProfileUrl: '/images/question-mark.png',
+          status: 'READY',
+          moves: {
+            create: [
+              {
+                name: faker.word.words({ count: { min: 1, max: 2 } }),
+                description: faker.lorem.sentence(),
+                stat: faker.helpers.arrayElement(statKeys),
+                effectValue: faker.number.int({ min: 1, max: 5 }),
+                type: 'BASIC',
+              },
+              {
+                name: faker.word.words({ count: { min: 1, max: 2 } }),
+                description: faker.lorem.sentence(),
+                stat: faker.helpers.arrayElement(statKeys),
+                effectValue: faker.number.int({ min: 3, max: 10 }),
+                type: 'SPECIAL',
+              },
+            ],
+          },
+        },
+      });
+
+      console.log(`Created character ${char.name} for ${user.name}`);
+    }
   }
 
   console.log('🌱 Seed data inserted.');

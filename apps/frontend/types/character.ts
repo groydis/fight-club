@@ -86,6 +86,10 @@ export type Character = {
   imageProfileUrl?: string;
   moves: CharacterMoveDetailed[];
   userId?: string;
+  alignment?: CharacterAlignment;
+  species: string;
+  gender: CharacterGender;
+  trainer?: string;
 }
 
 
