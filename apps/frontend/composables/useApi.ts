@@ -20,7 +20,7 @@ export async function useCustomFetch<TResponse, TBody = unknown>(
     query: options.query,
     credentials: 'include',
     headers,
-    baseURL: process.env.BACKEND_URL || 'http://localhost:8008',
+    baseURL: process.env.API_BASE_URL,
     immediate: false,
     watch: false,
   })
