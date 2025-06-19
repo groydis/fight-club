@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'apps/backend/**'
 
 jobs:
   deploy:
@@ -34,3 +36,7 @@ jobs:
         run: npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: 🚢 Trigger Render Deploy
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}
+
