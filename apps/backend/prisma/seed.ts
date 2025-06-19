@@ -104,6 +104,7 @@ async function main() {
           },
           gender: faker.helpers.arrayElement(genders),
           alignment: faker.helpers.arrayElement(alignments),
+          species: 'human',
           userId: user.id,
           imageFrontUrl: '/images/question-mark.png',
           imageProfileUrl: '/images/question-mark.png',

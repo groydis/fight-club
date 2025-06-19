@@ -57,6 +57,9 @@ export class CreateCharacterService {
         lore: enrichment.lore,
         stats: stats as unknown as Prisma.InputJsonValue,
         status: CharacterStatus.PROCESSING, // Assuming userId is passed in CreateCharacterDto
+        gender,
+        species,
+        alignment,
         moves: {
           create: [
             ...basicMoves.map((move, i) => ({
