@@ -1,16 +1,5 @@
 <template>
   <div class="min-h-screen bg-zinc-950 text-white px-4 py-10 max-w-6xl mx-auto space-y-8">
-    <!-- Detail or Grid View -->
-    <template v-if="selectedCharacter">
-      <Transition name="fade">
-        <CharacterDetail
-          :character="selectedCharacter"
-          @back="selectedCharacter = null"
-        />
-      </Transition>
-    </template>
-
-    <template v-else>
       <div class="flex justify-between items-center mb-4">
         <h1 class="text-3xl font-bold">All Characters</h1>
 
@@ -30,9 +19,37 @@
         <div
           v-for="char in characters"
           :key="char.id"
-          class="relative border border-zinc-800 hover:border-red-600 transition rounded-xl overflow-hidden group bg-zinc-900 shadow-md cursor-pointer"
-          @click="selectCharacter(char)"
+          class="relative border border-zinc-800 hover:border-red-600 transition rounded-xl overflow-hidden group bg-zinc-900 shadow-md"
+          :class="{ 'cursor-not-allowed opacity-70': char.status === 'PROCESSING', 'cursor-pointer': char.status !== 'PROCESSING' }"
+          @click="char.status !== 'PROCESSING' && selectCharacter(char)"
         >
+          <!-- Spinner overlay if processing -->
+          <div
+            v-if="char.status === 'PROCESSING'"
+            class="absolute inset-0 bg-black/70 flex items-center justify-center z-10"
+          >
+            <svg
+              class="animate-spin h-6 w-6 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8z"
+              />
+            </svg>
+          </div>
+
           <img
             :src="char.imageFrontUrl || '/images/question-mark.png'"
             :alt="char.name"
@@ -41,10 +58,9 @@
           <div
             class="absolute bottom-0 w-full text-center bg-black/70 text-white text-sm p-1 group-hover:bg-red-700 transition"
           >
-            {{ char.name }}
+            {{ char.status === 'PROCESSING' ? 'Processing…' : char.name }}
           </div>
         </div>
-
         <!-- Skeleton Loaders -->
         <div
           v-if="isLoading"
@@ -56,22 +72,21 @@
 
       <!-- Load More Trigger -->
       <div ref="loadMoreTrigger" class="h-10"></div>
-    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import type { Character } from '@/types/character'
-import CharacterDetail from '@/components/CharacterDetail.vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const characters = ref<Character[]>([])
 const currentPage = ref(1)
 const totalPages = ref(1)
 const isLoading = ref(false)
 const loadMoreTrigger = ref<HTMLElement | null>(null)
 const selectedSort = ref<'createdAt_desc' | 'createdAt_asc'>('createdAt_desc')
-const selectedCharacter = ref<Character | null>(null)
 
 const fetchCharacters = async () => {
   if (isLoading.value || (totalPages.value && currentPage.value > totalPages.value)) return
@@ -118,8 +133,9 @@ const resetAndFetch = async () => {
 }
 
 const selectCharacter = (char: Character) => {
-  selectedCharacter.value = char
+  router.push(`/fighters/profile/${char.id}`)
 }
+
 
 onMounted(() => {
   const observer = new IntersectionObserver(([entry]) => {

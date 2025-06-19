@@ -108,6 +108,7 @@ async function main() {
           userId: user.id,
           imageFrontUrl: '/images/question-mark.png',
           imageProfileUrl: '/images/question-mark.png',
+          status: 'READY',
           moves: {
             create: [
               {
