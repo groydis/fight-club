@@ -36,6 +36,7 @@ export class ListCharactersService {
         where: whereClause,
         include: {
           moves: true,
+          user: true,
         },
         orderBy: { [sortBy]: order },
         skip: offset,

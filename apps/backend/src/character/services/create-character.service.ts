@@ -81,6 +81,7 @@ export class CreateCharacterService {
       },
       include: {
         moves: true,
+        user: true,
       },
     });
 

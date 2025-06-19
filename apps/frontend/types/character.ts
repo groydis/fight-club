@@ -89,6 +89,7 @@ export type Character = {
   alignment?: CharacterAlignment;
   species: string;
   gender: CharacterGender;
+  trainer?: string;
 }
 
 

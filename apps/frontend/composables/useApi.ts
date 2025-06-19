@@ -6,6 +6,7 @@ export async function useCustomFetch<TResponse, TBody = unknown>(
 ) {
   const supabase = useSupabaseClient()
   const { data } = await supabase.auth.getSession()
+
   const token = data.session?.access_token
 
   const headers = {

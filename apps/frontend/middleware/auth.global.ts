@@ -28,7 +28,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
       const url = `${config.public.apiBase}/api/user`
 
       // Call $fetch with Authorization header
-      const userProfile = await $fetch<{ user: { id: string, email: string, name: string, role: string, status: string} }>(url, {
+      const userProfile = await $fetch<{ user: { id: string, email: string, name: string, role: string, status: string, username: string } }>(url, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`

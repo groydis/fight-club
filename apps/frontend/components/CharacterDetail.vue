@@ -36,6 +36,7 @@
         <h2 class="text-3xl font-bold text-red-600 tracking-wide uppercase">
           {{ character.name }}
         </h2>
+        <p><span class="text-zinc-300 font-semibold">Trainer:</span> {{ character.trainer || 'Unknown' }}</p>
         <p class="text-sm text-zinc-400 italic">{{ character.lore }}</p>
       </div>
 

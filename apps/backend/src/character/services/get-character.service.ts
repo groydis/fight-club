@@ -12,6 +12,7 @@ export class GetCharacterService {
       where: { id: characterId, archived: false },
       include: {
         moves: true,
+        user: true,
       },
     });
     return toCharacterDto(character);
