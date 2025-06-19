@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CharacterImageGenerator } from '../interface/character-image-generator.interface';
+import { CharacterImageGenerator } from '../services/image-generation/interface/character-image-generator.interface';
 
 @Injectable()
 export class MockGenerateImage implements CharacterImageGenerator {

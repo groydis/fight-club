@@ -6,14 +6,11 @@ import { CharacterController } from './character.controller';
 import { CreateCharacterSuggestionService } from './services/create-character-suggestion.service';
 import { CreateCharacterService } from './services/create-character.service';
 import { FILE_STORAGE } from '../common/tokens';
-import { MockFileStorage } from '../services/storage/services/mock-file-storage.service';
-import { SupabaseFileStorage } from '../services/storage/services/supabase-file-storage.service';
+import { SupabaseFileStorage } from '../test-utils/supabase-file-storage.service';
 import { GetCharacterService } from './services/get-character.service';
 import { ImageGenerationModule } from '../services/image-generation/image-generation.module';
 import { CharacterGenerationModule } from '../services/character-generation/character-generation.module';
 import { DeleteCharacterService } from './services/delete-character.service';
-
-const useMockServices = process.env.USE_MOCK_SERVICES === 'true';
 
 @Module({
   imports: [
@@ -31,7 +28,7 @@ const useMockServices = process.env.USE_MOCK_SERVICES === 'true';
     CreateCharacterService,
     {
       provide: FILE_STORAGE,
-      useClass: useMockServices ? MockFileStorage : SupabaseFileStorage,
+      useClass: SupabaseFileStorage,
     },
   ],
 })

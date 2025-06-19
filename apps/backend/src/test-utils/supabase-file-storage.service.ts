@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FileStorage } from '../interfaces/file-storage.interface';
+import { FileStorage } from '../services/storage/interfaces/file-storage.interface';
 import { createClient } from '@supabase/supabase-js';
 
 @Injectable()
