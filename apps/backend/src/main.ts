@@ -22,7 +22,12 @@ async function bootstrap() {
     }),
   );
 
-  console.log(`🛠️  Using mock services: ${useMockServices ? 'YES' : 'NO'}`);
+  app.use((req, res, next) => {
+    console.log(
+      `[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`,
+    );
+    next();
+  });
 
   await app.listen(process.env.PORT ?? 8008);
   console.log('🚀 Server is running on http://localhost:8008');

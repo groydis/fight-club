@@ -1,4 +1,4 @@
-import { Background } from '../interfaces/background.interface';
+import { Background } from '../services/sharp/interfaces/background.interface';
 
 // test-utils/mock-services/mock-sharp-background.service.ts
 export class MockSharpBackgroundService implements Background {

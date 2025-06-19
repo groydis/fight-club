@@ -14,13 +14,15 @@ export async function useCustomFetch<TResponse, TBody = unknown>(
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
 
+  const config = useRuntimeConfig()
+
   return useFetch<TResponse>(url, {
     method: options.method || 'GET',
     body: options.body,
     query: options.query,
     credentials: 'include',
     headers,
-    baseURL: process.env.API_BASE_URL,
+    baseURL: `${config.public.apiBase}` || 'https://fight-club-nqfh.onrender.com',
     immediate: false,
     watch: false,
   })
