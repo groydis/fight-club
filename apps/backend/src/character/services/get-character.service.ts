@@ -7,14 +7,12 @@ import { toCharacterDto } from '../../character/mappers/character.mapper';
 export class GetCharacterService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(userId: string, characterId: string): Promise<Character> {
+  async execute(characterId: string): Promise<Character> {
     const character = await this.prisma.character.findFirstOrThrow({
-      where: { userId, id: characterId }, // We want to ensure the user owns the character (for now)
+      where: { id: characterId, archived: false },
       include: {
         moves: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
+        user: true,
       },
     });
     return toCharacterDto(character);

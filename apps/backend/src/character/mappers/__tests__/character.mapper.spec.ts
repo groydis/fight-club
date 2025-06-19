@@ -1,6 +1,11 @@
 import { STATIC_USERS } from '../../../test-utils/static.users';
 import { toCharacterDto, FullCharacter } from '../character.mapper';
-import { CharacterStatus, MoveType } from '@prisma/client';
+import {
+  CharacterStatus,
+  MoveType,
+  UserRole,
+  UserStatus,
+} from '@prisma/client';
 
 describe('toCharacterDto', () => {
   const mockCharacter: FullCharacter = {
@@ -18,10 +23,14 @@ describe('toCharacterDto', () => {
       constitution: 5,
       luck: 5,
     },
+    species: null,
+    gender: null,
+    alignment: null,
     imageFrontUrl: null,
     imageProfileUrl: null,
     createdAt: new Date(),
     updatedAt: new Date(),
+    archived: false,
     moves: [
       {
         id: 'move_1',
@@ -42,6 +51,18 @@ describe('toCharacterDto', () => {
         characterId: 'char_123',
       },
     ],
+    user: {
+      id: STATIC_USERS.activeUser1,
+      name: 'John',
+      username: 'Doodle',
+      avatarUrl: '',
+      bio: '',
+      email: 'test@example.com',
+      role: UserRole.USER,
+      status: UserStatus.ACTIVE,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
   };
 
   it('should map FullCharacter to CharacterDto correctly', () => {
@@ -54,6 +75,12 @@ describe('toCharacterDto', () => {
       lore: 'Forged in the stew of destiny.',
       status: CharacterStatus.PROCESSING,
       userId: STATIC_USERS.activeUser1,
+      trainer: 'Doodle', // 👈 comes from user.username
+      imageFrontUrl: undefined,
+      imageProfileUrl: undefined,
+      species: undefined,
+      gender: undefined,
+      alignment: undefined,
       stats: {
         strength: 6,
         agility: 5,

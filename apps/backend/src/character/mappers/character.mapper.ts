@@ -1,9 +1,15 @@
 import { Prisma } from '@prisma/client';
-import { Character, StatType } from '../../common/types/character.types';
+import {
+  Character,
+  CharacterAlignment,
+  CharacterGender,
+  StatType,
+} from '../../common/types/character.types';
 
 export type FullCharacter = Prisma.CharacterGetPayload<{
   include: {
     moves: true;
+    user: true;
   };
 }>;
 
@@ -15,6 +21,9 @@ export function toCharacterDto(character: FullCharacter): Character {
     lore: character.lore,
     stats: character.stats as Record<string, number>,
     status: character.status,
+    gender: (character.gender as CharacterGender) ?? undefined,
+    species: character.species ?? undefined,
+    alignment: (character.alignment as CharacterAlignment) ?? undefined,
     imageFrontUrl: character.imageFrontUrl ?? undefined,
     imageProfileUrl: character.imageProfileUrl ?? undefined,
     moves: character.moves.map((move) => ({
@@ -24,6 +33,7 @@ export function toCharacterDto(character: FullCharacter): Character {
       primaryStat: move.stat as StatType,
       type: move.type,
     })),
+    trainer: character.user?.username || undefined,
     userId: character.userId ?? undefined,
   };
 }

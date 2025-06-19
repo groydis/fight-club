@@ -37,10 +37,22 @@ export class CharacterGenerateEnrichmentService {
   constructor(private readonly openAIService: OpenAIService) {}
 
   async execute(input: BaseCharacterInput): Promise<CharacterEnrichmentResult> {
-    const { name, description, stats, basicMoves, specialMoves } = input;
+    const {
+      name,
+      description,
+      gender,
+      species,
+      alignment,
+      stats,
+      basicMoves,
+      specialMoves,
+    } = input;
     const prompt = generateCharacterPrompt(
       name,
       description,
+      gender,
+      species,
+      alignment,
       stats,
       basicMoves,
       specialMoves,

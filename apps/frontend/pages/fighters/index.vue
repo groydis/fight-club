@@ -1,6 +1,6 @@
 <template>
-  <div class="flex justify-center items-center min-h-screen">
-    <div class="p-10">
+  <div class="min-h-screen flex items-center justify-center bg-zinc-950 text-white px-4">
+    <div class="w-full max-w-6xl py-10 space-y-8">
       <!-- Character Select Screen -->
       <div
         v-if="!selectedCharacter"
@@ -9,169 +9,163 @@
         <button
           v-for="index in 10"
           :key="index"
-          class="relative border-2 border-transparent hover:border-fuchsia-500 transition rounded-xl overflow-hidden group"
+          class="relative border border-zinc-800 hover:border-red-600 transition rounded-xl overflow-hidden group bg-zinc-900 shadow-md"
+          :disabled="characters[index - 1]?.status === 'PROCESSING'"
           @click="
             characters[index - 1]
               ? selectCharacter(characters[index - 1])
               : goToCreate()
           "
         >
-          <img
-            :src="characters[index - 1]?.imageProfileUrl || '/images/question-mark.png'"
-            :alt="characters[index - 1]?.name || 'Create Fighter'"
-            class="w-full aspect-square object-cover bg-black/50"
-          >
+          <!-- Spinner Overlay for processing characters -->
           <div
-            class="absolute bottom-0 w-full text-center bg-black/60 text-white text-sm p-1 group-hover:bg-fuchsia-700"
+            v-if="characters[index - 1]?.status === 'PROCESSING'"
+            class="absolute inset-0 bg-black/70 flex items-center justify-center z-10"
           >
-            {{ characters[index - 1]?.name || 'Create Character' }}
+            <svg
+              class="animate-spin h-6 w-6 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8z"
+              />
+            </svg>
+          </div>
+
+          <!-- Character Image -->
+          <img
+            :src="characters[index - 1]?.imageFrontUrl || '/images/question-mark.png'"
+            :alt="characters[index - 1]?.name || 'Create Fighter'"
+            class="w-full aspect-square object-cover bg-black/60"
+          >
+
+          <!-- Character Name / Processing Text -->
+          <div
+            class="absolute bottom-0 w-full text-center bg-black/70 text-white text-sm p-1 group-hover:bg-red-700 transition"
+          >
+            {{
+              characters[index - 1]?.status === 'PROCESSING'
+                ? 'Processing…'
+                : (characters[index - 1]?.name || 'Create Character')
+            }}
           </div>
         </button>
-      </div>
-
-      <!-- Character Detail Panel -->
-      <div
-        v-else
-        class="relative max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 p-4"
-      >
-        <button
-          class="absolute top-2 left-2 bg-gray-800 text-white px-3 py-1 rounded-md text-xs"
-          @click="selectedCharacter = null"
-        >
-          ← Back
-        </button>
-
-        <!-- Left: Profile Image -->
-        <img
-          :src="selectedCharacter.imageProfileUrl"
-          :alt="selectedCharacter.name"
-          class="w-full rounded-xl object-cover aspect-square"
-        >
-
-        <!-- Right: Details -->
-        <div class="space-y-6">
-          <!-- Name / Description / Lore -->
-          <div>
-            <h2 class="text-3xl font-bold">{{ selectedCharacter.name }}</h2>
-            <p class="text-sm text-gray-300">{{ selectedCharacter.lore }}</p>
-          </div>
-
-          <!-- Stats (read-only) -->
-          <div>
-            <h3 class="text-xl font-semibold mb-2">Stats</h3>
-            <div class="grid grid-cols-2 gap-2">
-              <div
-                v-for="([statKey, statVal], idx) in statEntries"
-                :key="idx"
-                class="flex items-center gap-2"
-              >
-                <!-- Emoji + Stat Name -->
-                <span class="text-2xl">{{ STAT_EMOJI_MAP[statKey] }}</span>
-                <span class="capitalize font-medium">{{ statKey }}:</span>
-                <span class="font-bold">{{ statVal }}</span>
-                <span
-                  v-tippy="{
-                    content: STAT_EXPLANATION_MAP[statKey],
-                    placement: 'top',
-                    theme: 'light-border'
-                  }"
-                  class="cursor-help text-gray-500"
-                >
-                  (?)
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Moves -->
-          <div>
-            <h3 class="text-xl font-semibold mb-2">Basic Moves</h3>
-            <div class="list-disc list-inside space-y-1">
-              <div v-for="(move, i) in basicMoves" :key="i" class="gap-2">
-                <span class="text-2xl pr-1">{{ STAT_EMOJI_MAP[move.primaryStat] }}</span>
-                <span class="capitalize font-medium">{{ move.name }}</span>
-                <p class="text-sm text-gray-400"> {{ move.description }}</p>
-              </div>
-            </div>
-
-            <h3 class="text-xl font-semibold mt-4 mb-2">Special Moves</h3>
-            <div class="list-disc list-inside space-y-1">
-              <div v-for="(move, i) in specialMoves" :key="i">
-                <span class="text-2xl pr-1">{{ STAT_EMOJI_MAP[move.primaryStat]  }}</span>
-                <span class="font-medium">{{ move.name }}</span>
-                <p class="text-sm text-gray-400"> {{ move.description }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
+      <ConfirmModal
+        v-if="showConfirmModal"
+        :title="`Delete ${selectedCharacter?.name}?`"
+        body="This action can not be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        :loading="isDeleting"
+        autoFocus="cancel"
+        @confirm="handleDeleteConfirmed"
+        @cancel="showConfirmModal = false"
+      />
   </div>
 </template>
 
+
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import type {
   Character,
-  CharacterMoveDetailed,
-  MoveType,
-  CharacterStats
 } from '@/types/character'
-import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
-import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
+import ConfirmModal from '@/components/ui/ConfirmModal.vue'
+import { useUserStore } from '~/stores/user'
 
+const { showLoading, hideLoading } = useLoading()
+const { user } = useUserStore()
 const characters = ref<Character[]>([])
 const selectedCharacter = ref<Character | null>(null)
 const loading = ref(false)
 const router = useRouter()
 
+const currentPage = ref(1)
+const totalPages = ref(1)
+
 const fetchCharacters = async () => {
+  showLoading()
   loading.value = true
   try {
     const { data, error, execute } = await useCustomFetch('/api/characters', {
       method: 'GET',
+      query: { page: currentPage.value, userId: user?.id},
     })
+
     await execute()
     if (error.value) throw error.value
 
-    characters.value = (data.value as Character[]) || []
+    const payload = data.value as {
+      items: Character[]
+      totalCount: number
+      totalPages: number
+      currentPage: number
+    }
+
+    characters.value = payload.items || []
+    totalPages.value = payload.totalPages
+    currentPage.value = payload.currentPage
   } catch (err) {
     console.error('Failed to fetch characters:', err)
   } finally {
     loading.value = false
+    hideLoading()
   }
 }
 
 onMounted(fetchCharacters)
 
 const selectCharacter = (character: Character) => {
-  selectedCharacter.value = character
+  router.push(`/fighters/profile/${character.id}`)
 }
+
 const goToCreate = () => {
   router.push('/fighters/create')
 }
 
-const statEntries = computed<[keyof CharacterStats, number][]>(() => {
-  if (!selectedCharacter.value) return []
-  return Object.entries(
-    selectedCharacter.value.stats
-  ) as [keyof CharacterStats, number][]
-})
+const showConfirmModal = ref(false)
+const isDeleting = ref(false)
 
-const basicMoves = computed<CharacterMoveDetailed[]>(() => {
-  if (!selectedCharacter.value) return []
-  return (selectedCharacter.value.moves || []).filter(
-    (m) =>
-      m.type === ('BASIC' as unknown as MoveType)
-  )
-})
+const handleDeleteConfirmed = async () => {
+  if (!selectedCharacter.value) return
 
-const specialMoves = computed<CharacterMoveDetailed[]>(() => {
-  if (!selectedCharacter.value) return []
-  return (selectedCharacter.value.moves || []).filter(
-    (m) =>
-      m.type === ('SPECIAL' as unknown as MoveType)
-  )
-})
+  isDeleting.value = true
+  try {
+    const { error, execute } = await useCustomFetch('/api/character', {
+      method: 'DELETE',
+      query: { id: selectedCharacter.value.id },
+    })
+
+    await execute()
+    if (error.value) throw error.value
+
+    selectedCharacter.value = null
+    await fetchCharacters()
+    if (characters.value.length === 0 && currentPage.value > 1) {
+      currentPage.value--
+      await fetchCharacters()
+    }
+  } catch (err) {
+    console.error('Failed to delete character:', err)
+    alert('Failed to delete character. Try again.')
+  } finally {
+    isDeleting.value = false
+    showConfirmModal.value = false
+  }
+}
 </script>

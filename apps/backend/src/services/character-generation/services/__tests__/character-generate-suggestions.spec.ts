@@ -1,6 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { OpenAIService } from '../../../openai/openai.service';
-import { CharacterSuggestion } from '../../../../common/types/character.types';
+import {
+  CharacterAlignment,
+  CharacterGender,
+  CharacterSuggestion,
+} from '../../../../common/types/character.types';
 import { ServiceUnavailableException } from '@nestjs/common';
 import { CharacterGenerateSuggestionsService } from '../character-generate-suggestions.service';
 
@@ -56,6 +60,9 @@ describe('GenerateCharacterSuggestionsService', () => {
     const result = await service.execute(
       'Groovy Gravy',
       'Unhinged soup warrior',
+      CharacterGender.Male,
+      'Human',
+      CharacterAlignment.TrueNeutral,
     );
 
     expect(result.stats).toEqual(validSuggestion.stats);
@@ -79,7 +86,13 @@ describe('GenerateCharacterSuggestionsService', () => {
     mockChatGptService.chatGptRequest.mockResolvedValueOnce(brokenStats);
 
     await expect(
-      service.execute('Overpowered Chad', 'Stat cheater'),
+      service.execute(
+        'Overpowered Chad',
+        'Stat cheater',
+        CharacterGender.Male,
+        'Human',
+        CharacterAlignment.TrueNeutral,
+      ),
     ).rejects.toThrow(ServiceUnavailableException);
   });
 
@@ -92,7 +105,13 @@ describe('GenerateCharacterSuggestionsService', () => {
     mockChatGptService.chatGptRequest.mockResolvedValueOnce(brokenMoves);
 
     await expect(
-      service.execute('Forgetful Frank', 'Didn’t come prepared'),
+      service.execute(
+        'Forgetful Frank',
+        'Didn’t come prepared',
+        CharacterGender.Male,
+        'Human',
+        CharacterAlignment.TrueNeutral,
+      ),
     ).rejects.toThrow('Failed to generate character suggestion');
   });
 
@@ -110,7 +129,13 @@ describe('GenerateCharacterSuggestionsService', () => {
     mockChatGptService.chatGptRequest.mockResolvedValueOnce(invalidMoves);
 
     await expect(
-      service.execute('Stateless Steve', 'Forgot how to fight'),
+      service.execute(
+        'Stateless Steve',
+        'Forgot how to fight',
+        CharacterGender.Male,
+        'Human',
+        CharacterAlignment.TrueNeutral,
+      ),
     ).rejects.toThrow('Failed to generate character suggestion');
   });
 });

@@ -7,8 +7,14 @@ import {
   Max,
   IsIn,
   IsDefined,
+  IsEnum,
+  IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import {
+  CharacterAlignment,
+  CharacterGender,
+} from '../../common/types/character.types';
 
 const STAT_NAMES = [
   'strength',
@@ -67,6 +73,17 @@ export class CreateCharacterDto {
 
   @IsString()
   description: string;
+
+  @IsString()
+  @IsEnum(CharacterGender)
+  gender: CharacterGender;
+
+  @IsString()
+  @IsNotEmpty()
+  species: string;
+
+  @IsEnum(CharacterAlignment)
+  alignment: CharacterAlignment;
 
   @IsDefined()
   @ValidateNested()

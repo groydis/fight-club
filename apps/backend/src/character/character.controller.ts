@@ -7,6 +7,7 @@ import {
   Req,
   Get,
   Query,
+  Delete,
 } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { CreateCharacterSuggestionRequestDto } from './dto/create-chracter-suggestion.request.dto';
@@ -15,6 +16,8 @@ import { CreateCharacterDto } from './dto/create-character.request.dto';
 import { AuthenticatedRequest } from '../common/types/extended-request';
 import { CreateCharacterService } from './services/create-character.service';
 import { GetCharacterService } from './services/get-character.service';
+import { DeleteCharacterService } from './services/delete-character.service';
+import { Public } from '../common/decorators/public.decorator';
 
 @UseGuards(AuthGuard)
 @Controller('api/character')
@@ -23,18 +26,16 @@ export class CharacterController {
     private readonly getCharacterService: GetCharacterService,
     private readonly createCharacterSuggestionService: CreateCharacterSuggestionService,
     private readonly createCharacterService: CreateCharacterService,
+    private readonly deleteCharacterService: DeleteCharacterService,
   ) {}
 
+  @Public()
   @Get()
-  get(@Req() req: AuthenticatedRequest, @Query('id') characterId: string) {
-    const userId = req.user?.local?.id;
-    if (!userId) {
-      throw new BadRequestException('Missing user information');
-    }
+  get(@Query('id') characterId: string) {
     if (!characterId) {
       throw new BadRequestException('Character ID is required');
     }
-    return this.getCharacterService.execute(userId, characterId);
+    return this.getCharacterService.execute(characterId);
   }
 
   @Post()
@@ -54,6 +55,18 @@ export class CharacterController {
     }
 
     return this.createCharacterService.execute(dto, userId);
+  }
+
+  @Delete()
+  delete(@Req() req: AuthenticatedRequest, @Query('id') characterId: string) {
+    const userId = req.user?.local?.id;
+    if (!userId) {
+      throw new BadRequestException('Missing user information');
+    }
+    if (!characterId) {
+      throw new BadRequestException('Character ID is required');
+    }
+    return this.deleteCharacterService.execute(userId, characterId);
   }
 
   @Post('suggestion')

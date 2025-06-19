@@ -24,6 +24,7 @@ import {
   MockAuthUser,
 } from '../../test-utils/create-mock-auth-user';
 import { GetCharacterService } from '../services/get-character.service';
+import { DeleteCharacterService } from '../services/delete-character.service';
 
 const mockImageGenerator = {
   execute: jest.fn().mockResolvedValue({
@@ -46,6 +47,7 @@ describe('CharactersController', () => {
       controllers: [CharacterController],
       providers: [
         GetCharacterService,
+        DeleteCharacterService,
         CreateCharacterSuggestionService,
         CreateCharacterService,
         PrismaService,
@@ -131,11 +133,7 @@ describe('CharactersController', () => {
     });
 
     it('returns a valid character object from the controller', async () => {
-      const req = {
-        user: { ...testUser.requestUser },
-      } as unknown as AuthenticatedRequest;
-
-      const result = await controller.get(req, 'char-001');
+      const result = await controller.get('char-001');
 
       expect(result).toMatchObject({
         id: 'char-001',
@@ -200,11 +198,64 @@ describe('CharactersController', () => {
 
       expect(mockImageGenerator.execute).toHaveBeenCalledWith({
         characterId: result.id,
-        frontPrompt: mockEnriched.imagePromptFullBodyCombat,
-        profilePrompt: mockEnriched.imagePromptPortrait,
+        visualDescription: mockEnriched.visualDescription,
+        imageGenerationHints: mockEnriched.imageGenerationHints,
       });
 
       expect(mockFileStorage.upload).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('DELETE /character', () => {
+    let testUser: MockAuthUser;
+    const testCharacter = {
+      id: 'delete-me-123',
+      name: 'Sauce Skeleton',
+      description: 'A spooky condiment enjoyer',
+      stats: {
+        strength: 4,
+        agility: 6,
+        intelligence: 5,
+        charisma: 3,
+        luck: 5,
+        constitution: 7,
+      },
+      status: CharacterStatus.READY,
+      lore: 'Haunts the pantries of the brave',
+      imageProfileUrl: 'https://cdn/sauce-skelly.png',
+      archived: false,
+    };
+
+    beforeEach(async () => {
+      testUser = await createMockAuthUser(getCharacterService['prisma']);
+      await getCharacterService['prisma'].character.create({
+        data: {
+          ...testCharacter,
+          userId: testUser.id,
+        },
+      });
+    });
+
+    afterEach(async () => {
+      await getCharacterService['prisma'].character.deleteMany({
+        where: { userId: testUser.id },
+      });
+    });
+
+    it('soft deletes (archives) the character for the given user', async () => {
+      const req = {
+        user: { ...testUser.requestUser },
+      } as unknown as AuthenticatedRequest;
+
+      await controller.delete(req, 'delete-me-123');
+
+      const archivedChar = await getCharacterService[
+        'prisma'
+      ].character.findUnique({
+        where: { id: 'delete-me-123' },
+      });
+
+      expect(archivedChar?.archived).toBe(true);
     });
   });
 });
