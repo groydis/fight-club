@@ -9,13 +9,13 @@
     "seed": "ts-node --transpile-only prisma/seed.ts"
   },
   "scripts": {
-    "build": "nest build",
+    "build": "npx nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "USE_MOCK_SERVICES=false nest start --watch",
     "start:dev:local": "USE_MOCK_SERVICES=true nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node ./dist/src/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "db:up": "docker-compose up -d",
     "db:down": "docker-compose down",
