@@ -62,12 +62,13 @@
           </div>
         </div>
         <!-- Skeleton Loaders -->
-        <div
-          v-if="isLoading"
-          v-for="i in 4"
-          :key="`skeleton-${i}`"
-          class="animate-pulse bg-zinc-800 aspect-square rounded-xl"
-        ></div>
+        <template v-if="isLoading">
+          <div
+            v-for="i in 4"
+            :key="`skeleton-${i}`"
+            class="animate-pulse bg-zinc-800 aspect-square rounded-xl"
+          ></div>
+        </template>
       </div>
 
       <!-- Load More Trigger -->

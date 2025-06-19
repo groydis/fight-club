@@ -39,7 +39,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useUserStore } from '~/stores/user';        // User store to get current user (for isOwner in CharacterDetail)
 import { useLoading } from '~/composables/useLoading'; // Loading composable (if available for global spinner)
 import CharacterDetail from '@/components/CharacterDetail.vue';
 import ConfirmModal from '@/components/ui/ConfirmModal.vue';
@@ -47,7 +46,6 @@ import type { Character } from '@/types/character'
 
 const route = useRoute();
 const router = useRouter();
-const { user } = useUserStore();  // current user (may be null if not logged in)
 
 const character = ref(null);      // will hold the fetched character data
 const loading = ref(false);

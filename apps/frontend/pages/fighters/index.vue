@@ -168,12 +168,4 @@ const handleDeleteConfirmed = async () => {
     showConfirmModal.value = false
   }
 }
-
-const changePage = async (page: number) => {
-  currentPage.value = page
-  await fetchCharacters()
-}
-
-
-
 </script>
