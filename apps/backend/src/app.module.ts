@@ -2,7 +2,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { SupabaseModule } from './services/supabase/supabase.module';
 import { UserModule } from './user/user.module';
 import { CharactersModule } from './characters/characters.module';
@@ -29,6 +28,5 @@ import { ImageGenerationModule } from './services/image-generation/image-generat
     MiddlewareModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
