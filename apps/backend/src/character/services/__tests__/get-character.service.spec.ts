@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker/.';
 import { CharacterStatus, UserRole, UserStatus } from '@prisma/client';
 import { GetCharacterService } from '../get-character.service';
 
-describe('ListCharactersService', () => {
+describe('GetCharacterService', () => {
   let service: GetCharacterService;
 
   beforeEach(async () => {
@@ -79,8 +79,8 @@ describe('ListCharactersService', () => {
       });
     });
 
-    it('should return belonging to a user with the correct id', async () => {
-      const result = await service.execute(testUserId, 'char-001');
+    it('should return with the correct id', async () => {
+      const result = await service.execute('char-001');
       expect(result.id).toBe('char-001');
       expect(result).toMatchObject({
         id: 'char-001',
@@ -97,9 +97,7 @@ describe('ListCharactersService', () => {
         data: { archived: true },
       });
 
-      await expect(
-        service.execute(testUserId, 'char-001'),
-      ).rejects.toThrowError(); // You can customize the error type/message if needed
+      await expect(service.execute('char-001')).rejects.toThrowError(); // You can customize the error type/message if needed
     });
   });
 });

@@ -17,6 +17,7 @@ import { AuthenticatedRequest } from '../common/types/extended-request';
 import { CreateCharacterService } from './services/create-character.service';
 import { GetCharacterService } from './services/get-character.service';
 import { DeleteCharacterService } from './services/delete-character.service';
+import { Public } from '../common/decorators/public.decorator';
 
 @UseGuards(AuthGuard)
 @Controller('api/character')
@@ -28,16 +29,13 @@ export class CharacterController {
     private readonly deleteCharacterService: DeleteCharacterService,
   ) {}
 
+  @Public()
   @Get()
-  get(@Req() req: AuthenticatedRequest, @Query('id') characterId: string) {
-    const userId = req.user?.local?.id;
-    if (!userId) {
-      throw new BadRequestException('Missing user information');
-    }
+  get(@Query('id') characterId: string) {
     if (!characterId) {
       throw new BadRequestException('Character ID is required');
     }
-    return this.getCharacterService.execute(userId, characterId);
+    return this.getCharacterService.execute(characterId);
   }
 
   @Post()

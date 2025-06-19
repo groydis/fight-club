@@ -42,7 +42,10 @@
       <div class="text-sm text-zinc-400 space-y-1">
         <p><span class="text-zinc-300 font-semibold">Gender:</span> {{ character.gender || 'Unknown' }}</p>
         <p><span class="text-zinc-300 font-semibold">Species:</span> {{ character.species || 'Unknown' }}</p>
-        <p><span class="text-zinc-300 font-semibold">Alignment:</span> {{ character.alignment || 'Unknown' }}</p>
+        <p>
+          <span class="text-zinc-300 font-semibold">Alignment:</span>
+          {{ alignmentLabel }}
+        </p>
       </div>
 
       <!-- Stats -->
@@ -116,6 +119,8 @@
 import type { Character, CharacterMoveDetailed, CharacterStats } from '@/types/character'
 import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
 import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
+import { alignmentOptions } from '@/utils/alignment-options'
+
 import { computed } from 'vue'
 import { useUserStore } from '~/stores/user'
 
@@ -126,6 +131,11 @@ const props = defineProps<{
 const { user } = useUserStore()
 
 const isOwner = computed(() => props.character.userId === user?.id)
+
+const alignmentLabel = computed(() => {
+  const found = alignmentOptions.find(opt => opt.value === props.character.alignment)
+  return found?.label || 'Unknown'
+})
 
 
 const statEntries = computed<[keyof CharacterStats, number][]>(() =>
