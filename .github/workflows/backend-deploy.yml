@@ -1,5 +1,5 @@
 # .github/workflows/deploy-migrations.yml
-name: Deploy Prisma Migrations to Supabase
+name: Deploy Fight Club Backend
 
 on:
   push:
