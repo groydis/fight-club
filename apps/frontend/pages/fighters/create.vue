@@ -20,16 +20,18 @@
       </div>
 
       <!-- Gender -->
-      <select
-        v-model="form.gender"
-        :disabled="loading"
-        class="w-full p-3 rounded bg-zinc-950 border border-zinc-700 focus:outline-none focus:ring focus:ring-red-500 text-white"
-      >
-        <option v-for="option in genderOptions" :key="option.value" :value="option.value">
-          {{ option.label }}
-        </option>
-      </select>
-
+      <div>
+        <label class="block text-sm font-semibold text-zinc-300 mb-1 tracking-wide uppercase">Gender</label>
+        <select
+          v-model="form.gender"
+          :disabled="loading"
+          class="w-full p-3 rounded bg-zinc-950 border border-zinc-700 focus:outline-none focus:ring focus:ring-red-500 text-white"
+        >
+          <option v-for="option in genderOptions" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
 
       <!-- Species -->
       <div>
@@ -44,17 +46,18 @@
       </div>
 
       <!-- Alignment -->
-      <select
-        v-model="form.alignment"
-        :disabled="loading"
-        class="w-full p-3 rounded bg-zinc-950 border border-zinc-700 focus:outline-none focus:ring focus:ring-red-500 text-white"
-      >
-        <option v-for="option in alignmentOptions" :key="option.value" :value="option.value">
-          {{ option.label }}
-        </option>
-      </select>
-
-
+      <div>
+        <label class="block text-sm font-semibold text-zinc-300 mb-1 tracking-wide uppercase">Alignment</label>
+        <select
+          v-model="form.alignment"
+          :disabled="loading"
+          class="w-full p-3 rounded bg-zinc-950 border border-zinc-700 focus:outline-none focus:ring focus:ring-red-500 text-white"
+        >
+          <option v-for="option in alignmentOptions" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
 
       <!-- Description Field -->
       <div>
