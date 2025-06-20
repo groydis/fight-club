@@ -21,24 +21,58 @@ export const useUserStore = defineStore('user', () => {
       user.value = data;
   }
 
-  const fetchUser = async () => {
-    loading.value = true
-    error.value = null
-    try {
-      const { execute, data, error } = await useCustomFetch<{ user: UserProfile }>('/api/user')
+  // const fetchUser = async () => {
+  //   loading.value = true
+  //   error.value = null
+  //   try {
+  //     const { execute, data, error } = await useCustomFetch<{ user: UserProfile }>('/api/user')
       
-      await execute()
-      if (error.value) throw error.value;
+  //     await execute()
+  //     if (error.value) throw error.value;
 
-      user.value = data.value.user as UserProfile
-    } catch (err: unknown) {
-      console.error('Failed to load user', err)
-      error.value = err
-      router.push('/auth?view=login')
-    } finally {
-      loading.value = false
+  //     user.value = data.value.user as UserProfile
+  //   } catch (err: unknown) {
+  //     console.error('Failed to load user', err)
+  //     error.value = err
+  //     router.push('/auth?view=login')
+  //   } finally {
+  //     loading.value = false
+  //   }
+  // }
+
+  const fetchUser = async () => {
+  if (user.value || loading.value) return
+
+  loading.value = true
+  error.value = null
+  const supabase = useSupabaseClient()
+  const config = useRuntimeConfig()
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
+    if (!token) {
+      throw new Error('No Supabase session found')
     }
+
+    const userProfile = await $fetch<{ user: UserProfile }>(
+      `${config.public.apiBase}/api/user`,
+      {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    )
+
+    user.value = userProfile.user
+  } catch (err: unknown) {
+    console.error('Failed to load user', err)
+    error.value = err
+    router.push('/auth?view=login')
+  } finally {
+    loading.value = false
   }
+}
+
 
   const updateProfile = async (fields: { username: string; bio?: string }) => {
     try {
@@ -97,4 +131,6 @@ export const useUserStore = defineStore('user', () => {
     uploadAvatar,
     deleteAccount,
   }
+}, {
+  persist: true,
 })
