@@ -21,25 +21,6 @@ export const useUserStore = defineStore('user', () => {
       user.value = data;
   }
 
-  // const fetchUser = async () => {
-  //   loading.value = true
-  //   error.value = null
-  //   try {
-  //     const { execute, data, error } = await useCustomFetch<{ user: UserProfile }>('/api/user')
-      
-  //     await execute()
-  //     if (error.value) throw error.value;
-
-  //     user.value = data.value.user as UserProfile
-  //   } catch (err: unknown) {
-  //     console.error('Failed to load user', err)
-  //     error.value = err
-  //     router.push('/auth?view=login')
-  //   } finally {
-  //     loading.value = false
-  //   }
-  // }
-
   const fetchUser = async () => {
   if (user.value || loading.value) return
 
