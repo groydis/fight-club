@@ -70,7 +70,6 @@ onMounted(() => {
   fetchCharacters()
 })
 </script>
-
 <template>
   <div class="min-h-screen bg-zinc-950 text-white px-4 py-10 max-w-6xl mx-auto space-y-8">
       <div class="flex justify-between items-center mb-4">

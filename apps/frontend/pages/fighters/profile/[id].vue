@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useLoading } from '~/composables/useLoading'; // Loading composable (if available for global spinner)
 import CharacterDetail from '@/components/CharacterDetail.vue';
 import ConfirmModal from '@/components/ui/ConfirmModal.vue';
 import type { Character } from '@/types/character'
@@ -13,11 +12,8 @@ const character = ref(null);      // will hold the fetched character data
 const showConfirmModal = ref(false);
 const isDeleting = ref(false);
 
-const { showLoading, hideLoading } = useLoading();  // use global loading indicator if available
-
 // Fetch character data by ID from route
 const fetchCharacter = async () => {
-  showLoading();  // show global loading spinner (optional)
   try {
     const { data, error, execute } = await useCustomFetch('/api/character', {
       method: 'GET',
@@ -31,13 +27,14 @@ const fetchCharacter = async () => {
   } catch (err) {
     console.error('Failed to fetch character:', err);
     character.value = null;
-  } finally {
-    hideLoading(); // hide global loading spinner
   }
 };
 
 // Trigger fetch on component mount
-onMounted(fetchCharacter);
+onMounted(async () => {
+  await withLoading(async () => { await fetchCharacter() })
+})
+
 
 // If the route param changes (e.g., navigating to a different profile while this component is mounted), refetch data
 watch(() => route.params.id, (newId, oldId) => {
@@ -62,15 +59,17 @@ const handleDeleteConfirmed = async () => {
   if (!character.value) return;
   isDeleting.value = true;
   try {
-    const { error, execute } = await useCustomFetch('/api/character', {
-      method: 'DELETE',
-      query: { id: character.value.id }
-    });
-    await execute();
-    if (error.value) throw error.value;
-    
-    // Deletion successful – navigate to fighters list
-    router.push('/fighters');
+    await withLoading(async () => {
+      const { error, execute } = await useCustomFetch('/api/character', {
+        method: 'DELETE',
+        query: { id: character.value.id }
+      });
+      await execute();
+      if (error.value) throw error.value;
+      
+      // Deletion successful – navigate to fighters list
+      router.push('/fighters');
+    })
   } catch (err) {
     console.error('Failed to delete character:', err);
     alert('Failed to delete character. Try again.');

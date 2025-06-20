@@ -7,7 +7,6 @@ import type {
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import { useUserStore } from '~/stores/user'
 
-const { showLoading, hideLoading } = useLoading()
 const { user } = useUserStore()
 const characters = ref<Character[]>([])
 const selectedCharacter = ref<Character | null>(null)
@@ -16,7 +15,6 @@ const currentPage = ref(1)
 const totalPages = ref(1)
 
 const fetchCharacters = async () => {
-  showLoading()
   try {
     const { data, error, execute } = await useCustomFetch('/api/characters', {
       method: 'GET',
@@ -38,12 +36,12 @@ const fetchCharacters = async () => {
     currentPage.value = payload.currentPage
   } catch (err) {
     console.error('Failed to fetch characters:', err)
-  } finally {
-    hideLoading()
   }
 }
 
-onMounted(fetchCharacters)
+onMounted(async () => {
+  await withLoading(async () => { await fetchCharacters() })
+})
 
 const selectCharacter = (character: Character) => {
   router.push(`/fighters/profile/${character.id}`)
@@ -61,20 +59,22 @@ const handleDeleteConfirmed = async () => {
 
   isDeleting.value = true
   try {
-    const { error, execute } = await useCustomFetch('/api/character', {
-      method: 'DELETE',
-      query: { id: selectedCharacter.value.id },
-    })
+    await withLoading(async () => {
+      const { error, execute } = await useCustomFetch('/api/character', {
+        method: 'DELETE',
+        query: { id: selectedCharacter.value.id },
+      })
 
-    await execute()
-    if (error.value) throw error.value
+      await execute()
+      if (error.value) throw error.value
 
-    selectedCharacter.value = null
-    await fetchCharacters()
-    if (characters.value.length === 0 && currentPage.value > 1) {
-      currentPage.value--
+      selectedCharacter.value = null
       await fetchCharacters()
-    }
+      if (characters.value.length === 0 && currentPage.value > 1) {
+        currentPage.value--
+        await fetchCharacters()
+      }
+    })
   } catch (err) {
     console.error('Failed to delete character:', err)
     alert('Failed to delete character. Try again.')

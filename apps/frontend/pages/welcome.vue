@@ -10,19 +10,18 @@ definePageMeta({
   layout: 'welcome'
 })
 
-const { showLoading, hideLoading } = useLoading()
-
 const username = ref('')
 const showForm = ref(false)
 const isValidUsername = computed(() => username.value.trim().length >= 3)
 const headerRef = ref<HTMLElement | null>(null)
 
 async function submitUsername() {
-  showLoading();
   const cleanName = username.value.trim()
     if (!cleanName) return
     try {
       // Replace with your PATCH endpoint
+
+      await withLoading(async () => {
       const { execute, data, error } = await useCustomFetch(`/api/user`, {
         method: 'PATCH',
         body: {
@@ -37,10 +36,9 @@ async function submitUsername() {
       if (error.value) throw error.value;
 
       navigateTo('/fighters');
+      })
     } catch (err: unknown) {
       console.error('Failed to update profile:', err)
-    } finally {
-      hideLoading();
     }
   }
 
