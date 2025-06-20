@@ -1,43 +1,3 @@
-<template>
-  <Teleport to="body">
-    <div
-      class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
-      @keydown.esc="cancel"
-      @click.self="cancel"
-      tabindex="0"
-      ref="modalContainer"
-    >
-      <div
-        class="bg-zinc-900 border border-zinc-700 rounded-xl shadow-xl w-full max-w-md p-6 space-y-4 text-white"
-        ref="modalBox"
-      >
-        <h2 class="text-xl font-bold text-red-500">{{ title }}</h2>
-        <p class="text-sm text-zinc-300 whitespace-pre-line">{{ body }}</p>
-
-        <div class="flex justify-end gap-3 pt-4">
-          <button
-            ref="cancelBtn"
-            :disabled="loading"
-            @click="cancel"
-            class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded-md disabled:opacity-50"
-          >
-            {{ cancelText }}
-          </button>
-          <button
-            ref="confirmBtn"
-            :disabled="loading"
-            @click="confirm"
-            class="px-4 py-2 bg-red-700 hover:bg-red-600 text-sm rounded-md flex items-center gap-2 disabled:opacity-50"
-          >
-            <span v-if="loading" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
-            <span>{{ confirmText }}</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </Teleport>
-</template>
-
 <script setup lang="ts">
 import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
 
@@ -95,3 +55,43 @@ onBeforeUnmount(() => {
   window.removeEventListener('keydown', trapFocus)
 })
 </script>
+
+<template>
+  <Teleport to="body">
+    <div
+      class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
+      @keydown.esc="cancel"
+      @click.self="cancel"
+      tabindex="0"
+      ref="modalContainer"
+    >
+      <div
+        class="bg-zinc-900 border border-zinc-700 rounded-xl shadow-xl w-full max-w-md p-6 space-y-4 text-white"
+        ref="modalBox"
+      >
+        <h2 class="text-xl font-bold text-red-500">{{ title }}</h2>
+        <p class="text-sm text-zinc-300 whitespace-pre-line">{{ body }}</p>
+
+        <div class="flex justify-end gap-3 pt-4">
+          <button
+            ref="cancelBtn"
+            :disabled="loading"
+            @click="cancel"
+            class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-sm rounded-md disabled:opacity-50"
+          >
+            {{ cancelText }}
+          </button>
+          <button
+            ref="confirmBtn"
+            :disabled="loading"
+            @click="confirm"
+            class="px-4 py-2 bg-red-700 hover:bg-red-600 text-sm rounded-md flex items-center gap-2 disabled:opacity-50"
+          >
+            <span v-if="loading" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+            <span>{{ confirmText }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+</template>

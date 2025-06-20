@@ -1,3 +1,90 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import type {
+  Character,
+} from '@/types/character'
+import ConfirmModal from '@/components/ui/ConfirmModal.vue'
+import { useUserStore } from '~/stores/user'
+
+const { user } = useUserStore()
+const characters = ref<Character[]>([])
+const selectedCharacter = ref<Character | null>(null)
+const router = useRouter()
+const currentPage = ref(1)
+const totalPages = ref(1)
+
+const fetchCharacters = async () => {
+  try {
+    const { data, error, execute } = await useCustomFetch('/api/characters', {
+      method: 'GET',
+      query: { page: currentPage.value, userId: user?.id},
+    })
+
+    await execute()
+    if (error.value) throw error.value
+
+    const payload = data.value as {
+      items: Character[]
+      totalCount: number
+      totalPages: number
+      currentPage: number
+    }
+
+    characters.value = payload.items || []
+    totalPages.value = payload.totalPages
+    currentPage.value = payload.currentPage
+  } catch (err) {
+    console.error('Failed to fetch characters:', err)
+  }
+}
+
+onMounted(async () => {
+  await withLoading(async () => { await fetchCharacters() })
+})
+
+const selectCharacter = (character: Character) => {
+  router.push(`/fighters/profile/${character.id}`)
+}
+
+const goToCreate = () => {
+  router.push('/fighters/create')
+}
+
+const showConfirmModal = ref(false)
+const isDeleting = ref(false)
+
+const handleDeleteConfirmed = async () => {
+  if (!selectedCharacter.value) return
+
+  isDeleting.value = true
+  try {
+    await withLoading(async () => {
+      const { error, execute } = await useCustomFetch('/api/character', {
+        method: 'DELETE',
+        query: { id: selectedCharacter.value.id },
+      })
+
+      await execute()
+      if (error.value) throw error.value
+
+      selectedCharacter.value = null
+      await fetchCharacters()
+      if (characters.value.length === 0 && currentPage.value > 1) {
+        currentPage.value--
+        await fetchCharacters()
+      }
+    })
+  } catch (err) {
+    console.error('Failed to delete character:', err)
+    alert('Failed to delete character. Try again.')
+  } finally {
+    isDeleting.value = false
+    showConfirmModal.value = false
+  }
+}
+</script>
+
 <template>
   <div class="min-h-screen flex items-center justify-center bg-zinc-950 text-white px-4">
     <div class="w-full max-w-6xl py-10 space-y-8">
@@ -77,95 +164,3 @@
       />
   </div>
 </template>
-
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import type {
-  Character,
-} from '@/types/character'
-import ConfirmModal from '@/components/ui/ConfirmModal.vue'
-import { useUserStore } from '~/stores/user'
-
-const { showLoading, hideLoading } = useLoading()
-const { user } = useUserStore()
-const characters = ref<Character[]>([])
-const selectedCharacter = ref<Character | null>(null)
-const loading = ref(false)
-const router = useRouter()
-
-const currentPage = ref(1)
-const totalPages = ref(1)
-
-const fetchCharacters = async () => {
-  showLoading()
-  loading.value = true
-  try {
-    const { data, error, execute } = await useCustomFetch('/api/characters', {
-      method: 'GET',
-      query: { page: currentPage.value, userId: user?.id},
-    })
-
-    await execute()
-    if (error.value) throw error.value
-
-    const payload = data.value as {
-      items: Character[]
-      totalCount: number
-      totalPages: number
-      currentPage: number
-    }
-
-    characters.value = payload.items || []
-    totalPages.value = payload.totalPages
-    currentPage.value = payload.currentPage
-  } catch (err) {
-    console.error('Failed to fetch characters:', err)
-  } finally {
-    loading.value = false
-    hideLoading()
-  }
-}
-
-onMounted(fetchCharacters)
-
-const selectCharacter = (character: Character) => {
-  router.push(`/fighters/profile/${character.id}`)
-}
-
-const goToCreate = () => {
-  router.push('/fighters/create')
-}
-
-const showConfirmModal = ref(false)
-const isDeleting = ref(false)
-
-const handleDeleteConfirmed = async () => {
-  if (!selectedCharacter.value) return
-
-  isDeleting.value = true
-  try {
-    const { error, execute } = await useCustomFetch('/api/character', {
-      method: 'DELETE',
-      query: { id: selectedCharacter.value.id },
-    })
-
-    await execute()
-    if (error.value) throw error.value
-
-    selectedCharacter.value = null
-    await fetchCharacters()
-    if (characters.value.length === 0 && currentPage.value > 1) {
-      currentPage.value--
-      await fetchCharacters()
-    }
-  } catch (err) {
-    console.error('Failed to delete character:', err)
-    alert('Failed to delete character. Try again.')
-  } finally {
-    isDeleting.value = false
-    showConfirmModal.value = false
-  }
-}
-</script>

@@ -1,3 +1,25 @@
+<script setup lang="ts">
+const { showLoading, hideLoading } = useLoading()
+const form = reactive({ email: '', password: '' })
+const { auth } = useSupabaseClient()
+
+async function onSubmit() {
+  showLoading()
+  try {
+    const { error } = await auth.signUp(form)
+    if (error) {
+      throw error
+    }
+    await navigateTo('/auth?view=verify-email')
+  } catch (e) {
+    console.error('Signup error:', e)
+  } finally {
+    hideLoading()
+  }
+}
+</script>
+
+
 <template>
   <form class="flex flex-col gap-6" @submit.prevent="onSubmit">
     <!-- Title -->
@@ -49,24 +71,3 @@
     </p>
   </form>
 </template>
-
-<script setup lang="ts">
-const { showLoading, hideLoading } = useLoading()
-const form = reactive({ email: '', password: '' })
-const { auth } = useSupabaseClient()
-
-async function onSubmit() {
-  showLoading()
-  try {
-    const { error } = await auth.signUp(form)
-    if (error) {
-      throw error
-    }
-    await navigateTo('/auth?view=verify-email')
-  } catch (e) {
-    console.error('Signup error:', e)
-  } finally {
-    hideLoading()
-  }
-}
-</script>

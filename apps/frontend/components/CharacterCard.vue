@@ -1,3 +1,21 @@
+<script setup lang="ts">
+import type { Character } from '@/types/character'
+
+const props = defineProps<{
+  character?: Character
+}>()
+
+const emit = defineEmits<{
+  (e: 'select', character: Character): void
+  (e: 'create'): void
+}>()
+
+const handleClick = () => {
+  if (props.character) emit('select', props.character)
+  else emit('create')
+}
+</script>
+
 <template>
   <button
     class="relative border border-zinc-800 hover:border-red-600 transition rounded-xl overflow-hidden group bg-zinc-900 shadow-md"
@@ -16,20 +34,3 @@
   </button>
 </template>
 
-<script setup lang="ts">
-import type { Character } from '@/types/character'
-
-const props = defineProps<{
-  character?: Character
-}>()
-
-const emit = defineEmits<{
-  (e: 'select', character: Character): void
-  (e: 'create'): void
-}>()
-
-const handleClick = () => {
-  if (props.character) emit('select', props.character)
-  else emit('create')
-}
-</script>

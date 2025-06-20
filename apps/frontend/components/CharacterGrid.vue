@@ -1,3 +1,15 @@
+<script setup lang="ts">
+import type { Character } from '@/types/character'
+import CharacterCard from './CharacterCard.vue'
+
+defineProps<{
+  characters: Character[]
+  isLoading: boolean
+}>()
+
+defineEmits(['select'])
+</script>
+
 <template>
   <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
     <CharacterCard
@@ -15,15 +27,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import type { Character } from '@/types/character'
-import CharacterCard from './CharacterCard.vue'
-
-defineProps<{
-  characters: Character[]
-  isLoading: boolean
-}>()
-
-defineEmits(['select'])
-</script>

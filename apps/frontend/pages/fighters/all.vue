@@ -1,3 +1,75 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import type { Character } from '@/types/character'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const characters = ref<Character[]>([])
+const currentPage = ref(1)
+const totalPages = ref(1)
+const isLoading = ref(false)
+const loadMoreTrigger = ref<HTMLElement | null>(null)
+const selectedSort = ref<'createdAt_desc' | 'createdAt_asc'>('createdAt_desc')
+
+const fetchCharacters = async () => {
+  if (isLoading.value || (totalPages.value && currentPage.value > totalPages.value)) return
+  isLoading.value = true
+
+  const [sortBy, order] = selectedSort.value.split('_')
+
+  try {
+    const { data, error, execute } = await useCustomFetch('/api/characters', {
+      method: 'GET',
+      query: {
+        page: currentPage.value,
+        limit: 20,
+        sortBy,
+        order,
+      },
+    })
+
+    await execute()
+    if (error.value) throw error.value
+
+    const payload = data.value as {
+      items: Character[]
+      totalCount: number
+      totalPages: number
+      currentPage: number
+    }
+
+    characters.value.push(...payload.items)
+    totalPages.value = payload.totalPages
+    currentPage.value++
+  } catch (err) {
+    console.error('Failed to fetch characters:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const resetAndFetch = async () => {
+  characters.value = []
+  currentPage.value = 1
+  totalPages.value = 1
+  await fetchCharacters()
+}
+
+const selectCharacter = (char: Character) => {
+  router.push(`/fighters/profile/${char.id}`)
+}
+
+
+onMounted(() => {
+  const observer = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) fetchCharacters()
+  }, { threshold: 1.0 })
+
+  if (loadMoreTrigger.value) observer.observe(loadMoreTrigger.value)
+
+  fetchCharacters()
+})
+</script>
 <template>
   <div class="min-h-screen bg-zinc-950 text-white px-4 py-10 max-w-6xl mx-auto space-y-8">
       <div class="flex justify-between items-center mb-4">
@@ -75,79 +147,6 @@
       <div ref="loadMoreTrigger" class="h-10"></div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import type { Character } from '@/types/character'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-const characters = ref<Character[]>([])
-const currentPage = ref(1)
-const totalPages = ref(1)
-const isLoading = ref(false)
-const loadMoreTrigger = ref<HTMLElement | null>(null)
-const selectedSort = ref<'createdAt_desc' | 'createdAt_asc'>('createdAt_desc')
-
-const fetchCharacters = async () => {
-  if (isLoading.value || (totalPages.value && currentPage.value > totalPages.value)) return
-  isLoading.value = true
-
-  const [sortBy, order] = selectedSort.value.split('_')
-
-  try {
-    const { data, error, execute } = await useCustomFetch('/api/characters', {
-      method: 'GET',
-      query: {
-        page: currentPage.value,
-        limit: 20,
-        sortBy,
-        order,
-      },
-    })
-
-    await execute()
-    if (error.value) throw error.value
-
-    const payload = data.value as {
-      items: Character[]
-      totalCount: number
-      totalPages: number
-      currentPage: number
-    }
-
-    characters.value.push(...payload.items)
-    totalPages.value = payload.totalPages
-    currentPage.value++
-  } catch (err) {
-    console.error('Failed to fetch characters:', err)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const resetAndFetch = async () => {
-  characters.value = []
-  currentPage.value = 1
-  totalPages.value = 1
-  await fetchCharacters()
-}
-
-const selectCharacter = (char: Character) => {
-  router.push(`/fighters/profile/${char.id}`)
-}
-
-
-onMounted(() => {
-  const observer = new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting) fetchCharacters()
-  }, { threshold: 1.0 })
-
-  if (loadMoreTrigger.value) observer.observe(loadMoreTrigger.value)
-
-  fetchCharacters()
-})
-</script>
 
 <style scoped>
 .fade-enter-active,

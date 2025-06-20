@@ -1,3 +1,18 @@
+<script setup lang="ts">
+const { auth } = useSupabaseClient()
+
+async function logout() {
+  await auth.signOut()
+  await navigateTo('/')
+}
+
+// Guard: Only let in authenticated users
+const { data: session } = await useSupabaseClient().auth.getSession()
+if (!session?.session?.access_token) {
+  throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
+}
+</script>
+
 <template>
   <div class="min-h-screen bg-zinc-950 text-gray-100 px-6 py-10">
     <div class="max-w-2xl mx-auto space-y-12">
@@ -35,18 +50,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-const { auth } = useSupabaseClient()
-
-async function logout() {
-  await auth.signOut()
-  await navigateTo('/')
-}
-
-// Guard: Only let in authenticated users
-const { data: session } = await useSupabaseClient().auth.getSession()
-if (!session?.session?.access_token) {
-  throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-}
-</script>

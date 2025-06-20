@@ -1,3 +1,20 @@
+<script setup lang="ts">
+const menuOpen = ref(false)
+const supabaseUser = useSupabaseUser()
+const supabase = useSupabaseClient()
+const userStore = useUserStore()
+
+const userName = computed(() => userStore.user?.username)
+const userAvatar = computed(() => userStore.user?.avatarUrl || null)
+
+async function logout() {
+  await supabase.auth.signOut()
+  userStore.$reset()
+  menuOpen.value = false
+  await navigateTo('/')
+}
+</script>
+
 <template>
   <header class="w-full bg-gradient-to-b from-black via-zinc-900 to-black border-b border-zinc-800 shadow-xl">
     <div class="max-w-6xl mx-auto flex items-center justify-between h-16 px-4">
@@ -92,23 +109,6 @@
     </div>
   </header>
 </template>
-
-<script setup lang="ts">
-const menuOpen = ref(false)
-const supabaseUser = useSupabaseUser()
-const supabase = useSupabaseClient()
-const userStore = useUserStore()
-
-const userName = computed(() => userStore.user?.username)
-const userAvatar = computed(() => userStore.user?.avatarUrl || null)
-
-async function logout() {
-  await supabase.auth.signOut()
-  userStore.$reset()
-  menuOpen.value = false
-  await navigateTo('/')
-}
-</script>
 
 <style scoped>
 .fade-enter-active,

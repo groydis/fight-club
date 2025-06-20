@@ -1,3 +1,57 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useUserStore } from '~/stores/user'
+
+const { showLoading, hideLoading } = useLoading()
+const { user, fetchUser, updateProfile, uploadAvatar, loading } = useUserStore()
+const saving = ref(false)
+const savingAvatar = ref(false)
+const avatarError = ref('')
+
+const form = ref({
+  username: '',
+  bio: '',
+})
+
+onMounted(async () => {
+  await fetchUser()
+  if (!user) return
+  form.value.username = user.username
+  form.value.bio = user.bio || ''
+})
+
+async function submitProfileUpdate() {
+  showLoading()
+  saving.value = true
+  try {
+    await updateProfile(form.value)
+  } catch (err: unknown) {
+    console.error('Failed to update profile:', err)
+  } finally {
+    saving.value = false
+    hideLoading();
+  }
+}
+
+async function onFileChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  if (!input.files?.[0]) return
+  const file = input.files[0]
+  savingAvatar.value = true
+  avatarError.value = ''
+  showLoading()
+  try {
+    await uploadAvatar(file)
+  } catch (err: unknown) {
+    avatarError.value = 'Failed to upload avatar.'
+    console.error('Failed to upload avatar:', err)
+  } finally {
+    savingAvatar.value = false
+    hideLoading()
+  }
+}
+</script>
+
 <template>
   <div class="min-h-screen bg-zinc-950 text-gray-100 px-6 py-12">
     <div class="max-w-2xl mx-auto space-y-10">
@@ -106,57 +160,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useUserStore } from '~/stores/user'
-
-const { showLoading, hideLoading } = useLoading()
-const { user, fetchUser, updateProfile, uploadAvatar, loading } = useUserStore()
-const saving = ref(false)
-const savingAvatar = ref(false)
-const avatarError = ref('')
-
-const form = ref({
-  username: '',
-  bio: '',
-})
-
-onMounted(async () => {
-  await fetchUser()
-  if (!user) return
-  form.value.username = user.username
-  form.value.bio = user.bio || ''
-})
-
-async function submitProfileUpdate() {
-  showLoading()
-  saving.value = true
-  try {
-    await updateProfile(form.value)
-  } catch (err: unknown) {
-    console.error('Failed to update profile:', err)
-  } finally {
-    saving.value = false
-    hideLoading();
-  }
-}
-
-async function onFileChange(e: Event) {
-  const input = e.target as HTMLInputElement
-  if (!input.files?.[0]) return
-  const file = input.files[0]
-  savingAvatar.value = true
-  avatarError.value = ''
-  showLoading()
-  try {
-    await uploadAvatar(file)
-  } catch (err: unknown) {
-    avatarError.value = 'Failed to upload avatar.'
-    console.error('Failed to upload avatar:', err)
-  } finally {
-    savingAvatar.value = false
-    hideLoading()
-  }
-}
-</script>
