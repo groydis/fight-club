@@ -220,7 +220,7 @@ import type { CharacterSuggestion, SuggestCharacterStatsDto, Character, CreateCh
 import { CharacterGender, CharacterAlignment } from '@/types/character'
 import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
 import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
-const { showLoading, hideLoading } = useLoading()
+const { loading, showLoading, hideLoading } = useLoading()
 
 const genderOptions = [
   { value: CharacterGender.Male, label: 'Male' },
@@ -249,11 +249,9 @@ const form = ref<SuggestCharacterStatsDto>({
   alignment: CharacterAlignment.TrueNeutral
 })
 
-const loading = ref(false)
 const suggestion = ref<CharacterSuggestion | null>(null)
 
 const submitCreateCharacterSuggestion = async () => {
-  loading.value = true
   suggestion.value = null
 
   try {
@@ -277,7 +275,6 @@ const submitCreateCharacterSuggestion = async () => {
   } catch (err) {
     console.error('Failed to fetch character suggestion:', err)
   } finally {
-    loading.value = false
     hideLoading()
   }
 }
@@ -327,7 +324,6 @@ function isSelected(index: number, type: 'basic' | 'special') {
 
 const finaliseCharacter = async () => {
   if (!suggestion.value) return;
-  loading.value = true
 
   try {
     showLoading()
@@ -359,7 +355,6 @@ const finaliseCharacter = async () => {
   } catch (err) {
     console.error('Failed to finalize character:', err);
   } finally {
-    loading.value = false
     hideLoading()
   }
 };
