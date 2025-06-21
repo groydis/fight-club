@@ -12,6 +12,7 @@ import { CharacterModule } from './character/character.module';
 import { LeonardoModule } from './services/leonoardo/leonardo.module';
 import { CharacterGenerationModule } from './services/character-generation/character-generation.module';
 import { ImageGenerationModule } from './services/image-generation/image-generation.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ImageGenerationModule } from './services/image-generation/image-generat
     UserModule,
     CharacterModule,
     CharactersModule,
+    ReportModule,
     MiddlewareModule,
   ],
   controllers: [AppController],
