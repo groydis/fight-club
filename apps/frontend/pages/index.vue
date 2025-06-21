@@ -1,3 +1,15 @@
+<script setup lang="ts">
+import { onMounted } from 'vue'
+
+const user = useSupabaseUser()
+
+onMounted(() => {
+  if (user.value) {
+    navigateTo('/dashboard')
+  }
+})
+</script>
+
 <template>
   <div class="min-h-screen flex items-center justify-center bg-zinc-950 px-6 py-12">
     <div class="text-center space-y-6 max-w-md">
@@ -15,15 +27,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { onMounted } from 'vue'
-
-const user = useSupabaseUser()
-
-onMounted(() => {
-  if (user.value) {
-    navigateTo('/dashboard')
-  }
-})
-</script>

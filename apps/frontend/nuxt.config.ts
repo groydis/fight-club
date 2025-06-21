@@ -11,7 +11,7 @@ export default defineNuxtConfig({
       pathPrefix: false
     }
   ],
-  plugins: ['~/plugins/router-loading.client.ts'],
+  plugins: ['~/plugins/router-loading.client.ts', '~/plugins/pinia.ts'],
   modules: [
     '@nuxt/eslint',
     '@nuxt/fonts',

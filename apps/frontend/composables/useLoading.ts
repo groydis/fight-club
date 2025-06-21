@@ -1,6 +1,15 @@
 export const useLoading = () => {
-  const loading = useState<boolean>('globalLoading', () => false)
-  const showLoading = () => (loading.value = true)
-  const hideLoading = () => (loading.value = false)
+  const loading = useState<boolean>('global-loading', () => false)
+
+  const showLoading = () => {
+    console.log('[useLoading] SHOW')
+    loading.value = true
+  }
+
+  const hideLoading = () => {
+    console.log('[useLoading] HIDE')
+    loading.value = false
+  }
+
   return { loading, showLoading, hideLoading }
 }

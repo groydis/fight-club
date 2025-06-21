@@ -1,3 +1,39 @@
+<script setup lang="ts">
+import type { Character, CharacterMoveDetailed, CharacterStats } from '@/types/character'
+import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
+import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
+import { alignmentOptions } from '@/utils/alignment-options'
+
+import { computed } from 'vue'
+import { useUserStore } from '~/stores/user'
+
+const props = defineProps<{
+  character: Character
+}>()
+
+const { user } = useUserStore()
+
+const isOwner = computed(() => props.character.userId === user?.id)
+
+const alignmentLabel = computed(() => {
+  const found = alignmentOptions.find(opt => opt.value === props.character.alignment)
+  return found?.label || 'Unknown'
+})
+
+
+const statEntries = computed<[keyof CharacterStats, number][]>(() =>
+  Object.entries(props.character.stats) as [keyof CharacterStats, number][]
+)
+
+const basicMoves = computed<CharacterMoveDetailed[]>(() =>
+  (props.character.moves || []).filter((m) => m.type === 'BASIC')
+)
+
+const specialMoves = computed<CharacterMoveDetailed[]>(() =>
+  (props.character.moves || []).filter((m) => m.type === 'SPECIAL')
+)
+</script>
+
 <template>
   <div
     class="relative grid grid-cols-1 md:grid-cols-2 gap-6 bg-zinc-900/60 border border-zinc-800 rounded-lg p-6 shadow-xl"
@@ -115,39 +151,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import type { Character, CharacterMoveDetailed, CharacterStats } from '@/types/character'
-import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
-import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
-import { alignmentOptions } from '@/utils/alignment-options'
-
-import { computed } from 'vue'
-import { useUserStore } from '~/stores/user'
-
-const props = defineProps<{
-  character: Character
-}>()
-
-const { user } = useUserStore()
-
-const isOwner = computed(() => props.character.userId === user?.id)
-
-const alignmentLabel = computed(() => {
-  const found = alignmentOptions.find(opt => opt.value === props.character.alignment)
-  return found?.label || 'Unknown'
-})
-
-
-const statEntries = computed<[keyof CharacterStats, number][]>(() =>
-  Object.entries(props.character.stats) as [keyof CharacterStats, number][]
-)
-
-const basicMoves = computed<CharacterMoveDetailed[]>(() =>
-  (props.character.moves || []).filter((m) => m.type === 'BASIC')
-)
-
-const specialMoves = computed<CharacterMoveDetailed[]>(() =>
-  (props.character.moves || []).filter((m) => m.type === 'SPECIAL')
-)
-</script>

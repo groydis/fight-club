@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col min-h-screen bg-zinc-950 text-zinc-100">
+  <div class="relative min-h-screen bg-zinc-950 text-white">
     <!-- Loading overlay -->
     <LoadingOverlay />
 

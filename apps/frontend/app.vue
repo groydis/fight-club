@@ -7,5 +7,8 @@
 </template>
 
 <script setup>
-// No additional code here.
+const userStore = useUserStore()
+onMounted(() => {
+  userStore.fetchUser()
+})
 </script>

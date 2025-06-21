@@ -1,3 +1,34 @@
+<script setup lang="ts">
+const { showLoading, hideLoading } = useLoading()
+const form = reactive({ email: '', password: '' })
+
+const { auth } = useSupabaseClient()
+
+async function onSubmit() {
+  showLoading()
+  try {
+    const { error } = await auth.signInWithPassword({
+      email: form.email,
+      password: form.password
+    })
+
+    if (error) {
+      if (error.message?.toLowerCase().includes('email') && error.message.toLowerCase().includes('confirm')) {
+        return await navigateTo('/auth?view=verify-email')
+      }
+      throw error
+    }
+
+    await navigateTo('/dashboard')
+  } catch (e) {
+    console.error('Login error:', e)
+  } finally {
+    hideLoading()
+  }
+}
+</script>
+
+
 <template>
   <form class="flex flex-col gap-6" @submit.prevent="onSubmit">
     <!-- Title -->
@@ -54,33 +85,3 @@
     </p>
   </form>
 </template>
-
-<script setup lang="ts">
-const { showLoading, hideLoading } = useLoading()
-const form = reactive({ email: '', password: '' })
-
-const { auth } = useSupabaseClient()
-
-async function onSubmit() {
-  showLoading()
-  try {
-    const { error } = await auth.signInWithPassword({
-      email: form.email,
-      password: form.password
-    })
-
-    if (error) {
-      if (error.message?.toLowerCase().includes('email') && error.message.toLowerCase().includes('confirm')) {
-        return await navigateTo('/auth?view=verify-email')
-      }
-      throw error
-    }
-
-    await navigateTo('/dashboard')
-  } catch (e) {
-    console.error('Login error:', e)
-  } finally {
-    hideLoading()
-  }
-}
-</script>

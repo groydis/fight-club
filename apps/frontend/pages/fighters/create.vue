@@ -20,16 +20,18 @@
       </div>
 
       <!-- Gender -->
-      <select
-        v-model="form.gender"
-        :disabled="loading"
-        class="w-full p-3 rounded bg-zinc-950 border border-zinc-700 focus:outline-none focus:ring focus:ring-red-500 text-white"
-      >
-        <option v-for="option in genderOptions" :key="option.value" :value="option.value">
-          {{ option.label }}
-        </option>
-      </select>
-
+      <div>
+        <label class="block text-sm font-semibold text-zinc-300 mb-1 tracking-wide uppercase">Gender</label>
+        <select
+          v-model="form.gender"
+          :disabled="loading"
+          class="w-full p-3 rounded bg-zinc-950 border border-zinc-700 focus:outline-none focus:ring focus:ring-red-500 text-white"
+        >
+          <option v-for="option in genderOptions" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
 
       <!-- Species -->
       <div>
@@ -44,17 +46,18 @@
       </div>
 
       <!-- Alignment -->
-      <select
-        v-model="form.alignment"
-        :disabled="loading"
-        class="w-full p-3 rounded bg-zinc-950 border border-zinc-700 focus:outline-none focus:ring focus:ring-red-500 text-white"
-      >
-        <option v-for="option in alignmentOptions" :key="option.value" :value="option.value">
-          {{ option.label }}
-        </option>
-      </select>
-
-
+      <div>
+        <label class="block text-sm font-semibold text-zinc-300 mb-1 tracking-wide uppercase">Alignment</label>
+        <select
+          v-model="form.alignment"
+          :disabled="loading"
+          class="w-full p-3 rounded bg-zinc-950 border border-zinc-700 focus:outline-none focus:ring focus:ring-red-500 text-white"
+        >
+          <option v-for="option in alignmentOptions" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
 
       <!-- Description Field -->
       <div>
@@ -190,9 +193,9 @@
       </div>
 
       <!-- Warning & Finalise -->
-      <div class="bg-red-950 border border-red-700 text-red-300 p-4 rounded text-sm tracking-wide">
+      <AlertBanner variant="danger">
         ⚠️ Once you submit your fighter, there’s no turning back. Make sure everything looks good before finalizing.
-      </div>
+      </AlertBanner>
 
       <button
         type="submit"
@@ -220,7 +223,6 @@ import type { CharacterSuggestion, SuggestCharacterStatsDto, Character, CreateCh
 import { CharacterGender, CharacterAlignment } from '@/types/character'
 import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
 import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
-const { showLoading, hideLoading } = useLoading()
 
 const genderOptions = [
   { value: CharacterGender.Male, label: 'Male' },
@@ -249,36 +251,32 @@ const form = ref<SuggestCharacterStatsDto>({
   alignment: CharacterAlignment.TrueNeutral
 })
 
-const loading = ref(false)
 const suggestion = ref<CharacterSuggestion | null>(null)
 
 const submitCreateCharacterSuggestion = async () => {
-  loading.value = true
   suggestion.value = null
 
   try {
-    showLoading()
-    const { execute, data, error } = await useCustomFetch<CharacterSuggestion, SuggestCharacterStatsDto>(
-      '/api/character/suggestion',
-      {
-        method: 'POST',
-        body: form.value,
+    await withLoading(async () => {
+      const { execute, data, error } = await useCustomFetch<CharacterSuggestion, SuggestCharacterStatsDto>(
+        '/api/character/suggestion',
+        {
+          method: 'POST',
+          body: form.value,
+        }
+      )
+
+      await execute()
+
+      if (error.value) throw error.value
+
+      suggestion.value = data.value as CharacterSuggestion
+      if (!suggestion.value) {
+        throw new Error('No suggestion returned from the server')
       }
-    )
-
-    await execute()
-
-    if (error.value) throw error.value
-
-    suggestion.value = data.value as CharacterSuggestion
-    if (!suggestion.value) {
-      throw new Error('No suggestion returned from the server')
-    }
+    })
   } catch (err) {
     console.error('Failed to fetch character suggestion:', err)
-  } finally {
-    loading.value = false
-    hideLoading()
   }
 }
 
@@ -327,40 +325,37 @@ function isSelected(index: number, type: 'basic' | 'special') {
 
 const finaliseCharacter = async () => {
   if (!suggestion.value) return;
-  loading.value = true
 
   try {
-    showLoading()
-    const payload = {
-      name: form.value.name,
-      description: form.value.description,
-      gender: form.value.gender,
-      species: form.value.species,
-      alignment: form.value.alignment,
-      stats: suggestion.value.stats,
-      basicMoves: selectedBasicMoves.value.map((i) => suggestion.value!.basicMoves[i]),
-      specialMoves: selectedSpecialMoves.value.map((i) => suggestion.value!.specialMoves[i]),
-    };
+    await withLoading(async () => {
+      const payload = {
+        name: form.value.name,
+        description: form.value.description,
+        gender: form.value.gender,
+        species: form.value.species,
+        alignment: form.value.alignment,
+        stats: suggestion.value.stats,
+        basicMoves: selectedBasicMoves.value.map((i) => suggestion.value!.basicMoves[i]),
+        specialMoves: selectedSpecialMoves.value.map((i) => suggestion.value!.specialMoves[i]),
+      };
 
-    const { execute, data, error } = await useCustomFetch<Character, CreateCharacterDto>(
-      '/api/character',
-      {
-        method: 'POST',
-        body: payload,
-      }
-    );
+      const { execute, data, error } = await useCustomFetch<Character, CreateCharacterDto>(
+        '/api/character',
+        {
+          method: 'POST',
+          body: payload,
+        }
+      );
 
-    await execute();
+      await execute();
 
-    if (error.value) throw error.value;
+      if (error.value) throw error.value;
 
-    console.log('Character created!', data.value);
-    navigateTo('/fighters');
+      console.log('Character created!', data.value);
+      navigateTo('/fighters');
+    })
   } catch (err) {
     console.error('Failed to finalize character:', err);
-  } finally {
-    loading.value = false
-    hideLoading()
   }
 };
 
