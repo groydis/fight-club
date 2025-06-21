@@ -20,6 +20,7 @@
     "@nuxtjs/supabase": "^1.5.1",
     "@pinia/nuxt": "^0.11.0",
     "@unhead/vue": "^2.0.10",
+    "@vueuse/core": "^13.4.0",
     "eslint": "^9.28.0",
     "nuxt": "^3.17.4",
     "pinia": "^3.0.2",
