@@ -193,9 +193,9 @@
       </div>
 
       <!-- Warning & Finalise -->
-      <div class="bg-red-950 border border-red-700 text-red-300 p-4 rounded text-sm tracking-wide">
+      <AlertBanner variant="danger">
         ⚠️ Once you submit your fighter, there’s no turning back. Make sure everything looks good before finalizing.
-      </div>
+      </AlertBanner>
 
       <button
         type="submit"

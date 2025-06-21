@@ -20,9 +20,13 @@ async function logout() {
     <div class="max-w-6xl mx-auto flex items-center justify-between h-16 px-4">
 
       <!-- Title -->
-      <div class="text-xl sm:text-2xl font-extrabold uppercase tracking-wider text-red-600 drop-shadow">
+      <NuxtLink
+        to="/dashboard"
+        class="text-xl sm:text-2xl font-extrabold uppercase tracking-wider text-red-600 drop-shadow hover:text-red-400 transition"
+      >
         Fight Club
-      </div>
+      </NuxtLink>
+
 
       <!-- User Menu or Login Link -->
       <div class="relative">
