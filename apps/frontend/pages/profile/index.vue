@@ -1,56 +1,73 @@
 <script setup lang="ts">
+import { useForm, useField } from 'vee-validate'
+import * as yup from 'yup'
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '~/stores/user'
 
-const { showLoading, hideLoading } = useLoading()
-const { user, fetchUser, updateProfile, uploadAvatar, loading } = useUserStore()
+const { user, fetchUser, updateProfile, uploadAvatar } = useUserStore()
 const saving = ref(false)
 const savingAvatar = ref(false)
 const avatarError = ref('')
 
-const form = ref({
-  username: '',
-  bio: '',
+// ✅ Define schema
+const profileSchema = yup.object({
+  username: yup.string().required('Username is required').min(3, 'Too short').max(20, 'Too long'),
+  bio: yup.string().max(300, 'Bio must be 300 characters max'),
 })
 
+// ✅ VeeValidate setup
+const { handleSubmit, errors, setValues } = useForm({
+  validationSchema: profileSchema,
+})
+
+const { value: username } = useField('username')
+const { value: bio } = useField('bio')
+
+// ✅ Prefill data
 onMounted(async () => {
-  await fetchUser()
-  if (!user) return
-  form.value.username = user.username
-  form.value.bio = user.bio || ''
+  await withLoading(async () => {
+    await fetchUser()
+    if (!user) return
+    setValues({
+      username: user.username,
+      bio: user.bio || '',
+    })
+  })
 })
 
-async function submitProfileUpdate() {
-  showLoading()
+// ✅ Submit handler
+const submitProfileUpdate = handleSubmit(async (values) => {
   saving.value = true
   try {
-    await updateProfile(form.value)
-  } catch (err: unknown) {
+    await withLoading(() => updateProfile(values))
+  } catch (err) {
     console.error('Failed to update profile:', err)
   } finally {
     saving.value = false
-    hideLoading();
   }
-}
+})
 
+// ✅ Avatar upload
 async function onFileChange(e: Event) {
   const input = e.target as HTMLInputElement
   if (!input.files?.[0]) return
+
   const file = input.files[0]
   savingAvatar.value = true
   avatarError.value = ''
-  showLoading()
+
   try {
-    await uploadAvatar(file)
-  } catch (err: unknown) {
+    await withLoading(() => uploadAvatar(file))
+    await fetchUser(true) // ✅ Refresh the user profile to show updated avatar
+  } catch (err) {
     avatarError.value = 'Failed to upload avatar.'
     console.error('Failed to upload avatar:', err)
   } finally {
     savingAvatar.value = false
-    hideLoading()
   }
 }
 </script>
+
 
 <template>
   <div class="min-h-screen bg-zinc-950 text-gray-100 px-6 py-12">
@@ -62,18 +79,16 @@ async function onFileChange(e: Event) {
         <p class="text-sm text-zinc-500 mt-1 italic">Edit your identity or vanish into the void.</p>
       </header>
 
-      <!-- Loading State -->
-      <div v-if="loading" class="text-center text-zinc-500">Loading…</div>
-
       <!-- Profile Content -->
-      <div v-else class="space-y-8">
+      <div class="space-y-8">
         <!-- Avatar & Upload -->
         <div class="flex items-center gap-6">
           <div class="w-24 h-24 rounded-full bg-zinc-700 overflow-hidden flex items-center justify-center">
             <div v-if="user">
               <img
-                v-if="user.avatarUrl"
-                :src="user.avatarUrl"
+                v-if="userAvatar"
+                :key="userAvatar"
+                :src="userAvatar"
                 alt="Avatar"
                 class="object-cover w-full h-full"
               />
@@ -103,26 +118,29 @@ async function onFileChange(e: Event) {
 
         <!-- Profile Form -->
         <form class="space-y-6" @submit.prevent="submitProfileUpdate">
+          <!-- Username -->
           <div>
             <label class="block font-semibold text-sm mb-1">Username</label>
             <input
-              v-model="form.username"
+              v-model="username"
               :disabled="saving"
               type="text"
               class="w-full p-2 rounded bg-zinc-800 border border-zinc-700 focus:outline-none"
-              required
             />
+            <p v-if="errors.username" class="text-xs text-red-500 mt-1">{{ errors.username }}</p>
           </div>
 
+          <!-- Bio -->
           <div>
             <label class="block font-semibold text-sm mb-1">Profile / Bio</label>
             <textarea
-              v-model="form.bio"
+              v-model="bio"
               :disabled="saving"
               rows="3"
               class="w-full p-2 rounded bg-zinc-800 border border-zinc-700 focus:outline-none"
               placeholder="Who are you, really?"
             />
+            <p v-if="errors.bio" class="text-xs text-red-500 mt-1">{{ errors.bio }}</p>
           </div>
 
           <div>
