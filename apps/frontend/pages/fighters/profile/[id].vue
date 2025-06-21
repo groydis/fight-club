@@ -3,7 +3,9 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CharacterDetail from '@/components/CharacterDetail.vue';
 import ConfirmModal from '@/components/ui/ConfirmModal.vue';
+import ReportCharacterModal from '@/components/ui/ReportCharacterModal.vue'
 import type { Character } from '@/types/character'
+import type { CharacterReportReason } from '@/types/report'
 
 const route = useRoute();
 const router = useRouter();
@@ -78,6 +80,29 @@ const handleDeleteConfirmed = async () => {
     showConfirmModal.value = false;
   }
 };
+
+const showReportModal = ref(false)
+
+const handleReportSubmit = async (payload: {
+  characterId: string
+  reason: CharacterReportReason
+  detail: string
+}) => {
+  try {
+    await withLoading(async () => {
+    const { error, execute } = await useCustomFetch('/api/report', {
+      method: 'POST',
+      body: payload,
+    })
+    await execute();
+    if (error.value) throw error.value;
+  })
+  } catch (err) {
+    console.error('Failed to submit report:', err)
+  } finally {
+    showReportModal.value = false
+  }
+}
 </script>
 
 <template>
@@ -94,6 +119,7 @@ const handleDeleteConfirmed = async () => {
           :character="character" 
           @back="handleBack" 
           @delete="confirmDelete" 
+          @report="showReportModal = true"
         />
       </div>
     </div>
@@ -109,6 +135,13 @@ const handleDeleteConfirmed = async () => {
       autoFocus="cancel"
       @confirm="handleDeleteConfirmed"
       @cancel="showConfirmModal = false"
+    />
+
+    <ReportCharacterModal
+      v-if="showReportModal"
+      :character-id="character?.id"
+      @report="handleReportSubmit"
+      @cancel="showReportModal = false"
     />
   </div>
 </template>

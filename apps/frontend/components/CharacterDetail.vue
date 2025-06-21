@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 import type { Character, CharacterMoveDetailed, CharacterStats } from '@/types/character'
 import { STAT_EMOJI_MAP } from '@/utils/stat-emoji.map'
 import { STAT_EXPLANATION_MAP } from '@/utils/stat-explanation.map'
@@ -14,6 +15,7 @@ const props = defineProps<{
 const { user } = useUserStore()
 
 const isOwner = computed(() => props.character.userId === user?.id)
+const isSignedIn = computed(() => user?.id);
 
 const alignmentLabel = computed(() => {
   const found = alignmentOptions.find(opt => opt.value === props.character.alignment)
@@ -52,7 +54,7 @@ const specialMoves = computed<CharacterMoveDetailed[]>(() =>
           :src="character.imageFrontUrl"
           :alt="character.name + ' Profile Picture'"
           class="w-64 rounded-lg object-cover aspect-square border border-zinc-700"
-        />
+        >
         <span class="mt-2 text-sm text-zinc-400">Profile Picture</span>
       </div>
 
@@ -61,7 +63,7 @@ const specialMoves = computed<CharacterMoveDetailed[]>(() =>
           :src="character.imageProfileUrl"
           :alt="character.name + ' Combat Pose'"
           class="w-64 rounded-lg object-cover aspect-square border border-zinc-700"
-        />
+        >
         <span class="mt-2 text-sm text-zinc-400">Combat Pose</span>
       </div>
     </div>
@@ -140,12 +142,20 @@ const specialMoves = computed<CharacterMoveDetailed[]>(() =>
         </div>
       </div>
 
-      <div class="pt-4" v-if="isOwner">
+      <div v-if="isOwner" class="pt-4">
         <button
           class="bg-red-800 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-md"
           @click="$emit('delete')"
         >
           🗑️ Delete Character
+        </button>
+      </div>
+      <div v-if="isSignedIn" class="pt-4">
+        <button
+          class="bg-red-800 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-md"
+          @click="$emit('report')"
+        >
+          🚩 Report
         </button>
       </div>
     </div>
