@@ -20,7 +20,7 @@ const fetchTopFighters = async () => {
     await execute()
     if (error.value) throw error.value
 
-    topFighters.value = (data.value as any)?.items || []
+    topFighters.value = (data.value as unknown)?.items || []
   } catch (err) {
     console.error('Failed to fetch top fighters:', err)
   }
@@ -43,7 +43,7 @@ const fetchRecentFighters = async () => {
     await execute()
     if (error.value) throw error.value
 
-    recentFighters.value = (data.value as any)?.items || []
+    recentFighters.value = (data.value as unknown)?.items || []
   } catch (err) {
     console.error('Failed to fetch recent fighters:', err)
   }
@@ -63,7 +63,7 @@ const fetchMyFighters = async () => {
     await execute()
     if (error.value) throw error.value
 
-    myFighters.value = (data.value as any)?.items || []
+    myFighters.value = (data.value as unknown)?.items || []
   } catch (err) {
     console.error('Failed to fetch your fighters:', err)
   }
