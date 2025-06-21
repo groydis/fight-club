@@ -1,22 +1,34 @@
 <script setup lang="ts">
-const { showLoading, hideLoading } = useLoading()
-const form = reactive({ email: '' })
+import { useForm, useField } from 'vee-validate'
+import * as yup from 'yup'
+
 const { auth } = useSupabaseClient()
 
-async function onSubmit() {
-  showLoading()
+// ✅ Schema
+const forgotPasswordSchema = yup.object({
+  email: yup.string().email('Invalid email address').required('Email is required'),
+})
+
+// ✅ Setup form
+const { handleSubmit, errors } = useForm({
+  validationSchema: forgotPasswordSchema,
+})
+
+const { value: email } = useField<string>('email')
+
+// ✅ Submit handler
+const onSubmit = handleSubmit(async (values) => {
   try {
-    const { error } = await auth.resetPasswordForEmail(form.email)
-    if (error) {
-      throw error
-    }
-    await navigateTo('/auth?view=verify-email')
+    await withLoading(async () => {
+      const { error } = await auth.resetPasswordForEmail(values.email)
+      if (error) throw error
+
+      await navigateTo('/auth?view=verify-email')
+    })
   } catch (e) {
     console.error('Error sending reset password email:', e)
-  } finally {
-    hideLoading()
   }
-}
+})
 </script>
 
 <template>
@@ -31,12 +43,12 @@ async function onSubmit() {
       <label for="email" class="text-xs font-semibold text-zinc-400">Email</label>
       <input
         id="email"
-        v-model="form.email"
+        v-model="email"
         type="email"
-        required
         class="bg-zinc-900 border border-zinc-700 rounded px-4 py-2 text-zinc-100 placeholder-zinc-500 
                focus:outline-none focus:ring-2 focus:ring-rose-600"
       >
+      <p v-if="errors.email" class="text-xs text-red-500">{{ errors.email }}</p>
     </div>
 
     <!-- Submit Button -->
@@ -55,3 +67,4 @@ async function onSubmit() {
     </p>
   </form>
 </template>
+

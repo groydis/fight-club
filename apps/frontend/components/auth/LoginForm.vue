@@ -1,37 +1,48 @@
 <script setup lang="ts">
-const { showLoading, hideLoading } = useLoading()
-const form = reactive({ email: '', password: '' })
-
+import { useForm, useField } from 'vee-validate'
+import * as yup from 'yup'
 const { auth } = useSupabaseClient()
 
-async function onSubmit() {
-  showLoading()
+// ✅ Define schema
+const loginSchema = yup.object({
+  email: yup.string().email('Invalid email').required('Email is required'),
+  password: yup.string().required('Password is required'),
+})
+
+// ✅ Setup form
+const { handleSubmit, errors } = useForm({
+  validationSchema: loginSchema,
+})
+
+const { value: email } = useField<string>('email')
+const { value: password } = useField<string>('password')
+
+// ✅ Submit handler
+const onSubmit = handleSubmit(async (values) => {
   try {
-    const { error } = await auth.signInWithPassword({
-      email: form.email,
-      password: form.password
-    })
+    await withLoading(async () => {
+      const { error } = await auth.signInWithPassword({
+        email: values.email,
+        password: values.password
+      })
 
-    if (error) {
-      if (error.message?.toLowerCase().includes('email') && error.message.toLowerCase().includes('confirm')) {
-        return await navigateTo('/auth?view=verify-email')
+      if (error) {
+        if (error.message?.toLowerCase().includes('email') && error.message.toLowerCase().includes('confirm')) {
+          return await navigateTo('/auth?view=verify-email')
+        }
+        throw error
       }
-      throw error
-    }
 
-    await navigateTo('/dashboard')
+      await navigateTo('/dashboard')
+    })
   } catch (e) {
     console.error('Login error:', e)
-  } finally {
-    hideLoading()
   }
-}
+})
 </script>
-
 
 <template>
   <form class="flex flex-col gap-6" @submit.prevent="onSubmit">
-    <!-- Title -->
     <h1 class="text-2xl font-extrabold text-zinc-100 tracking-wide text-center uppercase">
       Enter the Ring
     </h1>
@@ -41,12 +52,12 @@ async function onSubmit() {
       <label for="email" class="text-xs font-semibold text-zinc-400">Email</label>
       <input
         id="email"
-        v-model="form.email"
+        v-model="email"
         type="email"
-        required
         class="bg-zinc-900 text-zinc-100 placeholder-zinc-500 border border-zinc-700 rounded px-4 py-2 
-               focus:outline-none focus:ring-2 focus:ring-rose-600"
+              focus:outline-none focus:ring-2 focus:ring-rose-600"
       >
+      <p v-if="errors.email" class="text-xs text-red-500">{{ errors.email }}</p>
     </div>
 
     <!-- Password Field -->
@@ -54,19 +65,19 @@ async function onSubmit() {
       <label for="password" class="text-xs font-semibold text-zinc-400">Password</label>
       <input
         id="password"
-        v-model="form.password"
+        v-model="password"
         type="password"
-        required
         class="bg-zinc-900 text-zinc-100 placeholder-zinc-500 border border-zinc-700 rounded px-4 py-2 
-               focus:outline-none focus:ring-2 focus:ring-rose-600"
+              focus:outline-none focus:ring-2 focus:ring-rose-600"
       >
+      <p v-if="errors.password" class="text-xs text-red-500">{{ errors.password }}</p>
     </div>
 
     <!-- Submit Button -->
     <button
       type="submit"
       class="mt-2 bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 rounded 
-             uppercase tracking-wider shadow-sm hover:shadow-md transition-all"
+            uppercase tracking-wider shadow-sm hover:shadow-md transition-all"
     >
       Login
     </button>
